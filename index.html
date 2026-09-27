@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cycle Clock</title>
+<meta name="theme-color" content="#0D0B12">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cycle Clock">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#0D0B12; --bg-2:#16131D; --bg-3:#211C2A; --line:#2A2434; --line-2:#3B3448;
+  --text:#EFE7DA; --muted:#A79EB0; --faint:#6F6779;
+  --amber:#F4A259; --amber-2:#FFC690; --amber-ink:#22140A; --amber-glow:rgba(244,162,89,.14);
+  --rem:#A794FF; --deep:#5B76E6; --light:#8E87A1; --warn:#EE8272; --good:#9BD4A6;
+  --f-display: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, sans-serif;
+  --f-text: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+  --f-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--text);font:16px/1.45 var(--f-text);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+:focus-visible{outline:2px solid var(--amber-2);outline-offset:2px}
+.wrap{max-width:1060px;margin:0 auto;padding-inline:max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));padding-block:10px 36px}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px}
+.brand{display:flex;align-items:center;gap:9px;font:650 18px/1 var(--f-display);letter-spacing:.005em}
+.brand svg{width:22px;height:22px;flex:none}
+.iconbtn{width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:var(--bg-2);color:var(--muted);display:grid;place-items:center;padding:0}
+.iconbtn svg{width:20px;height:20px}
+.status{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;flex-wrap:wrap;margin-block:8px 16px;color:var(--muted);font-size:14px}
+.status b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.latchip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 10px 0 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg-2);color:var(--muted);font-size:14px}
+.latchip b{color:var(--amber-2)}
+.latchip svg{width:14px;height:14px}
+
+/* mode switch */
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;background:var(--bg-2);border:1px solid var(--line);border-radius:17px}
+.seg button{border:0;background:transparent;color:var(--muted);font-weight:600;font-size:15px;padding:0 4px;min-height:46px;border-radius:13px;transition:background .15s,color .15s}
+.seg button[aria-selected="true"]{background:var(--bg-3);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
+
+/* inputs */
+.in{display:grid;gap:10px;padding-block:18px 2px}
+.lbl{font-size:12px;font-weight:650;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.lbl + .lbl, .chips + .lbl, input[type=range] + .chips + .lbl{margin-top:6px}
+.picker{display:grid;grid-template-columns:58px minmax(0,1fr) 58px;align-items:stretch;gap:10px}
+.step{border-radius:17px;border:1px solid var(--line);background:var(--bg-2);color:var(--text);font:600 16px/1 var(--f-display);font-variant-numeric:tabular-nums;min-height:72px;padding:0}
+.step:active,.opt:active,.chips button:active{transform:scale(.97)}
+.disp{position:relative;display:flex;justify-content:center;align-items:center;gap:7px;min-height:72px;border-radius:19px;background:var(--bg-2);border:1px solid var(--line-2);font:600 42px/1 var(--f-display);letter-spacing:-.01em;font-variant-numeric:tabular-nums;overflow:hidden}
+.disp small{font-size:17px;color:var(--muted);font-weight:650;letter-spacing:.02em}
+.disp input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:pointer;border:0;margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:14px;font-weight:550;font-variant-numeric:tabular-nums;transition:background .15s,border-color .15s,color .15s}
+.chips button.on,.chips button[aria-pressed="true"]{background:var(--amber-glow);border-color:rgba(244,162,89,.55);color:var(--amber-2)}
+.chips button span{opacity:.75;margin-left:3px}
+input[type=range]{width:100%;margin:2px 0;accent-color:var(--amber);height:30px}
+
+/* hero */
+.hero{position:relative;margin-top:18px;padding:20px 18px 18px;border-radius:26px;background:radial-gradient(130% 70% at 12% 0%, rgba(244,162,89,.11), transparent 62%), var(--bg-2);border:1px solid var(--line);overflow:hidden}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+.big{display:flex;align-items:baseline;gap:10px;margin-top:6px;font:600 clamp(64px,19vw,104px)/.95 var(--f-display);letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+.big .ap{font-size:.29em;letter-spacing:0;color:var(--muted);font-weight:650}
+.big.flip{animation:flip .22s ease-out}
+@keyframes flip{from{opacity:.25;transform:translateY(6px)}to{opacity:1;transform:none}}
+.hsub{margin-top:10px;font-size:15px;font-variant-numeric:tabular-nums;color:var(--text)}
+.verdict{display:flex;gap:9px;margin:10px 0 0;font-size:14px;line-height:1.45;color:var(--muted);max-width:60ch}
+.verdict::before{content:"";flex:0 0 8px;height:8px;border-radius:50%;margin-top:6px;background:var(--faint)}
+.verdict.good::before{background:var(--good)}
+.verdict.ok::before{background:var(--amber)}
+.verdict.warn::before{background:var(--warn)}
+.verdict.warn{color:#E9C9C2}
+#chart{display:block;width:100%;height:156px;margin-top:14px;overflow:visible}
+#chart .gl{stroke:var(--line);stroke-width:1;stroke-dasharray:2 5}
+#chart .rl{fill:var(--faint);font:500 10px var(--f-mono)}
+#chart .conn{stroke:var(--line-2);stroke-width:1.5}
+#chart .sg{stroke-width:3.5;stroke-linecap:round}
+#chart .s0{stroke:var(--muted)} #chart .s1{stroke:var(--rem)} #chart .s2{stroke:var(--light)} #chart .s3{stroke:var(--deep)}
+#chart .sg.lat{stroke:var(--faint);stroke-width:2.5;stroke-dasharray:1 6}
+#chart .tick{stroke:var(--line-2);stroke-width:1}
+#chart .cn{fill:var(--faint);font:600 10px var(--f-mono)}
+#chart .fade{fill:var(--bg-2);opacity:.74}
+#chart .wk{stroke:var(--amber);stroke-width:1.5}
+#chart .wkdot{fill:var(--amber);stroke:var(--bg-2);stroke-width:3}
+#chart .wkl{fill:var(--amber-2);font:650 11px var(--f-text)}
+#chart .warn .wk{stroke:var(--warn)} #chart .warn .wkdot{fill:var(--warn)} #chart .warn .wkl{fill:var(--warn)}
+#chart .ax{fill:var(--faint);font:500 11px var(--f-text)}
+.cap{margin:4px 0 0;font-size:12.5px;color:var(--faint);line-height:1.45}
+.actions{display:grid;gap:10px;margin-top:16px}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:0 16px;border-radius:17px;border:1px solid transparent;font-size:17px;font-weight:650;text-decoration:none;font-variant-numeric:tabular-nums;transition:transform .08s}
+.btn svg{width:20px;height:20px;flex:none}
+.btn:active{transform:scale(.985)}
+.btn.primary{background:var(--amber);color:var(--amber-ink)}
+.btn.ghost{background:transparent;border-color:var(--line-2);color:var(--text)}
+.btn.small{min-height:46px;font-size:15px;border-radius:14px}
+
+/* options */
+.side-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:24px 2px 10px}
+.side-head h2{margin:0;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.side-head span{font-size:13px;color:var(--faint)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.grid.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.opt{display:grid;gap:5px;justify-items:start;align-content:start;text-align:left;padding:14px 14px 13px;border-radius:17px;background:var(--bg-2);border:1px solid var(--line);color:var(--text);transition:border-color .15s,background .15s}
+.opt-time{font:600 27px/1.05 var(--f-display);letter-spacing:-.015em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.opt-time small{font-size:13px;color:var(--muted);margin-left:4px;font-weight:650;letter-spacing:.02em}
+.opt-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.g3 .opt{padding:12px 11px}
+.g3 .opt-time{font-size:21px}
+.g3 .opt-meta{font-size:12px}
+.g3 .tag{letter-spacing:.04em;white-space:nowrap}
+.tag{font-size:10px;font-weight:750;letter-spacing:.09em;text-transform:uppercase;padding:4px 7px;border-radius:7px;background:var(--bg-3);color:var(--muted);line-height:1}
+.tag.best{background:var(--amber);color:var(--amber-ink)}
+.tag.good{background:rgba(155,212,166,.10);color:var(--good)}
+.tag.short{background:rgba(244,162,89,.10);color:var(--amber-2)}
+.tag.bad{background:rgba(238,130,114,.10);color:var(--warn)}
+.tag.nap{background:rgba(167,148,255,.12);color:var(--rem)}
+.tag.pick{background:var(--bg-3);color:var(--text)}
+.opt.sel{border-color:var(--amber);box-shadow:inset 0 0 0 1px var(--amber);background:#1B1720}
+.opt.past{opacity:.5}
+.note{display:grid;gap:12px;margin-top:12px;padding:14px 15px;border-radius:17px;border:1px dashed var(--line-2);font-size:14px;line-height:1.5;color:var(--muted)}
+.note b{color:var(--text);font-weight:600}
+.foot{margin:22px 2px 0;font-size:12.5px;line-height:1.5;color:var(--faint);max-width:62ch}
+
+@media (min-width: 880px){
+  .app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"ctl hero" "side hero";column-gap:28px;align-items:start}
+  .ctl{grid-area:ctl}.hero{grid-area:hero}.side{grid-area:side}
+  .side-head{margin-top:26px}
+  .hero{margin-top:0}
+}
+
+/* sheets */
+dialog{padding:0;border:1px solid var(--line);background:var(--bg-2);color:var(--text);width:100%;max-width:560px;max-height:min(90vh, 900px);margin:auto auto 0;border-radius:24px 24px 0 0;overflow:hidden}
+dialog::backdrop{background:rgba(6,5,9,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+dialog[open]{animation:rise .22s ease-out}
+@keyframes rise{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+@media (min-width: 640px){ dialog{margin:auto;border-radius:24px} }
+.sh{max-height:min(90vh, 900px);overflow-y:auto;overscroll-behavior:contain;padding:18px 18px calc(22px + env(safe-area-inset-bottom, 0px))}
+.sh-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+.sh-head h2{margin:0;font:650 22px/1.2 var(--f-display);text-wrap:balance}
+.sec{display:grid;gap:12px;padding-block:18px;border-top:1px solid var(--line)}
+.sec:first-of-type{border-top:0;padding-top:8px}
+.sec h3{margin:0;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--amber)}
+.latbig{font:600 44px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.latbig small{font-size:16px;color:var(--muted);font-weight:600;margin-left:6px;letter-spacing:0}
+.latbig em{display:block;margin-top:6px;font:500 13px/1.3 var(--f-text);font-style:normal;color:var(--faint)}
+.brk{list-style:none;margin:0;padding:0;display:grid;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.brk li{display:flex;justify-content:space-between;gap:12px;padding:9px 12px;font-size:14px;color:var(--muted);border-top:1px solid var(--line)}
+.brk li:first-child{border-top:0}
+.brk li b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.brk li.auto span::after{content:"auto";margin-left:8px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;font-size:15px}
+.row output,.row .val{color:var(--amber-2);font-weight:600;font-variant-numeric:tabular-nums}
+.hint{margin:0;font-size:13px;line-height:1.5;color:var(--faint)}
+.sub{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:650;color:var(--muted);margin-top:4px}
+.sub span{font-weight:500;color:var(--faint)}
+.switch{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:44px;font-size:15px;cursor:pointer}
+.switch input{appearance:none;-webkit-appearance:none;flex:none;width:50px;height:30px;border-radius:999px;background:var(--line-2);position:relative;margin:0;transition:background .2s;cursor:pointer}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--text);transition:transform .2s}
+.switch input:checked{background:var(--amber)}
+.switch input:checked::after{transform:translateX(20px);background:#fff}
+.mini{display:flex;align-items:center;gap:8px}
+.mini button{width:40px;height:40px;border-radius:12px;border:1px solid var(--line-2);background:transparent;color:var(--text);font-size:18px;padding:0}
+.mini .val{min-width:64px;text-align:center}
+.tinput{background:var(--bg-3);border:1px solid var(--line-2);border-radius:12px;padding:8px 10px;font-size:16px;color:var(--text);min-height:42px;max-width:200px}
+.segs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.segs button{min-height:40px;border-radius:11px;border:1px solid var(--line);background:transparent;color:var(--muted);font-weight:600;font-size:14px;padding:0}
+.segs button[aria-pressed="true"]{background:var(--amber-glow);border-color:rgba(244,162,89,.55);color:var(--amber-2)}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:10px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;font-size:15px;line-height:1.45;color:var(--muted)}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--bg-3);border:1px solid var(--line-2);color:var(--amber-2);font:700 13px var(--f-mono)}
+.steps b{color:var(--text);font-weight:600}
+.p{margin:0;font-size:15px;line-height:1.5;color:var(--muted)}
+.linkbtn{background:none;border:0;color:var(--faint);font-size:14px;text-decoration:underline;text-underline-offset:3px;padding:10px 0;justify-self:start}
+.linkbtn.armed{color:var(--warn)}
+
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom, 0px));transform:translate(-50%, 20px);opacity:0;pointer-events:none;background:var(--text);color:var(--bg);padding:11px 16px;border-radius:14px;font-size:14px;font-weight:600;max-width:calc(100% - 32px);transition:opacity .2s,transform .2s;z-index:10;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a8.6 8.6 0 1 0 10.7 10.7z" fill="#F4A259"/></svg>
+      Cycle Clock
+    </div>
+    <button class="iconbtn" id="openSettings" type="button" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+    </button>
+  </header>
+
+  <div class="status">
+    <span>Now <b id="nowT">--:--</b></span>
+    <button class="latchip" id="latChip" type="button">Asleep in ~<b id="latV">15</b> min
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+
+  <main class="app">
+    <section class="ctl" aria-label="What do you want to plan?">
+      <div class="seg" role="tablist">
+        <button type="button" role="tab" data-mode="wake" aria-selected="true">Wake up at</button>
+        <button type="button" role="tab" data-mode="now" aria-selected="false">Sleep now</button>
+        <button type="button" role="tab" data-mode="for" aria-selected="false">Sleep for</button>
+      </div>
+
+      <div class="in" data-mode="wake">
+        <div class="lbl">I want to wake up at</div>
+        <div class="picker">
+          <button class="step" type="button" data-wstep="-15" aria-label="15 minutes earlier">−15</button>
+          <label class="disp" for="wakeInput"><span id="wTime">6:30</span><small id="wAp">AM</small>
+            <input type="time" id="wakeInput" value="06:30" aria-label="Wake-up time">
+          </label>
+          <button class="step" type="button" data-wstep="15" aria-label="15 minutes later">+15</button>
+        </div>
+      </div>
+
+      <div class="in" data-mode="now" hidden>
+        <div class="lbl">Lights out</div>
+        <div class="chips">
+          <button type="button" data-delay="0">Now</button>
+          <button type="button" data-delay="10">in 10 min</button>
+          <button type="button" data-delay="20">in 20 min</button>
+          <button type="button" data-delay="30">in 30 min</button>
+        </div>
+      </div>
+
+      <div class="in" data-mode="for" hidden>
+        <div class="lbl">I want to sleep for</div>
+        <div class="picker">
+          <button class="step" type="button" data-dstep="-15" aria-label="15 minutes less">−15</button>
+          <div class="disp"><span id="dTime">7h 30m</span></div>
+          <button class="step" type="button" data-dstep="15" aria-label="15 minutes more">+15</button>
+        </div>
+        <input type="range" id="durRange" min="10" max="720" step="5" value="450" aria-label="Sleep length">
+        <div class="chips" id="durChips"></div>
+        <div class="lbl">Lights out</div>
+        <div class="chips">
+          <button type="button" data-delay="0">Now</button>
+          <button type="button" data-delay="10">in 10 min</button>
+          <button type="button" data-delay="20">in 20 min</button>
+          <button type="button" data-delay="30">in 30 min</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero" aria-live="polite">
+      <div class="eyebrow" id="hEye">Lights out at</div>
+      <div class="big" id="hBig"><span id="hTime">--:--</span><span class="ap" id="hAp"></span></div>
+      <div class="hsub" id="hSub"></div>
+      <p class="verdict" id="hVerdict"></p>
+      <svg id="chart" role="img" aria-label="Sleep stages through the night"></svg>
+      <p class="cap">Each dip is one sleep cycle. The short rise where a cycle ends is the easiest moment to wake up.</p>
+      <div class="actions">
+        <button class="btn primary" type="button" id="alarmBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.6 1.8H4.4z"/><path d="M10 21a2.2 2.2 0 0 0 4 0"/></svg>
+          <span id="alarmLbl">Set alarm</span>
+        </button>
+        <button class="btn ghost small" type="button" id="remindBtn" hidden><span id="remindLbl">Bedtime reminder</span></button>
+      </div>
+    </section>
+
+    <section class="side">
+      <div class="side-head"><h2 id="optsTitle">Options</h2><span id="optsHint">Tap one to see it</span></div>
+      <div class="grid" id="opts"></div>
+      <div class="note" id="note" hidden></div>
+      <p class="foot" id="foot"></p>
+    </section>
+  </main>
+</div>
+
+<dialog id="sheet" aria-labelledby="sheetTitle">
+  <div class="sh">
+    <div class="sh-head"><h2 id="sheetTitle">Settings</h2>
+      <button class="iconbtn" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+
+    <section class="sec">
+      <h3>Falling asleep</h3>
+      <div class="latbig"><span id="sLat">15</span><small>min</small><em id="sCtx"></em></div>
+      <ul class="brk" id="sBreak"></ul>
+      <label class="row" for="base"><span>Usually takes me</span><output id="baseOut">15 min</output></label>
+      <input type="range" id="base" min="5" max="45" step="5" value="15">
+      <p class="hint">Most adults drift off in 10 to 20 minutes. If you're out in under 5, you're probably short on sleep.</p>
+      <div class="sub">Tonight <span>clears itself after 12 hours</span></div>
+      <div class="chips" id="factors"></div>
+      <label class="switch" for="clockAdj"><span>Adjust for time of night</span><input type="checkbox" id="clockAdj" checked></label>
+      <p class="hint">Going to bed 1 to 3 hours before your usual bedtime is hard because your body clock is still alert. Well past it, you fall asleep faster.</p>
+    </section>
+
+    <section class="sec">
+      <h3>Your sleep</h3>
+      <label class="row" for="usualWake"><span>I usually wake around</span><input class="tinput" type="time" id="usualWake" value="07:00"></label>
+      <div class="row"><span>Sleep I need</span></div>
+      <div class="segs" id="needSeg">
+        <button type="button" data-need="420">7h</button>
+        <button type="button" data-need="450">7½h</button>
+        <button type="button" data-need="480">8h</button>
+        <button type="button" data-need="510">8½h</button>
+        <button type="button" data-need="540">9h</button>
+      </div>
+      <div class="row"><span>Sleep cycle length</span>
+        <div class="mini"><button type="button" data-cstep="-5" aria-label="Shorter cycle">−</button><span class="val" id="cycleV">90 min</span><button type="button" data-cstep="5" aria-label="Longer cycle">+</button></div>
+      </div>
+      <p class="hint">Cycles run 80 to 110 minutes depending on the person. If you often wake up groggy at a suggested time, nudge this by 5 minutes and see if it feels better.</p>
+    </section>
+
+    <section class="sec">
+      <h3>One-tap alarms</h3>
+      <p class="p" id="scStatus"></p>
+      <label class="row" for="scName"><span>Shortcut name</span><input class="tinput" type="text" id="scName" value="Sleep Alarm" autocomplete="off" autocapitalize="words" spellcheck="false"></label>
+      <button class="btn ghost small" type="button" id="showSetup">Show setup steps</button>
+    </section>
+
+    <section class="sec" id="secInstall" hidden>
+      <h3>Offline</h3>
+      <p class="p" id="installTxt"></p>
+    </section>
+
+    <button class="linkbtn" type="button" id="reset">Reset all settings</button>
+  </div>
+</dialog>
+
+<dialog id="alarmSheet" aria-labelledby="alarmTitle">
+  <div class="sh">
+    <div class="sh-head"><h2 id="alarmTitle">Set up one-tap alarms</h2>
+      <button class="iconbtn" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <section class="sec">
+      <p class="p">iPhone and iPad only let apps create alarms through the Shortcuts app. Build this one-step shortcut once and every alarm button here works with a single tap.</p>
+      <ol class="steps">
+        <li><span>Open <b>Shortcuts</b> and tap <b>+</b> to start a new shortcut.</span></li>
+        <li><span>Search for <b>Create Alarm</b> (from the Clock app) and tap it.</span></li>
+        <li><span>In that action, tap the <b>time</b> and choose <b>Shortcut Input</b>.</span></li>
+        <li><span>Tap the name at the top, choose <b>Rename</b>, call it <b id="scNameEcho">Sleep Alarm</b>, then tap <b>Done</b>.</span></li>
+      </ol>
+      <p class="hint">The first time it runs, iOS asks to let the shortcut create alarms. Tap Allow. With iCloud on for Shortcuts, it syncs to your iPad too.</p>
+      <div class="actions">
+        <button class="btn primary" type="button" id="scDone"><span id="scDoneLbl">It's ready</span></button>
+        <a class="btn ghost small" href="shortcuts://create-shortcut">Open Shortcuts</a>
+        <button class="btn ghost small" type="button" id="copyTime" hidden><span id="copyLbl">Copy time</span></button>
+      </div>
+    </section>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+const PWA = true;
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const pad = n => String(n).padStart(2, '0');
+const MIN = 60000;
+const KEY = 'cycleclock.v1';
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const mod = (a, n) => ((a % n) + n) % n;
+
+/* ---------- state ---------- */
+const DEF = { mode: 'wake', wake: '06:30', usualWake: '07:00', delay: 0, dur: 450, base: 15,
+  tonight: {}, tonightAt: 0, clockAdj: true, cycle: 90, need: 480, scName: 'Sleep Alarm', scReady: false };
+function load() {
+  let s = {};
+  try { s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { s = {}; }
+  const o = Object.assign({}, DEF, s);
+  o.tonight = Object.assign({}, s.tonight || {});
+  o.cycle = clamp(+o.cycle || 90, 80, 110);
+  o.base = clamp(+o.base || 15, 5, 45);
+  o.dur = clamp(+o.dur || 450, 10, 720);
+  if (!['wake', 'now', 'for'].includes(o.mode)) o.mode = 'wake';
+  return o;
+}
+let S = load();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+const sel = { wake: null, now: null, for: null };
+let pending = null, lastO = null, ctxAt = null;
+
+/* ---------- time helpers ---------- */
+const H12 = (() => {
+  try {
+    const o = new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).resolvedOptions();
+    if (typeof o.hour12 === 'boolean') return o.hour12;
+    return o.hourCycle ? /h1[12]/.test(o.hourCycle) : true;
+  } catch (e) { return true; }
+})();
+function tp(d) {
+  let h = d.getHours(); const m = d.getMinutes();
+  if (H12) { const ap = h < 12 ? 'AM' : 'PM'; h = h % 12 || 12; return { t: h + ':' + pad(m), ap }; }
+  return { t: pad(h) + ':' + pad(m), ap: '' };
+}
+const ft = d => { const p = tp(d); return p.ap ? p.t + ' ' + p.ap : p.t; };
+function fd(min) {
+  min = Math.round(min); const h = Math.floor(min / 60), m = min % 60;
+  if (!h) return m + ' min'; if (!m) return h + 'h'; return h + 'h ' + m + 'm';
+}
+const addMin = (d, m) => new Date(d.getTime() + Math.round(m) * MIN);
+const mOfDay = d => d.getHours() * 60 + d.getMinutes();
+const hm = s => { const p = String(s || '0:0').split(':'); return (+p[0] || 0) * 60 + (+p[1] || 0); };
+const hmStr = m => { m = mod(m, 1440); return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
+const hhmm = d => pad(d.getHours()) + ':' + pad(d.getMinutes());
+function nowMin() { const d = new Date(); d.setSeconds(0, 0); return d; }
+function until(d, now) {
+  const diff = Math.round((d - now) / MIN);
+  if (diff === 0) return 'right now';
+  return diff > 0 ? 'in ' + fd(diff) : fd(-diff) + ' ago';
+}
+const cyc = n => n + (n === 1 ? ' cycle' : ' cycles');
+
+/* ---------- fall-asleep model ---------- */
+const FACT = [
+  { k: 'caffeine', label: 'Caffeine after 2 PM', d: 10 },
+  { k: 'wired', label: 'Stressed or wired', d: 10 },
+  { k: 'screens', label: 'Scrolling in bed', d: 5 },
+  { k: 'nap', label: 'Napped today', d: 5 },
+  { k: 'tired', label: 'Short on sleep', d: -5 },
+];
+const habitual = () => mod(hm(S.usualWake) - S.need, 1440);
+function latency(at) {
+  const parts = [{ label: 'Your usual', d: S.base, base: true }];
+  FACT.forEach(f => { if (S.tonight[f.k]) parts.push({ label: f.label, d: f.d }); });
+  if (S.clockAdj) {
+    const delta = mod(mOfDay(at) - habitual() + 720, 1440) - 720;
+    if (delta >= -180 && delta < -60) parts.push({ label: 'Earlier than your usual bedtime', d: 10, auto: true });
+    else if (delta >= 120 && delta <= 420) parts.push({ label: 'Well past your usual bedtime', d: -5, auto: true });
+  }
+  const sum = parts.reduce((a, p) => a + p.d, 0);
+  return { min: clamp(sum, 3, 60), parts };
+}
+function isDaytime(d) {
+  const w = hm(S.usualWake), dW = mod(mOfDay(d) - w, 1440), dayLen = mod(habitual() - w, 1440);
+  return dW >= 150 && dW <= dayLen - 180;
+}
+function expireTonight() {
+  if (S.tonightAt && Date.now() - S.tonightAt > 12 * 3600e3) { S.tonight = {}; S.tonightAt = 0; save(); }
+}
+function tagFor(asleep, isBest) {
+  if (isBest) return ['Best', 'best'];
+  if (asleep > S.need + 90) return ['Long', 'pick'];
+  if (asleep >= 420) return ['Good', 'good'];
+  if (asleep >= 330) return ['Short', 'short'];
+  return ['Too short', 'bad'];
+}
+function idealN() {
+  let best = 5, bd = Infinity;
+  for (let n = 1; n <= 7; n++) { const dd = Math.abs(n * S.cycle - S.need); if (dd <= bd) { bd = dd; best = n; } }
+  return best;
+}
+const nearest = list => list.reduce((a, b) => (Math.abs(b.asleep - S.need) <= Math.abs(a.asleep - S.need) ? b : a));
+
+/* ---------- mode: wake up at ---------- */
+function calcWake(now) {
+  const C = S.cycle;
+  const wake = new Date(now); const w = hm(S.wake);
+  wake.setHours(Math.floor(w / 60), w % 60, 0, 0);
+  if (wake <= now) wake.setDate(wake.getDate() + 1);
+  const all = [];
+  for (let n = 6; n >= 1; n--) {
+    const sleepStart = addMin(wake, -n * C);
+    let lat = latency(sleepStart).min;
+    let lightsOut = addMin(sleepStart, -lat);
+    lat = latency(lightsOut).min; lightsOut = addMin(sleepStart, -lat);
+    all.push({ key: 'w' + n, n, asleep: n * C, lightsOut, sleepStart, wake, lat, past: lightsOut < now, show: n >= 3 });
+  }
+  if (!all.some(o => o.show && !o.past)) all.forEach(o => { if (o.n < 3) o.show = true; });
+  const opts = all.filter(o => o.show);
+  const fut = opts.filter(o => !o.past);
+  const best = fut.length ? nearest(fut) : null;
+  opts.forEach(o => { o.tag = o.past ? ['Passed', 'pick'] : tagFor(o.asleep, o === best); });
+
+  let note = null;
+  const ideal = idealN();
+  const io = all.find(o => o.n === ideal);
+  if (io && io.past) {
+    const lat0 = latency(now).min;
+    const wNow = addMin(now, lat0 + ideal * C);
+    const diff = (wNow - wake) / MIN;
+    const ago = fd((now - io.lightsOut) / MIN);
+    if (diff >= -20 && diff <= 30) {
+      note = { html: `Your ${ideal}-cycle bedtime (<b>${ft(io.lightsOut)}</b>) passed ${ago} ago. Go to bed now and set your alarm for <b>${ft(wNow)}</b> instead to still get ${ideal} full cycles.`, alarm: wNow };
+    } else if (best) {
+      note = { html: `Your ${ideal}-cycle bedtime (<b>${ft(io.lightsOut)}</b>) has passed. The best one left is <b>${ft(best.lightsOut)}</b>, for ${cyc(best.n)}.` };
+    } else {
+      note = { html: `There isn't time for a full cycle before <b>${ft(wake)}</b>. A 20 minute power nap is your best option, so try Sleep for.` };
+    }
+  }
+  return { kind: 'bed', wake, opts, best, note };
+}
+
+/* ---------- mode: sleep now ---------- */
+function calcNow(now) {
+  const C = S.cycle;
+  const lightsOut = addMin(now, S.delay);
+  const lat = latency(lightsOut).min;
+  const sleepStart = addMin(lightsOut, lat);
+  const day = isDaytime(lightsOut);
+  const opts = [];
+  const asleepBy = `Asleep by about ${ft(sleepStart)}.`;
+  if (day) opts.push({ key: 'nap', nap: true, n: 0, asleep: 20, lightsOut, sleepStart, lat, wake: addMin(sleepStart, 20),
+    verdict: { cls: 'good', text: `${asleepBy} 20 minutes keeps you in light sleep, so you wake up clear-headed.` } });
+  const ns = day ? [1, 2, 3, 4, 5] : [2, 3, 4, 5, 6, 7];
+  ns.forEach(n => opts.push({ key: 'n' + n, n, asleep: n * C, lightsOut, sleepStart, lat, wake: addMin(sleepStart, n * C),
+    verdict: { cls: n * C >= 330 || (day && n === 1) ? 'good' : 'ok',
+      text: `${asleepBy} You'd wake as cycle ${n} ends, when sleep is lightest.` + (n * C < 330 && !(day && n === 1) ? ' A short night, though.' : '') } }));
+  const best = day ? opts[0] : nearest(opts);
+  opts.forEach(o => {
+    if (o === best) o.tag = ['Best', 'best'];
+    else if (o.nap) o.tag = ['Power nap', 'nap'];
+    else if (day && o.n === 1) o.tag = ['Cycle nap', 'nap'];
+    else o.tag = tagFor(o.asleep, false);
+  });
+  const note = day ? { html: `It's the middle of your day, so naps come first. <b>20 minutes</b> keeps you out of deep sleep. A full <b>${fd(C)}</b> cycle lets you wake at its lightest point.` } : null;
+  return { kind: 'wake', opts, best, note };
+}
+
+/* ---------- mode: sleep for ---------- */
+function calcFor(now) {
+  const C = S.cycle, d = S.dur;
+  const lightsOut = addMin(now, S.delay);
+  const lat = latency(lightsOut).min;
+  const sleepStart = addMin(lightsOut, lat);
+  const mk = (m, extra) => Object.assign({ key: 'm' + m, n: Math.round(m / C), asleep: m, lightsOut, sleepStart, lat, wake: addMin(sleepStart, m) }, extra);
+  const napV = { cls: 'good', text: 'Short enough to stay in light sleep, so you should wake up clear-headed.' };
+  const endV = n => ({ cls: 'good', text: `Ends right as cycle ${n} finishes, the lightest point to wake.` });
+  const r = mod(d, C), toEnd = Math.min(r, C - r), nearN = Math.round(d / C);
+  const lo = Math.floor(d / C) * C, hi = Math.ceil(d / C) * C;
+  let verdict, aligned = false;
+  if (d <= 30) verdict = { cls: 'good', text: 'Power nap. ' + napV.text };
+  else if (d < C - 15) verdict = { cls: 'warn', text: `You'd likely wake from deep sleep, which can leave you groggy for up to half an hour. Try 20 minutes or a full ${fd(C)} cycle.` };
+  else if (toEnd <= 10) { aligned = true; verdict = { cls: 'good', text: `Ends right as cycle ${nearN} finishes, so you should wake up refreshed.` }; }
+  else if (toEnd <= 20) verdict = { cls: 'ok', text: `Close to the end of cycle ${nearN}. ${fd(nearN * C)} would line up exactly.` };
+  else verdict = { cls: 'warn', text: `Lands in the middle of cycle ${Math.floor(d / C) + 1}, which can leave you groggy. ${fd(lo)} or ${fd(hi)} would end on a cycle.` };
+
+  const exact = mk(d, { key: 'x', exact: true, aligned, nap: d <= 30, verdict, n: aligned ? nearN : 0, tag: ['Your pick', 'pick'] });
+  const opts = [exact];
+  const add = (m, extra) => { if (m > 0 && m <= 720 && !opts.some(o => o.asleep === m)) opts.push(mk(m, extra)); };
+  const cyc1 = m => ({ verdict: endV(Math.round(m / C)), tag: m >= 420 ? ['Full cycles', 'good'] : m >= C ? ['Full cycles', 'short'] : ['Power nap', 'nap'] });
+  if (d <= 30) { add(20, { nap: true, verdict: napV, tag: ['Power nap', 'nap'] }); add(C, cyc1(C)); if (opts.length < 3) add(2 * C, cyc1(2 * C)); }
+  else if (d < C - 15) { add(20, { nap: true, verdict: napV, tag: ['Power nap', 'nap'] }); add(C, cyc1(C)); }
+  else if (aligned) { if (nearN * C !== d) add(nearN * C, cyc1(nearN * C)); if (opts.length < 3) { add((nearN - 1) * C, cyc1((nearN - 1) * C)); } if (opts.length < 3) add((nearN + 1) * C, cyc1((nearN + 1) * C)); }
+  else { add(lo, cyc1(lo)); add(hi, cyc1(hi)); }
+  opts.sort((a, b) => a.asleep - b.asleep);
+  return { kind: 'wake', opts, best: exact, note: null };
+}
+
+/* ---------- chart (hypnogram) ---------- */
+const TPL = [
+  [[2, 0, .26], [3, .26, .62], [2, .62, .85], [1, .85, .97], [0, .97, 1]],
+  [[2, 0, .20], [3, .20, .48], [2, .48, .76], [1, .76, .97], [0, .97, 1]],
+  [[2, 0, .25], [3, .25, .38], [2, .38, .66], [1, .66, .97], [0, .97, 1]],
+  [[2, 0, .42], [1, .42, .97], [0, .97, 1]],
+];
+function drawChart(o) {
+  if (!o) return;
+  const svg = $('#chart');
+  const W = Math.max(260, Math.round(svg.getBoundingClientRect().width || 330)), H = 156;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const L = 50, R = 8, T = 24, B = 36, iw = W - L - R, ih = H - T - B;
+  const C = S.cycle;
+  const lat = (o.sleepStart - o.lightsOut) / MIN, total = (o.wake - o.lightsOut) / MIN;
+  const span = total + clamp(total * .08, 12, 40);
+  const X = m => +(L + (m / span) * iw).toFixed(1), Y = s => +(T + s * (ih / 3)).toFixed(1);
+  const segs = [];
+  if (lat > 0) segs.push({ s: 0, a: 0, b: lat, lat: true });
+  for (let t = lat, i = 0; t < span; t += C, i++) {
+    for (const [s, fa, fb] of TPL[Math.min(i, 3)]) {
+      const a = t + fa * C; if (a >= span) break;
+      segs.push({ s, a, b: Math.min(t + fb * C, span) });
+    }
+  }
+  let g = '';
+  ['Awake', 'REM', 'Light', 'Deep'].forEach((lab, s) => {
+    g += `<line class="gl" x1="${L}" x2="${W - R}" y1="${Y(s)}" y2="${Y(s)}"/><text class="rl" x="${L - 10}" y="${Y(s) + 3.5}" text-anchor="end">${lab}</text>`;
+  });
+  for (let k = 1; k < segs.length; k++) {
+    const p = segs[k - 1], c = segs[k];
+    if (p.s !== c.s) g += `<line class="conn" x1="${X(c.a)}" x2="${X(c.a)}" y1="${Y(p.s)}" y2="${Y(c.s)}"/>`;
+  }
+  segs.forEach(sg => { g += `<line class="sg s${sg.s}${sg.lat ? ' lat' : ''}" x1="${X(sg.a)}" x2="${X(sg.b)}" y1="${Y(sg.s)}" y2="${Y(sg.s)}"/>`; });
+  const yb = T + ih;
+  for (let i = 0; lat + i * C < total - 1; i++) {
+    const a = lat + i * C, b = Math.min(a + C, total);
+    g += `<line class="tick" x1="${X(a)}" x2="${X(a)}" y1="${yb + 5}" y2="${yb + 10}"/>`;
+    if (X(b) - X(a) > 14) g += `<text class="cn" x="${((X(a) + X(b)) / 2).toFixed(1)}" y="${yb + 14}" text-anchor="middle">${i + 1}</text>`;
+  }
+  const xw = X(total);
+  g += `<rect class="fade" x="${xw + 2}" y="0" width="${Math.max(0, W - xw - 2)}" height="${yb + 4}"/>`;
+  let sw = 2; for (const sg of segs) { if (sg.a < total && total <= sg.b) { sw = sg.s; break; } }
+  const anchor = xw > W - 60 ? 'end' : xw < L + 60 ? 'start' : 'middle';
+  g += `<g class="${sw === 3 ? 'warn' : ''}"><line class="wk" x1="${xw}" x2="${xw}" y1="${T - 8}" y2="${yb}"/><circle class="wkdot" cx="${xw}" cy="${Y(sw)}" r="5"/>` +
+       `<text class="wkl" x="${xw + (anchor === 'end' ? 4 : 0)}" y="${T - 13}" text-anchor="${anchor}">wake ${ft(o.wake)}</text></g>`;
+  g += `<text class="ax" x="${L}" y="${H - 4}">lights out ${ft(o.lightsOut)}</text>`;
+  g += `<text class="ax" x="${W - R}" y="${H - 4}" text-anchor="end">${fd(total)} in bed</text>`;
+  svg.innerHTML = g;
+}
+
+/* ---------- render ---------- */
+let lastMinute = -1;
+function render() {
+  expireTonight();
+  lastMinute = Math.floor(Date.now() / MIN);
+  const now = nowMin();
+  $('#nowT').textContent = ft(now);
+  $$('.seg button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === S.mode)));
+  $$('.in').forEach(el => { el.hidden = el.dataset.mode !== S.mode; });
+  renderInputs();
+  const r = S.mode === 'wake' ? calcWake(now) : S.mode === 'now' ? calcNow(now) : calcFor(now);
+  const o = r.opts.find(x => x.key === sel[S.mode]) || r.best || r.opts[r.opts.length - 1];
+  renderHero(r, o, now);
+  renderOpts(r, o);
+  renderNote(r);
+  $('#foot').textContent = `Times assume ${S.cycle}-minute sleep cycles and your fall-asleep estimate. Real cycles vary from person to person and night to night, so use these as a guide.`;
+  ctxAt = o.lightsOut;
+  $('#latV').textContent = o.lat;
+  if ($('#sheet').open) renderSheet();
+}
+
+function renderInputs() {
+  const w = new Date(); const m = hm(S.wake); w.setHours(Math.floor(m / 60), m % 60, 0, 0);
+  const p = tp(w); $('#wTime').textContent = p.t; $('#wAp').textContent = p.ap;
+  const wi = $('#wakeInput'); if (wi.value !== S.wake && document.activeElement !== wi) wi.value = S.wake;
+  $$('[data-delay]').forEach(b => b.classList.toggle('on', +b.dataset.delay === S.delay));
+  $('#dTime').textContent = fd(S.dur);
+  const dr = $('#durRange'); if (+dr.value !== S.dur) dr.value = S.dur;
+  const C = S.cycle;
+  $('#durChips').innerHTML = [20, C, 4 * C, 5 * C, 6 * C]
+    .map(v => `<button type="button" data-dur="${v}" class="${v === S.dur ? 'on' : ''}">${fd(v)}</button>`).join('');
+}
+
+function renderHero(r, o, now) {
+  let eye, big, sub, v, alarmAt, remind = null;
+  if (r.kind === 'bed') {
+    eye = o.past ? 'Lights out was' : 'Lights out at';
+    big = o.lightsOut;
+    sub = `${cyc(o.n)} · ${fd(o.asleep)} asleep · ${o.past ? 'passed ' + fd((now - o.lightsOut) / MIN) + ' ago' : until(o.lightsOut, now)}`;
+    v = o.past
+      ? { cls: 'warn', text: `This bedtime has passed. Pick a later one, or switch to Sleep now.` }
+      : { cls: o.asleep >= 420 ? 'good' : 'ok', text: `Asleep by about ${ft(o.sleepStart)} (~${o.lat} min to drift off). Cycle ${o.n} ends right at ${ft(o.wake)}.` };
+    alarmAt = o.wake;
+    const rm = addMin(o.lightsOut, -15);
+    if (rm > now) remind = rm;
+  } else {
+    eye = 'Wake up at';
+    big = o.wake;
+    const inTxt = until(o.wake, now);
+    if (o.nap) sub = `${fd(o.asleep)} nap · ${inTxt}`;
+    else if (o.exact && !o.aligned) sub = `${fd(o.asleep)} asleep · ${(o.asleep / S.cycle).toFixed(1)} cycles · ${inTxt}`;
+    else sub = `${cyc(o.n)} · ${fd(o.asleep)} asleep · ${inTxt}`;
+    v = o.verdict || { cls: 'good', text: '' };
+    alarmAt = o.wake;
+  }
+  $('#hEye').textContent = eye;
+  const p = tp(big), bigEl = $('#hBig');
+  if ($('#hTime').textContent !== p.t) { bigEl.classList.remove('flip'); void bigEl.offsetWidth; bigEl.classList.add('flip'); }
+  $('#hTime').textContent = p.t; $('#hAp').textContent = p.ap;
+  $('#hSub').textContent = sub;
+  const ve = $('#hVerdict'); ve.className = 'verdict ' + v.cls; ve.textContent = v.text;
+  const ab = $('#alarmBtn'); ab.dataset.alarm = alarmAt.getTime();
+  $('#alarmLbl').textContent = 'Set alarm · ' + ft(alarmAt);
+  const rb = $('#remindBtn'); rb.hidden = !remind;
+  if (remind) { rb.dataset.alarm = remind.getTime(); $('#remindLbl').textContent = 'Bedtime reminder · ' + ft(remind); }
+  lastO = o; drawChart(o);
+}
+
+function renderOpts(r, o) {
+  $('#optsTitle').textContent = r.kind === 'bed' ? `Bedtimes for ${ft(r.wake)}` : S.mode === 'now' ? 'Wake-up times' : 'Nearby options';
+  $('#optsHint').textContent = 'Tap to compare';
+  const grid = $('#opts');
+  grid.className = 'grid' + (r.opts.length === 3 ? ' g3' : '');
+  grid.innerHTML = r.opts.map(x => {
+    const p = tp(r.kind === 'bed' ? x.lightsOut : x.wake);
+    const meta = x.nap ? `${fd(x.asleep)} nap`
+      : (x.exact && !x.aligned) ? `${fd(x.asleep)} · ${(x.asleep / S.cycle).toFixed(1)} cycles`
+      : `${cyc(x.n)} · ${fd(x.asleep)}`;
+    const on = x.key === o.key;
+    return `<button type="button" class="opt${on ? ' sel' : ''}${x.past ? ' past' : ''}" data-k="${x.key}" aria-pressed="${on}">` +
+      `<span class="opt-time">${p.t}${p.ap ? `<small>${p.ap}</small>` : ''}</span><span class="opt-meta">${meta}</span>` +
+      `<span class="tag ${x.tag[1]}">${x.tag[0]}</span></button>`;
+  }).join('');
+}
+
+function renderNote(r) {
+  const n = $('#note');
+  if (!r.note) { n.hidden = true; n.innerHTML = ''; return; }
+  n.hidden = false;
+  n.innerHTML = `<div>${r.note.html}</div>` + (r.note.alarm
+    ? `<button class="btn ghost small" type="button" data-alarm="${r.note.alarm.getTime()}">Set alarm · ${ft(r.note.alarm)}</button>` : '');
+}
+
+function renderSheet() {
+  const at = ctxAt || nowMin();
+  const L = latency(at);
+  $('#sLat').textContent = '~' + L.min;
+  $('#sCtx').textContent = `for lights out at ${ft(at)}`;
+  const sum = L.parts.reduce((a, p) => a + p.d, 0);
+  $('#sBreak').innerHTML = L.parts.map(p =>
+    `<li class="${p.auto ? 'auto' : ''}"><span>${p.label}</span><b>${p.base ? p.d + ' min' : (p.d > 0 ? '+' : '−') + Math.abs(p.d) + ' min'}</b></li>`).join('') +
+    (sum !== L.min ? `<li><span>Kept within 3 to 60 min</span><b>${L.min} min</b></li>` : '');
+  $('#base').value = S.base; $('#baseOut').textContent = S.base + ' min';
+  $('#factors').innerHTML = FACT.map(f =>
+    `<button type="button" data-f="${f.k}" aria-pressed="${!!S.tonight[f.k]}">${f.label}<span>${f.d > 0 ? '+' : '−'}${Math.abs(f.d)}</span></button>`).join('');
+  $('#clockAdj').checked = !!S.clockAdj;
+  const uw = $('#usualWake'); if (document.activeElement !== uw) uw.value = S.usualWake;
+  $$('[data-need]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.need === S.need)));
+  $('#cycleV').textContent = S.cycle + ' min';
+  const sn = $('#scName'); if (document.activeElement !== sn) sn.value = S.scName;
+  $('#scStatus').textContent = S.scReady
+    ? `Set up. Alarm buttons run your “${S.scName}” shortcut. If an alarm doesn't appear, check the steps below.`
+    : 'Not set up yet. It takes about a minute, once.';
+  if (PWA) {
+    $('#secInstall').hidden = false;
+    const standalone = navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+    $('#installTxt').textContent = standalone
+      ? 'Installed on this device. Cycle Clock runs fully offline from your Home Screen.'
+      : 'In Safari, tap Share, then Add to Home Screen. Open it once from the Home Screen while online, and it works offline from then on.';
+  }
+}
+
+/* ---------- sheets, alarms, toast ---------- */
+function openSheet(d) { if (d.open) return; try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } }
+function closeSheet(d) { try { d.close(); } catch (e) { d.removeAttribute('open'); } }
+function openAlarmSheet(d) {
+  pending = d || null;
+  $('#scNameEcho').textContent = S.scName;
+  $('#scDoneLbl').textContent = d ? `It's ready · set alarm for ${ft(d)}` : "It's ready";
+  $('#copyTime').hidden = !d;
+  if (d) $('#copyLbl').textContent = 'Copy ' + ft(d);
+  openSheet($('#alarmSheet'));
+}
+function runAlarm(d) {
+  if (!S.scReady) { openAlarmSheet(d); return; }
+  const url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(S.scName) + '&input=text&text=' + encodeURIComponent(hhmm(d));
+  toast('Setting your ' + ft(d) + ' alarm in Shortcuts');
+  setTimeout(() => { try { window.location.href = url; } catch (e) {} }, 60);
+}
+let toastT;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function copyText(txt) {
+  const ok = () => toast('Copied ' + txt);
+  try {
+    navigator.clipboard.writeText(txt).then(ok, () => fallbackCopy(txt, ok));
+  } catch (e) { fallbackCopy(txt, ok); }
+}
+function fallbackCopy(txt, ok) {
+  const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', '');
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); ok(); } catch (e) { toast(txt); }
+  ta.remove();
+}
+
+/* ---------- events ---------- */
+const commit = () => { save(); render(); };
+let resetArmed = false;
+document.addEventListener('click', e => {
+  const t = e.target.closest('button, a');
+  if (!t) return;
+  const ds = t.dataset;
+  if (t.hasAttribute('data-close')) { closeSheet(t.closest('dialog')); return; }
+  if (ds.mode) { S.mode = ds.mode; commit(); return; }
+  if (ds.wstep) { S.wake = hmStr(hm(S.wake) + +ds.wstep); sel.wake = null; commit(); return; }
+  if (ds.delay !== undefined) { S.delay = +ds.delay; sel.now = sel.for = null; commit(); return; }
+  if (ds.dstep) { S.dur = clamp(S.dur + +ds.dstep, 10, 720); sel.for = null; commit(); return; }
+  if (ds.dur) { S.dur = +ds.dur; sel.for = null; commit(); return; }
+  if (ds.k) { sel[S.mode] = ds.k; render(); return; }
+  if (ds.alarm) { runAlarm(new Date(+ds.alarm)); return; }
+  if (ds.f) { S.tonight[ds.f] = !S.tonight[ds.f]; S.tonightAt = Date.now(); commit(); return; }
+  if (ds.need) { S.need = +ds.need; commit(); return; }
+  if (ds.cstep) { S.cycle = clamp(S.cycle + +ds.cstep, 80, 110); commit(); return; }
+  switch (t.id) {
+    case 'openSettings': case 'latChip': renderSheet(); openSheet($('#sheet')); break;
+    case 'showSetup': openAlarmSheet(null); break;
+    case 'scDone': S.scReady = true; save(); closeSheet($('#alarmSheet')); if ($('#sheet').open) renderSheet();
+      if (pending) runAlarm(pending); else toast('One-tap alarms are on'); break;
+    case 'copyTime': if (pending) copyText(ft(pending)); break;
+    case 'reset':
+      if (!resetArmed) { resetArmed = true; t.textContent = 'Tap again to reset everything'; t.classList.add('armed');
+        setTimeout(() => { resetArmed = false; t.textContent = 'Reset all settings'; t.classList.remove('armed'); }, 3500); }
+      else { resetArmed = false; S = Object.assign({}, DEF, { tonight: {} }); sel.wake = sel.now = sel.for = null;
+        t.textContent = 'Reset all settings'; t.classList.remove('armed'); commit(); toast('Settings reset'); }
+      break;
+  }
+});
+$$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d) closeSheet(d); }));
+
+const wi = $('#wakeInput');
+const onWake = () => { if (wi.value && wi.value !== S.wake) { S.wake = wi.value.slice(0, 5); sel.wake = null; commit(); } };
+wi.addEventListener('input', onWake); wi.addEventListener('change', onWake);
+wi.addEventListener('click', () => { try { if (wi.showPicker) wi.showPicker(); } catch (e) {} });
+$('#durRange').addEventListener('input', e => { S.dur = clamp(+e.target.value, 10, 720); sel.for = null; commit(); });
+$('#base').addEventListener('input', e => { S.base = clamp(+e.target.value, 5, 45); commit(); });
+$('#clockAdj').addEventListener('change', e => { S.clockAdj = e.target.checked; commit(); });
+const uw = $('#usualWake');
+uw.addEventListener('change', () => { if (uw.value) { S.usualWake = uw.value.slice(0, 5); commit(); } });
+$('#scName').addEventListener('input', e => { S.scName = e.target.value.trim() || 'Sleep Alarm'; save(); $('#scNameEcho').textContent = S.scName; });
+
+setInterval(() => { if (Math.floor(Date.now() / MIN) !== lastMinute) render(); }, 5000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
+let rz; window.addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => drawChart(lastO)); });
+
+if (PWA && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
+}
+render();
+})();
+</script>
+
+</body>
+</html>
