@@ -198,6 +198,25 @@ dialog[open]{animation:rise .22s ease-out}
 html[lang="fa"] .steps li::before{content:counter(s, persian);font:700 14px var(--f-text)}
 .steps b{color:var(--text);font-weight:600}
 .p{margin:0;font-size:15px;line-height:1.5;color:var(--muted)}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.checks li{position:relative;padding-inline-start:18px;font-size:14px;line-height:1.5;color:var(--muted)}
+.checks li::before{content:"";position:absolute;inset-inline-start:0;top:7px;width:8px;height:8px;border-radius:50%;background:var(--good)}
+.checks li.ok::before{background:var(--amber)}
+.checks li.warn::before{background:var(--warn)}
+.checks li.warn{color:#E9C9C2}
+.checks b{color:var(--text);font-weight:600}
+.ring{display:grid;gap:10px;margin-top:14px;padding:13px 14px;border-radius:16px;background:var(--bg-3);border:1px solid var(--line-2)}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.btn.tiny{min-height:38px;font-size:14px;border-radius:12px;padding:0 12px}
+.rem{display:grid;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.rem-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.rem-head .hint{font-size:13px}
+.rem-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:15px;color:var(--muted)}
+.rem-row .chips button{min-height:36px;padding:0 12px}
+.rem-list{display:flex;flex-wrap:wrap;gap:8px}
+.rem-item{display:grid;gap:2px;padding:8px 12px;border-radius:12px;background:var(--bg-3);border:1px solid var(--line-2);font-variant-numeric:tabular-nums}
+.rem-item b{font:600 17px/1.1 var(--f-display);color:var(--text)}
+.rem-item span{font-size:12px;color:var(--muted)}
 .linkbtn{background:none;border:0;color:var(--faint);font-size:14px;text-decoration:underline;text-underline-offset:3px;padding:10px 0;justify-self:start}
 .linkbtn.armed{color:var(--warn)}
 
@@ -211,7 +230,7 @@ html[lang="fa"] .tag{font-size:12px;padding:4px 8px 5px}
 html[lang="fa"] .brk li em{font-size:11px}
 html[lang="fa"] .seg button{font-size:14.5px}
 html[lang="fa"] .verdict, html[lang="fa"] .note, html[lang="fa"] .hint, html[lang="fa"] .cap,
-html[lang="fa"] .p, html[lang="fa"] .foot, html[lang="fa"] .steps li{line-height:1.8}
+html[lang="fa"] .p, html[lang="fa"] .foot, html[lang="fa"] .steps li, html[lang="fa"] .checks li{line-height:1.8}
 html[lang="fa"] .big .ap{font-size:.27em}
 
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -298,8 +317,17 @@ html[lang="fa"] .big .ap{font-size:.27em}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.6 1.8H4.4z"/><path d="M10 21a2.2 2.2 0 0 0 4 0"/></svg>
           <span id="alarmLbl"></span>
         </button>
-        <button class="btn ghost small" type="button" id="remindBtn" hidden><span id="remindLbl"></span></button>
       </div>
+      <div class="rem" id="rem">
+        <div class="rem-head"><span class="lbl" data-t="remTitle">Reminders</span><span class="hint" id="remSub"></span></div>
+        <div class="rem-row"><span data-t="remCount">How many</span>
+          <div class="mini"><button type="button" data-rstep="-1" data-ta="remFewer">−</button><span class="val" id="remN">2</span><button type="button" data-rstep="1" data-ta="remMore">+</button></div>
+        </div>
+        <div class="rem-row"><span data-t="remGap">How far apart</span><div class="chips" id="remGaps"></div></div>
+        <div class="rem-list" id="remList"></div>
+        <button class="btn ghost small" type="button" id="remBtn"></button>
+      </div>
+      <div class="ring" id="ring" hidden></div>
     </section>
 
     <section class="side">
@@ -349,9 +377,17 @@ html[lang="fa"] .big .ap{font-size:.27em}
 
     <section class="sec">
       <h3 data-t="secAlarm">One-tap alarms</h3>
-      <p class="p" id="scStatus"></p>
-      <label class="row" for="scName"><span data-t="scNameLbl">Shortcut name</span><input class="tinput" type="text" id="scName" value="Sleep Alarm" dir="ltr" autocomplete="off" autocapitalize="words" spellcheck="false"></label>
-      <button class="btn ghost small" type="button" id="showSetup" data-t="showSetup">Show setup steps</button>
+      <p class="p" id="scStatus" data-plat="ios other"></p>
+      <label class="row" for="scName" data-plat="ios other"><span data-t="scNameLbl">Shortcut name</span><input class="tinput" type="text" id="scName" value="Sleep Alarm" dir="ltr" autocomplete="off" autocapitalize="words" spellcheck="false"></label>
+      <button class="btn ghost small" type="button" id="showSetup" data-plat="ios other" data-t="showSetup">Show setup steps</button>
+      <div id="nativeBox" class="ring" data-plat="native"></div>
+      <p class="p" data-plat="android" data-t="androidWebStatus"></p>
+      <a class="btn primary small" data-plat="android" data-t="getApk" id="apkLink2" href="#">Download Android app</a>
+      <button class="btn ghost small" type="button" id="showAndroid" data-plat="android" data-t="howInstall">How to install</button>
+      <button class="btn ghost small" type="button" id="testAlarm" data-plat="ios native" data-t="btnTest">Test alarm in 2 minutes</button>
+      <p class="hint" id="testHint" data-plat="ios native" data-t="testHint"></p>
+      <div class="sub" data-plat="ios"><span data-t="ringTitle"></span></div>
+      <ul class="checks" data-plat="ios"><li data-t="ios1"></li><li data-t="ios2"></li><li data-t="ios3"></li><li data-t="ios4"></li></ul>
     </section>
 
     <section class="sec" id="secInstall" hidden>
@@ -365,24 +401,38 @@ html[lang="fa"] .big .ap{font-size:.27em}
 
 <dialog id="alarmSheet" aria-labelledby="alarmTitle">
   <div class="sh">
-    <div class="sh-head"><h2 id="alarmTitle" data-t="alarmTitle">Set up one-tap alarms</h2>
+    <div class="sh-head"><h2 id="alarmTitle">Set up one-tap alarms</h2>
       <button class="iconbtn" type="button" data-close data-ta="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
-    <section class="sec">
+    <section class="sec" data-plat="ios other">
       <p class="p" data-t="alarmIntro"></p>
       <ol class="steps">
         <li><span data-t="st1"></span></li>
         <li><span data-t="st2"></span></li>
         <li><span data-t="st3"></span></li>
+        <li><span data-t="st3b"></span></li>
         <li><span id="st4"></span></li>
       </ol>
       <p class="hint" data-t="alarmHint"></p>
       <div class="actions">
         <button class="btn primary" type="button" id="scDone"><span id="scDoneLbl"></span></button>
         <a class="btn ghost small" href="shortcuts://create-shortcut" data-t="openShortcuts">Open Shortcuts</a>
-        <button class="btn ghost small" type="button" id="copyTime" hidden><span id="copyLbl"></span></button>
       </div>
     </section>
+    <section class="sec" data-plat="ios">
+      <h3 data-t="ringTitle"></h3>
+      <ul class="checks"><li data-t="ios1"></li><li data-t="ios2"></li><li data-t="ios3"></li><li data-t="ios4"></li></ul>
+    </section>
+    <section class="sec" data-plat="android">
+      <p class="p" data-t="androidIntro"></p>
+      <ol class="steps"><li><span data-t="and1"></span></li><li><span data-t="and2"></span></li><li><span data-t="and3"></span></li></ol>
+      <a class="btn primary" id="apkLink" data-t="getApk" href="#">Download Android app</a>
+      <p class="hint" data-t="androidNote"></p>
+    </section>
+    <section class="sec" data-plat="native">
+      <p class="p" data-t="noClock"></p>
+    </section>
+    <div class="actions"><button class="btn ghost small" type="button" id="copyTime" hidden><span id="copyLbl"></span></button></div>
   </div>
 </dialog>
 
@@ -426,10 +476,11 @@ const I18N = {
     secAlarm: 'One-tap alarms', scNameLbl: 'Shortcut name', showSetup: 'Show setup steps',
     secOffline: 'Offline', reset: 'Reset all settings', resetArm: 'Tap again to reset everything',
     alarmTitle: 'Set up one-tap alarms',
-    alarmIntro: 'iPhone and iPad only let apps create alarms through the Shortcuts app. Build this one-step shortcut once and every alarm button here works with a single tap.',
+    alarmIntro: 'iPhone and iPad only let apps create alarms through the Shortcuts app. Build this small shortcut once and every alarm and reminder button here works with a single tap. If you made the older one-step version, add the Split Text and Repeat steps so reminders work too.',
     st1: 'Open <b>Shortcuts</b> and tap <b>+</b> to start a new shortcut.',
-    st2: 'Search for <b>Create Alarm</b> (from the Clock app) and tap it.',
-    st3: 'In that action, tap the <b>time</b> and choose <b>Shortcut Input</b>.',
+    st2: 'Add <b>Split Text</b>. Set the text to <b>Shortcut Input</b>, tap <b>New Lines</b>, choose <b>Custom</b> and type a comma.',
+    st3: 'Add <b>Repeat with Each</b> right under it.',
+    st3b: 'Inside the repeat, add <b>Create Alarm</b> (from the Clock app). Tap its time and choose <b>Repeat Item</b>.',
     st4: n => `Tap the name at the top, choose <b>Rename</b>, call it <b class="nofa">${n}</b>, then tap <b>Done</b>.`,
     alarmHint: 'The first time it runs, iOS asks to let the shortcut create alarms. Tap Allow. With iCloud on for Shortcuts, it syncs to your iPad too.',
     openShortcuts: 'Open Shortcuts',
@@ -478,6 +529,46 @@ const I18N = {
     scDoneFor: t => `It's ready · set alarm for ${t}`, scDone: "It's ready", copy: t => `Copy ${t}`,
     toastAlarm: t => `Setting your ${t} alarm in Shortcuts`, toastOn: 'One-tap alarms are on',
     copied: t => `Copied ${t}`, resetDone: 'Settings reset',
+    alarmLabel: 'Cycle Clock',
+    remTitle: 'Reminders', remCount: 'How many', remGap: 'How far apart', remFewer: 'Fewer reminders', remMore: 'More reminders',
+    remBedSub: t => `before bedtime, ${t}`, remWakeSub: t => `before wake-up, ${t}`,
+    remLeftBed: d => `${d} to bed`, remLeftWake: d => `${d} to wake-up`,
+    remSet: n => (n === 1 ? 'Set 1 reminder' : `Set ${n} reminders`), remNone: 'Reminders off',
+    remPast: 'These reminder times have already passed.',
+    remDone: n => (n === 1 ? '1 reminder set' : `${n} reminders set`),
+    gapMin: n => `${n} min`,
+    alarmSet: t => `Alarm set for ${t}`,
+    alarmSetRaised: t => `Alarm set for ${t}. Alarm volume was low, so it's turned up to 70%.`,
+    alarmFailed: "Couldn't reach the Clock app. Open Clock and set the alarm there.",
+    rcConfirmed: t => `Clock confirmed it will ring at <b>${t}</b>.`,
+    rcEarlier: (t1, t2) => `Alarm for <b>${t1}</b> sent to Clock. Another alarm rings first, at ${t2}.`,
+    rcUnknown: t => `Alarm for <b>${t}</b> sent to Clock, but it couldn't be confirmed. Open Clock to check.`,
+    rcVol: p => `Alarm volume is ${p}%.`,
+    rcVolLow: p => `Alarm volume is only ${p}%, so you might not hear it.`,
+    rcDnd: 'Do Not Disturb is set to Total silence, so no alarm will ring.',
+    rcSilent: 'Alarms ring even when the phone is on silent or vibrate.',
+    btnOpenClock: 'Open Clock', btnRaise: 'Turn up alarm volume', btnDnd: 'Fix Do Not Disturb',
+    btnTest: 'Test alarm in 2 minutes',
+    testHint: 'Sets a real alarm 2 minutes from now so you can hear it. Delete it in Clock afterwards.',
+    volRaised: 'Alarm volume turned up',
+    nativeReady: "Alarms go straight into your phone's Clock app, so they ring like any other alarm, even with this app closed.",
+    ringTitle: 'Make sure it rings',
+    ios1: 'iPhone alarms ring even in Silent mode and during Focus or Do Not Disturb.',
+    ios2: 'How loud they ring follows <b><bdi>Settings → Sounds &amp; Haptics → Ringtone and Alerts</bdi></b>. Keep that slider well up.',
+    ios3: "On that screen, turn off <b><bdi>Change with Buttons</bdi></b> so the side buttons can't turn your alarm down by accident.",
+    ios4: 'Tap <b>Test alarm in 2 minutes</b> once to hear it for real.',
+    androidTitle: 'Alarms on Android',
+    androidIntro: "A web page can't create alarms on Android, but the Cycle Clock Android app can. It's this same app and works offline. It puts each alarm straight into your Clock app, then checks that the alarm is scheduled and that the alarm volume isn't too low.",
+    and1: 'Tap <b>Download Android app</b> below.',
+    and2: 'Open the downloaded file. If Android asks, allow your browser to <b>install unknown apps</b>.',
+    and3: 'Tap <b>Install</b>, then open Cycle Clock from your apps.',
+    getApk: 'Download Android app', howInstall: 'How to install',
+    androidNote: "Play Protect may warn that the developer is unknown. That's because this is your own app and isn't on Google Play.",
+    androidWebStatus: 'One-tap alarms on Android need the Cycle Clock Android app.',
+    noClockTitle: 'No clock app found',
+    noClock: "Your phone doesn't have a Clock app that accepts new alarms. Install Google Clock from the Play Store, then try again.",
+    installAndroid: 'In Chrome, tap ⋮ then Add to Home screen. For alarms, get the Android app instead.',
+    installedNative: 'This is the Android app. It works fully offline.',
   },
   fa: {
     brand: 'ساعت چرخه', settings: 'تنظیمات', close: 'بستن', now: 'الان',
@@ -500,10 +591,11 @@ const I18N = {
     secAlarm: 'زنگ با یک لمس', scNameLbl: `نام میان${Z}بر`, showSetup: `نمایش مراحل راه${Z}اندازی`,
     secOffline: 'آفلاین', reset: `بازنشانی همه${EZ} تنظیمات`, resetArm: `برای بازنشانی همه${Z}چیز دوباره بزن`,
     alarmTitle: `راه${Z}اندازی زنگ با یک لمس`,
-    alarmIntro: `آیفون و آیپد فقط از راه برنامه${EZ} Shortcuts اجازه${EZ} ساختن زنگ می${Z}دهند. این میان${Z}بر یک${Z}مرحله${Z}ای را یک بار بساز تا همه${EZ} دکمه${Z}های زنگ اینجا با یک لمس کار کنند.`,
+    alarmIntro: `آیفون و آیپد فقط از راه برنامه${EZ} Shortcuts اجازه${EZ} ساختن زنگ می${Z}دهند. این میان${Z}بر یک${Z}مرحله${Z}ای را یک بار بساز تا همه${EZ} دکمه${Z}های زنگ و یادآور اینجا با یک لمس کار کنند. اگر نسخه${EZ} قدیمی یک${Z}مرحله${Z}ای را ساخته${Z}ای، مراحل Split Text و Repeat را اضافه کن تا یادآورها هم کار کنند.`,
     st1: `برنامه${EZ} <b>Shortcuts</b> را باز کن و <b>+</b> را بزن تا یک میان${Z}بر تازه شروع شود.`,
-    st2: `عبارت <b>Create Alarm</b> را جست${Z}وجو کن (از برنامه${EZ} Clock) و رویش بزن.`,
-    st3: `در همان کنش، روی <b>زمان</b> بزن و <b>Shortcut Input</b> را انتخاب کن.`,
+    st2: `کنش <b>Split Text</b> را اضافه کن. متنش را <b>Shortcut Input</b> بگذار، روی <b>New Lines</b> بزن، <b>Custom</b> را انتخاب کن و یک ویرگول انگلیسی (,) بنویس.`,
+    st3: `درست زیر آن، <b>Repeat with Each</b> را اضافه کن.`,
+    st3b: `داخل تکرار، <b>Create Alarm</b> (از برنامه${EZ} Clock) را اضافه کن. روی زمانش بزن و <b>Repeat Item</b> را انتخاب کن.`,
     st4: n => `روی نام بالای صفحه بزن، <b>Rename</b> را انتخاب کن، نامش را <b class="nofa">${n}</b> بگذار و بعد <b>Done</b> را بزن.`,
     alarmHint: `اولین بار که اجرا شود، iOS برای ساختن زنگ اجازه می${Z}خواهد؛ Allow را بزن. اگر iCloud برای Shortcuts روشن باشد، روی آیپد هم ظاهر می${Z}شود.`,
     openShortcuts: 'باز کردن Shortcuts',
@@ -552,6 +644,46 @@ const I18N = {
     scDoneFor: t => `آماده است؛ زنگ ${t} را بگذار`, scDone: 'آماده است', copy: t => `کپی ${t}`,
     toastAlarm: t => `در حال تنظیم زنگ ${t} در Shortcuts`, toastOn: 'زنگ با یک لمس فعال شد',
     copied: t => `کپی شد: ${t}`, resetDone: 'تنظیمات بازنشانی شد',
+    alarmLabel: 'ساعت چرخه',
+    remTitle: `یادآورها`, remCount: 'چند تا', remGap: 'فاصله' + ' ' + 'بین' + ' ' + `یادآورها`, remFewer: 'یادآور کمتر', remMore: 'یادآور بیشتر',
+    remBedSub: t => `پیش از زمان خواب، ${t}`, remWakeSub: t => `پیش از بیداری، ${t}`,
+    remLeftBed: d => `${d} تا خواب`, remLeftWake: d => `${d} تا بیداری`,
+    remSet: n => `تنظیم ${n} یادآور`, remNone: `یادآورها خاموش${Z}اند`,
+    remPast: `زمان این یادآورها گذشته است.`,
+    remDone: n => `${n} یادآور تنظیم شد`,
+    gapMin: n => `${n} دقیقه`,
+    alarmSet: t => `زنگ برای ${t} تنظیم شد`,
+    alarmSetRaised: t => `زنگ برای ${t} تنظیم شد. صدای زنگ کم بود، تا 70٪ بالا رفت.`,
+    alarmFailed: `به برنامه${EZ} ساعت دسترسی نشد. ساعت را باز کن و زنگ را آنجا بگذار.`,
+    rcConfirmed: t => `برنامه${EZ} ساعت تأیید کرد که ساعت <b>${t}</b> زنگ می${Z}زند.`,
+    rcEarlier: (t1, t2) => `زنگ <b>${t1}</b> به برنامه${EZ} ساعت رفت. یک زنگ دیگر زودتر، ساعت ${t2}، به صدا درمی${Z}آید.`,
+    rcUnknown: t => `زنگ <b>${t}</b> به برنامه${EZ} ساعت رفت ولی تأیید نشد. ساعت را باز کن و ببین.`,
+    rcVol: p => `صدای زنگ ${p}٪ است.`,
+    rcVolLow: p => `صدای زنگ فقط ${p}٪ است و ممکن است نشنوی.`,
+    rcDnd: `«مزاحم نشوید» روی سکوت کامل است و هیچ زنگی به صدا درنمی${Z}آید.`,
+    rcSilent: `زنگ هشدار حتی وقتی گوشی بی${Z}صدا یا روی لرزش است به صدا درمی${Z}آید.`,
+    btnOpenClock: 'باز کردن ساعت', btnRaise: 'بلند کردن صدای زنگ', btnDnd: 'درست کردن «مزاحم نشوید»',
+    btnTest: 'زنگ آزمایشی ۲ دقیقه دیگر',
+    testHint: `یک زنگ واقعی برای ۲ دقیقه بعد می${Z}گذارد تا صدایش را بشنوی. بعد در برنامه${EZ} ساعت پاکش کن.`,
+    volRaised: 'صدای زنگ بلند شد',
+    nativeReady: `زنگ${Z}ها مستقیم در برنامه${EZ} ساعت گوشی ساخته می${Z}شوند، پس مثل هر زنگ دیگری به صدا درمی${Z}آیند، حتی وقتی این برنامه بسته است.`,
+    ringTitle: `مطمئن شو زنگ می${Z}زند`,
+    ios1: `زنگ آیفون حتی در حالت بی${Z}صدا و هنگام Focus یا «مزاحم نشوید» به صدا درمی${Z}آید.`,
+    ios2: `بلندی زنگ از <b><bdi>Settings → Sounds &amp; Haptics → Ringtone and Alerts</bdi></b> می${Z}آید. آن نوار را بالا نگه دار.`,
+    ios3: `در همان صفحه <b><bdi>Change with Buttons</bdi></b> را خاموش کن تا دکمه${Z}های کناری صدای زنگ را ناخواسته کم نکنند.`,
+    ios4: `یک بار <b>زنگ آزمایشی ۲ دقیقه دیگر</b> را بزن تا صدایش را واقعاً بشنوی.`,
+    androidTitle: 'زنگ در اندروید',
+    androidIntro: `صفحه${EZ} وب در اندروید نمی${Z}تواند زنگ بسازد، ولی برنامه${EZ} اندروید ساعت چرخه می${Z}تواند. همین برنامه است و آفلاین کار می${Z}کند. هر زنگ را مستقیم در برنامه${EZ} ساعت گوشی می${Z}گذارد و بعد بررسی می${Z}کند که زنگ ثبت شده و صدایش خیلی کم نیست.`,
+    and1: `دکمه${EZ} <b>دانلود برنامه${EZ} اندروید</b> را بزن.`,
+    and2: `فایل دانلودشده را باز کن. اگر اندروید پرسید، به مرورگر اجازه${EZ} <b>نصب برنامه${Z}های ناشناس</b> بده.`,
+    and3: `<b>Install</b> را بزن و بعد ساعت چرخه را از فهرست برنامه${Z}ها باز کن.`,
+    getApk: `دانلود برنامه${EZ} اندروید`, howInstall: 'روش نصب',
+    androidNote: `ممکن است Play Protect هشدار بدهد که سازنده ناشناس است؛ چون این برنامه${EZ} شخصی خودت است و در Google Play نیست.`,
+    androidWebStatus: `برای زنگ با یک لمس در اندروید، برنامه${EZ} اندروید ساعت چرخه لازم است.`,
+    noClockTitle: `برنامه${EZ} ساعتی پیدا نشد`,
+    noClock: `گوشی${Z}ات برنامه${EZ} ساعتی ندارد که زنگ تازه بپذیرد. Google Clock را از Play Store نصب کن و دوباره امتحان کن.`,
+    installAndroid: 'در Chrome، ⋮ و بعد Add to Home screen را بزن. برای زنگ، برنامه' + EZ + ' اندروید را نصب کن.',
+    installedNative: `این برنامه${EZ} اندروید است و کاملاً آفلاین کار می${Z}کند.`,
   },
 };
 function T(k, ...a) {
@@ -574,10 +706,38 @@ function faDigits(root) {
   list.forEach(t => { t.nodeValue = t.nodeValue.replace(/[0-9]/g, c => FA_D[c]); });
 }
 
+/* ---------- platform ---------- */
+const NATIVE = (typeof window.CycleClockAndroid === 'object' && window.CycleClockAndroid) || null;
+const UA = navigator.userAgent || '';
+const IS_IOS = /iPad|iPhone|iPod/.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1);
+const IS_ANDROID = /Android/i.test(UA);
+const PLATFORM = NATIVE ? 'native' : IS_IOS ? 'ios' : IS_ANDROID ? 'android' : 'other';
+const APK_URL = 'https://github.com/naamimaalek/cycle-clock/releases/latest/download/cycle-clock.apk';
+function applyPlat() {
+  $$('[data-plat]').forEach(el => { el.hidden = !el.dataset.plat.split(' ').includes(PLATFORM); });
+  ['#apkLink', '#apkLink2'].forEach(id => { $(id).href = APK_URL; });
+}
+function nativeStatus() { try { return JSON.parse(NATIVE.alarmStatus()); } catch (e) { return null; } }
+const volPct = st => Math.round(100 * st.vol / Math.max(1, st.max));
+function statusLis(st) {
+  if (!st) return '';
+  const pct = volPct(st);
+  return (st.dndBlocks ? `<li class="warn">${T('rcDnd')}</li>` : '') +
+    (pct < 40 ? `<li class="warn">${T('rcVolLow', pct)}</li>` : `<li>${T('rcVol', pct)}</li>`) +
+    `<li>${T('rcSilent')}</li>`;
+}
+function fixBtns(st, withClock) {
+  let b = '';
+  if (st && volPct(st) < 40) b += `<button class="btn primary tiny" type="button" data-act="raise">${T('btnRaise')}</button>`;
+  if (st && st.dndBlocks) b += `<button class="btn ghost tiny" type="button" data-act="dnd">${T('btnDnd')}</button>`;
+  if (withClock) b += `<button class="btn ghost tiny" type="button" data-act="clock">${T('btnOpenClock')}</button>`;
+  return b ? `<div class="btnrow">${b}</div>` : '';
+}
+
 /* ---------- state ---------- */
 const sysLang = () => (/^fa\b/i.test(navigator.language || '') ? 'fa' : 'en');
 const DEF = { mode: 'wake', wake: '06:30', usualWake: '07:00', delay: 0, dur: 450, base: 15,
-  tonight: {}, tonightAt: 0, clockAdj: true, cycle: 90, need: 480, scName: 'Sleep Alarm', scReady: false, lang: '' };
+  tonight: {}, tonightAt: 0, clockAdj: true, cycle: 90, need: 480, scName: 'Sleep Alarm', scReady: false, scV2: false, lang: '', remN: 2, remGap: 15 };
 function load() {
   let s = {};
   try { s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { s = {}; }
@@ -588,12 +748,14 @@ function load() {
   o.dur = clamp(+o.dur || 450, 10, 720);
   if (!['wake', 'now', 'for'].includes(o.mode)) o.mode = 'wake';
   if (!['en', 'fa'].includes(o.lang)) o.lang = sysLang();
+  o.remN = clamp(+o.remN || 0, 0, 6);
+  if (![5, 10, 15, 30, 60].includes(+o.remGap)) o.remGap = 15;
   return o;
 }
 let S = load();
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 const sel = { wake: null, now: null, for: null };
-let pending = null, lastO = null, ctxAt = null, lastBig = '';
+let remList = [], pendingList = null, pending = null, lastO = null, ctxAt = null, lastBig = '', ringInfo = null;
 
 /* ---------- time helpers ---------- */
 const H12 = (() => {
@@ -846,6 +1008,7 @@ function render() {
   $('#foot').textContent = T('foot', S.cycle);
   ctxAt = o.lightsOut;
   $('#latTxt').innerHTML = T('latChip', o.lat);
+  renderRing();
   faDigits($('.wrap'));
   if ($('#sheet').open) renderSheet();
 }
@@ -865,7 +1028,7 @@ function renderInputs() {
 }
 
 function renderHero(r, o, now) {
-  let eye, big, sub, v, remind = null;
+  let eye, big, sub, v;
   const alarmAt = o.wake;
   if (r.kind === 'bed') {
     eye = T(o.past ? 'eyeBedPast' : 'eyeBed');
@@ -873,8 +1036,6 @@ function renderHero(r, o, now) {
     sub = [T('cyc', o.n), T('asleep', fd(o.asleep)), o.past ? T('passedAgo', fd((now - o.lightsOut) / MIN)) : until(o.lightsOut, now)].join(T('sep'));
     v = o.past ? { cls: 'warn', text: T('vPast') }
       : { cls: o.asleep >= 420 ? 'good' : 'ok', text: T('vBed', ft(o.sleepStart), o.lat, o.n, ft(o.wake)) };
-    const rm = addMin(o.lightsOut, -15);
-    if (rm > now) remind = rm;
   } else {
     eye = T('eyeWake');
     big = o.wake;
@@ -893,9 +1054,24 @@ function renderHero(r, o, now) {
   const ve = $('#hVerdict'); ve.className = 'verdict ' + v.cls; ve.textContent = v.text;
   $('#alarmBtn').dataset.alarm = alarmAt.getTime();
   $('#alarmLbl').textContent = T('setAlarm', ft(alarmAt));
-  const rb = $('#remindBtn'); rb.hidden = !remind;
-  if (remind) { rb.dataset.alarm = remind.getTime(); $('#remindLbl').textContent = T('remind', ft(remind)); }
+  renderReminders(r.kind === 'bed', r.kind === 'bed' ? o.lightsOut : o.wake, now);
   lastO = o; drawChart(o);
+}
+
+function renderReminders(bed, target, now) {
+  $('#remSub').textContent = T(bed ? 'remBedSub' : 'remWakeSub', ft(target));
+  $('#remN').textContent = S.remN;
+  $('#remGaps').innerHTML = [5, 10, 15, 30, 60].map(g =>
+    `<button type="button" data-rgap="${g}" class="${g === S.remGap ? 'on' : ''}">${T('gapMin', g)}</button>`).join('');
+  remList = [];
+  for (let i = S.remN; i >= 1; i--) {
+    const at = addMin(target, -i * S.remGap);
+    if (at > now) remList.push({ at, label: T(bed ? 'remLeftBed' : 'remLeftWake', fd(i * S.remGap)) });
+  }
+  $('#remList').innerHTML = !S.remN ? `<span class="hint">${T('remNone')}</span>`
+    : !remList.length ? `<span class="hint">${T('remPast')}</span>`
+    : remList.map(x => { const p = tp(x.at); return `<div class="rem-item"><b>${p.t}${p.ap ? ' <small>' + p.ap + '</small>' : ''}</b><span>${x.label}</span></div>`; }).join('');
+  const b = $('#remBtn'); b.hidden = !remList.length; b.textContent = T('remSet', remList.length);
 }
 
 function renderOpts(r, o) {
@@ -940,10 +1116,12 @@ function renderSheet() {
   $('#cycleV').textContent = T('minutes', S.cycle);
   const sn = $('#scName'); if (document.activeElement !== sn) sn.value = S.scName;
   $('#scStatus').textContent = S.scReady ? T('scReady', S.scName) : T('scNotReady');
-  if (PWA) {
+  if (PLATFORM === 'ios') $('#testAlarm').hidden = $('#testHint').hidden = !S.scReady;
+  if (NATIVE) { const st = nativeStatus(); $('#nativeBox').innerHTML = `<p class="p">${T('nativeReady')}</p><ul class="checks">${statusLis(st)}</ul>` + fixBtns(st, true); }
+  if (PWA || NATIVE) {
     $('#secInstall').hidden = false;
     const standalone = navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
-    $('#installTxt').textContent = T(standalone ? 'installed' : 'notInstalled');
+    $('#installTxt').textContent = T(NATIVE ? 'installedNative' : (IS_ANDROID && !standalone) ? 'installAndroid' : standalone ? 'installed' : 'notInstalled');
   }
   faDigits($('#sheet'));
 }
@@ -953,19 +1131,76 @@ function openSheet(d) { if (d.open) return; try { d.showModal(); } catch (e) { d
 function closeSheet(d) { try { d.close(); } catch (e) { d.removeAttribute('open'); } }
 function renderAlarmSheet() {
   const d = pending;
+  $('#alarmTitle').textContent = T(PLATFORM === 'android' ? 'androidTitle' : PLATFORM === 'native' ? 'noClockTitle' : 'alarmTitle');
   $('#st4').innerHTML = T('st4', esc(S.scName));
   $('#scDoneLbl').textContent = d ? T('scDoneFor', ft(d)) : T('scDone');
   $('#copyTime').hidden = !d;
   if (d) $('#copyLbl').textContent = T('copy', ft(d));
   faDigits($('#alarmSheet'));
 }
-function openAlarmSheet(d) { pending = d || null; renderAlarmSheet(); openSheet($('#alarmSheet')); }
+function openAlarmSheet(d) { pending = d || null; if (!d) pendingList = null; renderAlarmSheet(); openSheet($('#alarmSheet')); }
 function runAlarm(d) {
-  if (!S.scReady) { openAlarmSheet(d); return; }
+  pendingList = null;
+  if (NATIVE) { nativeAlarm(d); return; }
+  if (PLATFORM === 'android' || !S.scReady) { openAlarmSheet(d); return; }
   const url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(S.scName) + '&input=text&text=' + encodeURIComponent(hhmm(d));
   toast(T('toastAlarm', ft(d)));
   setTimeout(() => { try { window.location.href = url; } catch (e) {} }, 60);
 }
+function runReminders(list) {
+  if (!list.length) return;
+  if (NATIVE) {
+    const st = nativeStatus();
+    if (st && volPct(st) < 40) { try { NATIVE.raiseAlarmVolume(0.7); } catch (e) {} }
+    let res = 'error';
+    try { res = NATIVE.setAlarms(JSON.stringify(list.map(x => ({ h: x.at.getHours(), m: x.at.getMinutes(), label: x.label })))); } catch (e) {}
+    if (res === 'noclock') { openAlarmSheet(list[0].at); return; }
+    toast(res === 'ok' ? T('remDone', list.length) : T('alarmFailed'));
+    return;
+  }
+  if (PLATFORM === 'android' || !S.scReady || !S.scV2) { pendingList = list; openAlarmSheet(list[0].at); return; }
+  const url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(S.scName) + '&input=text&text=' + encodeURIComponent(list.map(x => hhmm(x.at)).join(','));
+  toast(T('remDone', list.length));
+  setTimeout(() => { try { window.location.href = url; } catch (e) {} }, 60);
+}
+
+/* Android app: hand the alarm to the phone's Clock app, then check it will really ring */
+function nativeAlarm(d) {
+  let raised = false;
+  const st = nativeStatus();
+  if (st && volPct(st) < 40) { try { NATIVE.raiseAlarmVolume(0.7); raised = true; } catch (e) {} }
+  let res = 'error';
+  try { res = NATIVE.setAlarm(d.getHours(), d.getMinutes(), T('alarmLabel')); } catch (e) {}
+  if (res === 'noclock') { openAlarmSheet(d); return; }
+  if (res !== 'ok') { toast(T('alarmFailed')); return; }
+  toast(T(raised ? 'alarmSetRaised' : 'alarmSet', ft(d)));
+  ringInfo = { at: d, next: -1 };
+  setTimeout(verifyAlarm, 1500);
+}
+function verifyAlarm() {
+  if (!NATIVE || !ringInfo) return;
+  try { ringInfo.next = +NATIVE.nextAlarm(); } catch (e) { ringInfo.next = -1; }
+  renderRing();
+}
+function renderRing() {
+  const el = $('#ring'), r = ringInfo;
+  if (!NATIVE || !r || r.at.getTime() < Date.now() - 60000) { el.hidden = true; return; }
+  const st = nativeStatus(), nd = r.next > 0 ? new Date(r.next) : null;
+  let li, clock = false;
+  if (nd && nd.getHours() === r.at.getHours() && nd.getMinutes() === r.at.getMinutes()) li = `<li>${T('rcConfirmed', ft(r.at))}</li>`;
+  else if (nd && nd < r.at) { li = `<li class="ok">${T('rcEarlier', ft(r.at), ft(nd))}</li>`; clock = true; }
+  else { li = `<li class="warn">${T('rcUnknown', ft(r.at))}</li>`; clock = true; }
+  el.innerHTML = `<ul class="checks">${li}${statusLis(st)}</ul>` + fixBtns(st, clock);
+  el.hidden = false;
+  faDigits(el);
+}
+window.onNativeResume = () => { render(); if (ringInfo) verifyAlarm(); if ($('#sheet').open) renderSheet(); };
+window.onNativeBack = () => {
+  const open = $$('dialog').filter(x => x.open);
+  if (open.length) { closeSheet(open[open.length - 1]); return true; }
+  return false;
+};
+
 let toastT;
 function toast(msg) {
   const t = $('#toast'); t.textContent = msg; faDigits(t); t.classList.add('show');
@@ -1001,16 +1236,28 @@ document.addEventListener('click', e => {
   if (ds.alarm) { runAlarm(new Date(+ds.alarm)); return; }
   if (ds.f) { S.tonight[ds.f] = !S.tonight[ds.f]; S.tonightAt = Date.now(); commit(); return; }
   if (ds.need) { S.need = +ds.need; commit(); return; }
+  if (ds.rstep) { S.remN = clamp(S.remN + +ds.rstep, 0, 6); commit(); return; }
+  if (ds.rgap) { S.remGap = +ds.rgap; commit(); return; }
   if (ds.cstep) { S.cycle = clamp(S.cycle + +ds.cstep, 80, 110); commit(); return; }
+  if (ds.act && NATIVE) {
+    if (ds.act === 'raise') { try { NATIVE.raiseAlarmVolume(0.7); } catch (err) {} toast(T('volRaised')); }
+    if (ds.act === 'dnd') { try { NATIVE.openDnd(); } catch (err) {} }
+    if (ds.act === 'clock') { try { NATIVE.openClock(); } catch (err) {} }
+    renderRing(); if ($('#sheet').open) renderSheet();
+    return;
+  }
   switch (t.id) {
     case 'langBtn':
       S.lang = S.lang === 'fa' ? 'en' : 'fa'; save(); disarmReset(); applyLang(); render();
       if ($('#alarmSheet').open) renderAlarmSheet();
       break;
     case 'openSettings': case 'latChip': renderSheet(); openSheet($('#sheet')); break;
-    case 'showSetup': openAlarmSheet(null); break;
-    case 'scDone': S.scReady = true; save(); closeSheet($('#alarmSheet')); if ($('#sheet').open) renderSheet();
-      if (pending) runAlarm(pending); else toast(T('toastOn')); break;
+    case 'showSetup': case 'showAndroid': openAlarmSheet(null); break;
+    case 'testAlarm': closeSheet($('#sheet')); runAlarm(addMin(nowMin(), 2)); break;
+    case 'scDone': S.scReady = true; S.scV2 = true; save(); closeSheet($('#alarmSheet')); if ($('#sheet').open) renderSheet();
+      if (pendingList) { const l = pendingList; pendingList = null; runReminders(l); }
+      else if (pending) runAlarm(pending); else toast(T('toastOn')); break;
+    case 'remBtn': runReminders(remList); break;
     case 'copyTime': if (pending) copyText(faStr(ft(pending))); break;
     case 'reset':
       if (!resetArmed) { resetArmed = true; t.textContent = T('resetArm'); t.classList.add('armed'); resetT = setTimeout(disarmReset, 3500); }
@@ -1043,6 +1290,7 @@ if (PWA && 'serviceWorker' in navigator && (location.protocol === 'https:' || lo
   });
   window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
 }
+applyPlat();
 applyLang();
 render();
 })();

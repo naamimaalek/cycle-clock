@@ -1,0 +1,46 @@
+name: Build Android app
+
+on:
+  push:
+    branches: [main]
+    paths: ['index.html', 'icon-192.png', 'android/**', '.github/workflows/android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Put the web app inside the Android app
+        run: |
+          mkdir -p android/app/src/main/assets
+          cp index.html android/app/src/main/assets/index.html
+
+      - name: Build the APK
+        working-directory: android
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+        run: gradle --no-daemon assembleRelease
+
+      - name: Publish it as the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk cycle-clock.apk
+          gh release delete android --yes --cleanup-tag || true
+          gh release create android cycle-clock.apk --target "$GITHUB_SHA" --latest \
+            --title "Cycle Clock for Android (build ${{ github.run_number }})" \
+            --notes "Download cycle-clock.apk on your Android phone, open it and tap Install. Alarms go straight into your Clock app."

@@ -1,0 +1,30 @@
+plugins { id 'com.android.application' }
+
+android {
+  namespace 'com.naamimaalek.cycleclock'
+  compileSdk 34
+  defaultConfig {
+    applicationId 'com.naamimaalek.cycleclock'
+    minSdk 24
+    targetSdk 34
+    versionCode Integer.parseInt(System.getenv('VERSION_CODE') ?: '1')
+    versionName "1.${System.getenv('VERSION_CODE') ?: '0'}"
+  }
+  signingConfigs {
+    release {
+      storeFile file('cycle-clock.keystore')
+      storeType 'pkcs12'
+      storePassword 'cycleclock'
+      keyAlias 'cycleclock'
+      keyPassword 'cycleclock'
+    }
+  }
+  buildTypes {
+    release { minifyEnabled false; signingConfig signingConfigs.release }
+  }
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+  lint { checkReleaseBuilds false; abortOnError false }
+}
