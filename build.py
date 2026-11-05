@@ -10,7 +10,7 @@ import json, os, re, sys
 from PIL import Image, ImageDraw
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-VERSION = 'cycle-clock-v4'            # bump on every release so installed copies update
+VERSION = 'cycle-clock-v5'            # bump on every release so installed copies update
 BG = '#EEF1F8'
 src = open(os.path.join(ROOT, 'src', 'app.html'), encoding='utf-8').read()
 assert '/*PWA*/false' in src
@@ -26,6 +26,7 @@ head = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 {title}
+<meta name="cc-version" content="{VERSION}">
 <meta name="theme-color" content="{BG}">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">

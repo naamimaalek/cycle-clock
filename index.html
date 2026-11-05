@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cycle Clock</title>
+<meta name="cc-version" content="cycle-clock-v5">
 <meta name="theme-color" content="#EEF1F8">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -182,6 +183,9 @@ html[lang="fa"] .steps li::before{content:counter(s, persian);font-size:14px}
 .tip{margin:0;padding:12px 14px;border-radius:14px;background:var(--ok-soft);color:#5E4310;font-size:14px;line-height:1.5}
 .actions{display:grid;gap:10px}
 
+.banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 6px;padding:10px 10px 10px 16px;border-radius:16px;background:var(--ink);color:#fff;font-size:14px;font-weight:550;line-height:1.4}
+.banner button{flex:none;min-height:36px;padding:0 14px;border:0;border-radius:11px;background:#fff;color:var(--ink);font-size:14px;font-weight:650}
+.btn[disabled]{opacity:.55;cursor:default}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom, 0px));z-index:10;max-width:calc(100% - 32px);padding:11px 16px;border-radius:14px;background:var(--ink);color:#fff;font-size:14px;font-weight:600;text-align:center;opacity:0;pointer-events:none;transform:translate(-50%, 16px);transition:opacity .2s,transform .2s}
 .toast.show{opacity:1;transform:translate(-50%, 0)}
 
@@ -208,6 +212,7 @@ html[lang="fa"] .big .ap{font-size:.26em}
       </button>
     </div>
   </header>
+  <div class="banner" id="banner" hidden><span id="bannerTxt"></span><button type="button" id="bannerBtn"></button></div>
 
   <main class="app">
     <section class="ctl">
@@ -310,6 +315,13 @@ html[lang="fa"] .big .ap{font-size:.26em}
         <h4 data-t="ringTitle">Make sure it rings</h4>
         <ul class="checks"><li data-t="ios1"></li><li data-t="ios2"></li><li data-t="ios3"></li></ul>
       </div>
+    </section>
+    <section class="sec" data-plat="native">
+      <h3 data-t="secUpdate">App updates</h3>
+      <p class="hint" id="updVersion"></p>
+      <p class="p" id="updStatus" hidden></p>
+      <button class="btn ghost small" type="button" id="updBtn"></button>
+      <p class="hint" data-t="updHint"></p>
     </section>
     <section class="sec" id="secInstall" hidden><p class="hint" id="installTxt"></p></section>
   </div>
@@ -452,6 +464,18 @@ const I18N = {
     volUp: "Alarm volume was low, so it's now 70%.",
     alarmFailed: "Couldn't reach the Clock app. Open Clock and set the alarm there.",
     volRaised: 'Alarm volume turned up', copied: t => `Copied ${t}`,
+    secUpdate: 'App updates',
+    updVersion: (b, v) => `Android app build ${b} · design version ${v}`,
+    updCheck: 'Check for updates', updChecking: 'Checking…', updLatest: 'You have the latest version.',
+    updAvail: n => `Build ${n} is available.`, updInstall: 'Download and install',
+    updDownloading: p => (p >= 0 ? `Downloading… ${p}%` : 'Downloading…'),
+    updInstalling: "Tap Update in Android's installer. When it finishes, tap Open.",
+    updPermission: 'Allow Cycle Clock to install apps, then come back and tap Download and install again.',
+    updFailed: "Couldn't download the update. Check your connection and try again.",
+    updError: "Couldn't reach GitHub. Check your connection and try again.",
+    updHint: "Design and feature updates arrive by themselves whenever you're online. This button is for the rare changes to the Android app itself.",
+    webReady: 'A new version is ready.', reload: 'Reload',
+    appReady: n => `Android app update ready (build ${n}).`, update: 'Update',
   },
   fa: {
     brand: 'ساعت چرخه', settings: 'تنظیمات', close: 'بستن', langBtn: 'EN', langAria: 'English',
@@ -540,6 +564,18 @@ const I18N = {
     volUp: 'صدای زنگ کم بود، حالا 70٪ است.',
     alarmFailed: `به برنامه${EZ} ساعت دسترسی نشد. ساعت را باز کن و زنگ را آنجا بگذار.`,
     volRaised: 'صدای زنگ بلند شد', copied: t => `کپی شد: ${t}`,
+    secUpdate: `به${Z}روزرسانی برنامه`,
+    updVersion: (b, v) => `برنامه${EZ} اندروید نسخه${EZ} ${b}، طراحی نسخه${EZ} ${v}`,
+    updCheck: `بررسی به${Z}روزرسانی`, updChecking: `در حال بررسی…`, updLatest: `آخرین نسخه را داری.`,
+    updAvail: n => `نسخه${EZ} ${n} آماده است.`, updInstall: 'دانلود و نصب',
+    updDownloading: p => (p >= 0 ? `در حال دانلود… ${p}٪` : `در حال دانلود…`),
+    updInstalling: `در نصب${Z}کننده${EZ} اندروید Update را بزن. وقتی تمام شد، Open را بزن.`,
+    updPermission: `به ساعت چرخه اجازه${EZ} نصب برنامه بده، بعد برگرد و دوباره «دانلود و نصب» را بزن.`,
+    updFailed: `دانلود به${Z}روزرسانی انجام نشد. اینترنت را بررسی کن و دوباره امتحان کن.`,
+    updError: `به GitHub وصل نشد. اینترنت را بررسی کن و دوباره امتحان کن.`,
+    updHint: `تغییرات طراحی و امکانات هر وقت آنلاین باشی خودشان می${Z}رسند. این دکمه برای تغییرهای نادر خود برنامه${EZ} اندروید است.`,
+    webReady: `نسخه${EZ} تازه آماده است.`, reload: 'بارگذاری دوباره',
+    appReady: n => `به${Z}روزرسانی برنامه${EZ} اندروید آماده است (نسخه${EZ} ${n}).`, update: `به${Z}روزرسانی`,
   },
 };
 function T(k, ...a) {
@@ -842,6 +878,7 @@ function renderSheet() {
     $('#secInstall').hidden = false;
     $('#installTxt').textContent = T(NATIVE ? 'installedNative' : standalone ? 'installed' : IS_ANDROID ? 'installAndroid' : 'installIos');
   }
+  renderUpd();
   faDigits($('#sheet'));
 }
 
@@ -913,6 +950,55 @@ window.onNativeBack = () => {
   return false;
 };
 
+/* ---------- Android app updates ---------- */
+let upd = null, updState = 'idle', updPct = -1, bannerAction = null;
+const canUpdate = () => NATIVE && typeof NATIVE.checkUpdate === 'function';
+function showBanner(text, label, action) {
+  bannerAction = action; $('#bannerTxt').textContent = text; $('#bannerBtn').textContent = label;
+  $('#banner').hidden = false; faDigits($('#banner'));
+}
+function startInstall() {
+  if (!upd || !upd.url) return;
+  updState = 'downloading'; updPct = -1; $('#banner').hidden = true;
+  try { NATIVE.installUpdate(upd.url); } catch (e) { updState = 'failed'; }
+  renderUpd();
+}
+function renderUpd() {
+  if (!canUpdate()) return;
+  let b = 0, v = 0; try { b = NATIVE.appBuild(); v = NATIVE.webVersion(); } catch (e) {}
+  $('#updVersion').textContent = T('updVersion', b, v);
+  const msg = { checking: T('updChecking'), latest: T('updLatest'), error: T('updError'), failed: T('updFailed'),
+    avail: upd ? T('updAvail', upd.latest) : '', downloading: T('updDownloading', updPct),
+    installing: T('updInstalling'), permission: T('updPermission') }[updState];
+  const st = $('#updStatus'); st.hidden = !msg; st.textContent = msg || '';
+  const install = ['avail', 'failed', 'permission', 'installing'].includes(updState) && upd && upd.url;
+  const btn = $('#updBtn');
+  btn.textContent = T(install ? 'updInstall' : 'updCheck');
+  btn.disabled = updState === 'checking' || updState === 'downloading';
+  btn.dataset.do = install ? 'install' : 'check';
+  faDigits($('#updVersion').parentNode);
+}
+window.onWebUpdate = () => showBanner(T('webReady'), T('reload'), () => { try { NATIVE.reload(); } catch (e) { location.reload(); } });
+window.onAppUpdate = info => {
+  upd = info || null;
+  const quiet = updState === 'quiet';
+  updState = !info || info.error ? (quiet ? 'idle' : 'error') : info.latest > info.current ? 'avail' : 'latest';
+  if (updState === 'avail' && quiet) showBanner(T('appReady', info.latest), T('update'), startInstall);
+  renderUpd();
+};
+window.onAppUpdateState = (st, pct) => {
+  updState = st === 'downloading' ? 'downloading' : st; updPct = pct;
+  if (st !== 'downloading') toast(T({ installing: 'updInstalling', permission: 'updPermission', failed: 'updFailed' }[st] || 'updChecking'));
+  renderUpd();
+};
+function autoCheck() { // once a day, quietly
+  if (!canUpdate()) return;
+  let last = 0; try { last = +localStorage.getItem('cycleclock.updcheck') || 0; } catch (e) {}
+  if (Date.now() - last < 20 * 3600e3) return;
+  try { localStorage.setItem('cycleclock.updcheck', String(Date.now())); } catch (e) {}
+  updState = 'quiet'; try { NATIVE.checkUpdate(); } catch (e) { updState = 'idle'; }
+}
+
 let toastT;
 function toast(msg) {
   const t = $('#toast'); t.textContent = msg; faDigits(t); t.classList.add('show');
@@ -971,6 +1057,11 @@ document.addEventListener('click', e => {
       if (l) runAlarms(l); else toast(T('toastOn'));
       break;
     }
+    case 'bannerBtn': $('#banner').hidden = true; if (bannerAction) bannerAction(); break;
+    case 'updBtn':
+      if (t.dataset.do === 'install') startInstall();
+      else { updState = 'checking'; renderUpd(); try { NATIVE.checkUpdate(); } catch (err) { updState = 'error'; renderUpd(); } }
+      break;
     case 'copyTime': if (pending) copyText(faStr(pending.map(x => ft(x.at)).join(T('listSep')))); break;
   }
 });
@@ -985,7 +1076,7 @@ $('#scName').addEventListener('input', e => { S.scName = e.target.value.trim() |
 setInterval(() => { if (Math.floor(Date.now() / MIN) !== lastMinute) render(); }, 5000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
 
-if (PWA && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+if (PWA && !NATIVE && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   const hadController = !!navigator.serviceWorker.controller;
   let reloaded = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -996,6 +1087,7 @@ if (PWA && 'serviceWorker' in navigator && (location.protocol === 'https:' || lo
 applyPlat();
 applyLang();
 render();
+autoCheck();
 })();
 </script>
 
