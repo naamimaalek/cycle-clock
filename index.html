@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cycle Clock</title>
-<meta name="theme-color" content="#0D0B12">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#EEF1F8">
+<meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Cycle Clock">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -19,14 +19,17 @@
 
 <style>
 :root{
-  color-scheme: dark;
-  --bg:#0D0B12; --bg-2:#16131D; --bg-3:#211C2A; --line:#2A2434; --line-2:#3B3448;
-  --text:#EFE7DA; --muted:#A79EB0; --faint:#6F6779;
-  --amber:#F4A259; --amber-2:#FFC690; --amber-ink:#22140A; --amber-glow:rgba(244,162,89,.14);
-  --rem:#A794FF; --deep:#5B76E6; --light:#8E87A1; --warn:#EE8272; --good:#9BD4A6;
+  color-scheme: light;
+  --bg:#EEF1F8;
+  --card:#FFFFFF; --soft:#F4F6FB; --soft-2:#E8ECF5; --line:#E2E6EF; --line-2:#D3D9E6;
+  --ink:#141A31; --ink-2:#3E4767; --muted:#646D8A;
+  --night:#3D4FD8; --sky:#7A9BFF; --sky-soft:#E6ECFF;
+  --sun:#E04E2A; --sun-soft:#FFECE5; --sun-ink:#B53A1A;
+  --good:#12855A; --good-soft:#E1F4EB; --warn:#D23A40; --warn-soft:#FDEBEC; --ok:#A6600B; --ok-soft:#FCF0DE;
+  --shadow:0 1px 2px rgba(20,26,49,.05), 0 12px 32px -10px rgba(20,26,49,.16);
+  --shadow-s:0 1px 2px rgba(20,26,49,.06);
   --f-display: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, sans-serif;
   --f-text: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
-  --f-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 html[lang="fa"]{
   --f-display: -apple-system, BlinkMacSystemFont, system-ui, "Vazirmatn", "Noto Sans Arabic", Tahoma, sans-serif;
@@ -34,212 +37,168 @@ html[lang="fa"]{
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{background:var(--bg)}
-body{margin:0;color:var(--text);font:16px/1.45 var(--f-text);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--ink);font:16px/1.45 var(--f-text);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;
+  background:radial-gradient(90% 50% at 0% 0%, #DCE5FF 0%, rgba(220,229,255,0) 70%), radial-gradient(80% 45% at 100% 0%, #FFE6DA 0%, rgba(255,230,218,0) 70%), var(--bg)}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
-:focus-visible{outline:2px solid var(--amber-2);outline-offset:2px}
-.wrap{max-width:1060px;margin:0 auto;padding-inline:max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));padding-block:10px 36px}
+:focus-visible{outline:2px solid var(--night);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));padding-block:8px 32px}
 
 /* header */
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px}
-.brand{display:flex;align-items:center;gap:9px;font:650 18px/1 var(--f-display);letter-spacing:.005em}
-.brand svg{width:22px;height:22px;flex:none}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px}
+.brand{display:flex;align-items:center;gap:9px;font:650 19px/1 var(--f-display)}
+.brand svg{width:26px;height:26px;flex:none}
 .top-actions{display:flex;gap:8px}
-.iconbtn{width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:var(--bg-2);color:var(--muted);display:grid;place-items:center;padding:0}
+.iconbtn{min-width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink-2);display:grid;place-items:center;padding:0 10px;box-shadow:var(--shadow-s)}
 .iconbtn svg{width:20px;height:20px}
-.iconbtn.lang{width:auto;min-width:42px;padding-inline:10px;color:var(--text);font:700 16px/1 var(--f-text)}
-html[lang="fa"] .iconbtn.lang{font:700 14px/1 -apple-system, BlinkMacSystemFont, system-ui, sans-serif;letter-spacing:.04em}
-html[lang="en"] .iconbtn.lang{font:700 17px/1 -apple-system, BlinkMacSystemFont, system-ui, "Vazirmatn", "Noto Sans Arabic", Tahoma, sans-serif}
-.status{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;flex-wrap:wrap;margin-block:8px 16px;color:var(--muted);font-size:14px}
-.status b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
-.latchip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding-block:0;padding-inline:12px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg-2);color:var(--muted);font-size:14px}
-.latchip b{color:var(--amber-2)}
-.latchip svg{width:14px;height:14px}
-[dir="rtl"] .latchip svg{transform:scaleX(-1)}
+.iconbtn.lang{font:700 16px/1 -apple-system, system-ui, "Vazirmatn", "Noto Sans Arabic", Tahoma, sans-serif;color:var(--ink)}
+html[lang="fa"] .iconbtn.lang{font-size:14px}
 
-/* mode switch */
-.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;background:var(--bg-2);border:1px solid var(--line);border-radius:17px}
-.seg button{border:0;background:transparent;color:var(--muted);font-weight:600;font-size:15px;padding:0 4px;min-height:46px;border-radius:13px;transition:background .15s,color .15s}
-.seg button[aria-selected="true"]{background:var(--bg-3);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
+/* mode tabs */
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;padding:4px;margin-top:8px;background:var(--soft-2);border-radius:16px}
+.seg button{border:0;background:transparent;color:var(--ink-2);font-weight:600;font-size:15px;min-height:44px;border-radius:12px;padding:0 4px;transition:background .15s,color .15s,box-shadow .15s}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(20,26,49,.14)}
 
 /* inputs */
-.in{display:grid;gap:10px;padding-block:18px 2px}
-.lbl{font-size:12px;font-weight:650;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-.lbl + .lbl, .chips + .lbl, input[type=range] + .chips + .lbl{margin-top:6px}
-.picker{display:grid;grid-template-columns:58px minmax(0,1fr) 58px;align-items:stretch;gap:10px}
-.step{border-radius:17px;border:1px solid var(--line);background:var(--bg-2);color:var(--text);font:600 16px/1 var(--f-display);font-variant-numeric:tabular-nums;min-height:72px;padding:0}
-.step:active,.opt:active,.chips button:active{transform:scale(.97)}
-.disp{position:relative;display:flex;justify-content:center;align-items:center;gap:7px;min-height:72px;border-radius:19px;background:var(--bg-2);border:1px solid var(--line-2);font:600 42px/1 var(--f-display);letter-spacing:-.01em;font-variant-numeric:tabular-nums;overflow:hidden;padding-inline:8px}
-.disp.long{font-size:23px;white-space:nowrap}
-.disp small{font-size:17px;color:var(--muted);font-weight:650;letter-spacing:.02em}
-.disp input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:pointer;border:0;margin:0}
+.in{display:grid;gap:10px;padding-top:18px}
+.lbl{font-size:14px;font-weight:550;color:var(--muted)}
+.picker{display:grid;grid-template-columns:58px minmax(0,1fr) 58px;gap:10px}
+.step,.disp{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow-s)}
+.step{min-height:74px;border-radius:18px;color:var(--ink-2);font:600 16px/1 var(--f-display);font-variant-numeric:tabular-nums;padding:0}
+.disp{position:relative;display:flex;align-items:baseline;justify-content:center;gap:7px;min-height:74px;border-radius:20px;padding:18px 8px 0;font:650 44px/1 var(--f-display);letter-spacing:-.01em;font-variant-numeric:tabular-nums;overflow:hidden}
+.disp.long{font-size:25px;padding-top:24px;white-space:nowrap}
+.disp small{font-size:17px;font-weight:650;color:var(--muted)}
+.disp input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;margin:0;cursor:pointer}
+.step:active,.opt:active,.chips button:active,.pills button:active{transform:scale(.96)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chips button{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:14px;font-weight:550;font-variant-numeric:tabular-nums;transition:background .15s,border-color .15s,color .15s}
-.chips button.on,.chips button[aria-pressed="true"]{background:var(--amber-glow);border-color:rgba(244,162,89,.55);color:var(--amber-2)}
-.chips button span{opacity:.75;margin-inline-start:4px}
-input[type=range]{width:100%;margin:2px 0;accent-color:var(--amber);height:30px}
+.chips button{min-height:40px;padding:0 15px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink-2);font-size:14.5px;font-weight:550;font-variant-numeric:tabular-nums;box-shadow:var(--shadow-s);transition:background .15s,border-color .15s,color .15s}
+.chips button.on,.chips button[aria-pressed="true"]{background:var(--sun-soft);border-color:#F3A58F;color:var(--sun-ink)}
+.chips.fit{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.chips.fit button{padding:0 4px;font-size:14px}
+.pills.full{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr))}
+.pills.full button{padding:0 4px;min-height:40px}
+.assume{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;margin-top:14px;padding:0;border:0;background:none;color:var(--muted);font-size:13.5px;text-align:start;line-height:1.4}
+.assume .link{color:var(--night);font-weight:600}
 
-/* hero */
-.hero{position:relative;margin-top:18px;padding:20px 18px 18px;border-radius:26px;background:radial-gradient(130% 70% at 12% 0%, rgba(244,162,89,.11), transparent 62%), var(--bg-2);border:1px solid var(--line);overflow:hidden}
-[dir="rtl"] .hero{background:radial-gradient(130% 70% at 88% 0%, rgba(244,162,89,.11), transparent 62%), var(--bg-2)}
-.eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
-.big{display:flex;align-items:baseline;gap:10px;margin-top:6px;font:600 clamp(64px,19vw,104px)/.95 var(--f-display);letter-spacing:-.035em;font-variant-numeric:tabular-nums}
-.big .ap{font-size:.29em;letter-spacing:0;color:var(--muted);font-weight:650}
+/* result card */
+.result{position:relative;margin-top:20px;padding:22px 20px 20px;border-radius:28px;background:var(--card);box-shadow:var(--shadow);border:1px solid rgba(20,26,49,.04)}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--sun)}
+.eyebrow.bed{color:var(--night)}
+.big{display:flex;align-items:baseline;gap:10px;margin-top:6px;font:700 clamp(64px,19vw,100px)/.95 var(--f-display);letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+.big .ap{font-size:.28em;letter-spacing:0;color:var(--muted);font-weight:650}
 .big.flip{animation:flip .22s ease-out}
-@keyframes flip{from{opacity:.25;transform:translateY(6px)}to{opacity:1;transform:none}}
-.hsub{margin-top:10px;font-size:15px;font-variant-numeric:tabular-nums;color:var(--text)}
-.verdict{display:flex;gap:9px;margin:10px 0 0;font-size:14px;line-height:1.45;color:var(--muted);max-width:60ch}
-.verdict::before{content:"";flex:0 0 8px;height:8px;border-radius:50%;margin-top:6px;background:var(--faint)}
-.verdict.good::before{background:var(--good)}
-.verdict.ok::before{background:var(--amber)}
+@keyframes flip{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
+.hsub{margin-top:10px;font-size:15px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.strip{display:flex;gap:3px;height:30px;margin-top:20px}
+.strip::after{content:"";flex:none;align-self:center;width:12px;height:12px;margin-inline-start:4px;border-radius:50%;background:var(--sun);box-shadow:0 0 0 4px var(--sun-soft)}
+.blk{display:grid;place-items:center;min-width:3px;border-radius:8px;font:650 11px/1 var(--f-text);font-style:normal;color:#fff;overflow:hidden}
+.blk.lat{background:repeating-linear-gradient(135deg, var(--soft-2) 0 4px, var(--card) 4px 8px);box-shadow:inset 0 0 0 1px var(--line)}
+.blk.nap{background:var(--sky-soft);color:var(--night)}
+.blk.part{background:repeating-linear-gradient(135deg, var(--warn-soft) 0 4px, var(--card) 4px 8px);box-shadow:inset 0 0 0 1.5px var(--warn)}
+.axis{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.verdict{display:flex;gap:9px;margin:14px 0 0;font-size:14px;line-height:1.45;color:var(--ink-2)}
+.verdict::before{content:"";flex:0 0 8px;height:8px;border-radius:50%;margin-top:6px;background:var(--good)}
+.verdict.ok::before{background:var(--ok)}
 .verdict.warn::before{background:var(--warn)}
-.verdict.warn{color:#E9C9C2}
-#chart{display:block;width:100%;height:156px;margin-top:14px;overflow:visible;direction:ltr}
-#chart .gl{stroke:var(--line);stroke-width:1;stroke-dasharray:2 5}
-#chart .rl{fill:var(--faint);font:500 10px var(--f-mono)}
-#chart .conn{stroke:var(--line-2);stroke-width:1.5}
-#chart .sg{stroke-width:3.5;stroke-linecap:round}
-#chart .s0{stroke:var(--muted)} #chart .s1{stroke:var(--rem)} #chart .s2{stroke:var(--light)} #chart .s3{stroke:var(--deep)}
-#chart .sg.lat{stroke:var(--faint);stroke-width:2.5;stroke-dasharray:1 6}
-#chart .tick{stroke:var(--line-2);stroke-width:1}
-#chart .cn{fill:var(--faint);font:600 10px var(--f-mono)}
-#chart .fade{fill:var(--bg-2);opacity:.74}
-#chart .wk{stroke:var(--amber);stroke-width:1.5}
-#chart .wkdot{fill:var(--amber);stroke:var(--bg-2);stroke-width:3}
-#chart .wkl{fill:var(--amber-2);font:650 11px var(--f-text)}
-#chart .warn .wk{stroke:var(--warn)} #chart .warn .wkdot{fill:var(--warn)} #chart .warn .wkl{fill:var(--warn)}
-#chart .ax{fill:var(--faint);font:500 11px var(--f-text)}
-html[lang="fa"] #chart .rl, html[lang="fa"] #chart .cn{font:500 10.5px var(--f-text)}
-.cap{margin:4px 0 0;font-size:12.5px;color:var(--faint);line-height:1.45}
-.actions{display:grid;gap:10px;margin-top:16px}
-.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:0 16px;border-radius:17px;border:1px solid transparent;font-size:17px;font-weight:650;text-decoration:none;font-variant-numeric:tabular-nums;transition:transform .08s}
-.btn svg{width:20px;height:20px;flex:none}
+.note{display:grid;gap:10px;margin-top:14px;padding:12px 14px;border-radius:16px;background:var(--sky-soft);color:var(--ink-2);font-size:14px;line-height:1.5}
+.note b{color:var(--ink)}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:6px 18px;border-radius:18px;border:1px solid transparent;font-size:17px;font-weight:650;text-decoration:none;font-variant-numeric:tabular-nums;transition:transform .08s}
 .btn:active{transform:scale(.985)}
-.btn.primary{background:var(--amber);color:var(--amber-ink)}
-.btn.ghost{background:transparent;border-color:var(--line-2);color:var(--text)}
+.btn svg{width:21px;height:21px;flex:none}
+.btn.primary{background:var(--sun);color:#fff;box-shadow:0 10px 22px -10px rgba(224,78,42,.7)}
+.btn.ghost{background:var(--card);border-color:var(--line-2);color:var(--ink)}
 .btn.small{min-height:46px;font-size:15px;border-radius:14px}
+.btn.tiny{min-height:38px;padding:0 12px;font-size:14px;border-radius:12px}
+.btxt{display:grid;justify-items:center;line-height:1.2}
+.btxt small{font-size:12.5px;font-weight:550;opacity:.92}
+#alarmBtn{width:100%;margin-top:18px}
+.rem{display:grid;gap:10px;margin-top:16px}
+.remrow{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+.remlbl{font-size:14.5px;font-weight:550;color:var(--ink-2)}
+.pills{display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;border-radius:12px;background:var(--soft-2)}
+.pills button{min-width:40px;min-height:34px;padding:0 10px;border:0;border-radius:9px;background:transparent;color:var(--ink-2);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.pills button[aria-pressed="true"]{background:var(--card);color:var(--sun-ink);box-shadow:0 1px 3px rgba(20,26,49,.14)}
+.remtimes{margin:0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ring{display:grid;gap:10px;margin-top:14px;padding:12px 14px;border-radius:16px;background:var(--soft)}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.checks li{position:relative;padding-inline-start:18px;font-size:14px;line-height:1.5;color:var(--ink-2)}
+.checks li::before{content:"";position:absolute;inset-inline-start:0;top:7px;width:8px;height:8px;border-radius:50%;background:var(--good)}
+.checks li.ok::before{background:var(--ok)}
+.checks li.warn::before{background:var(--warn)}
+.checks b{color:var(--ink)}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
 
-/* options */
-.side-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:24px 2px 10px}
-.side-head h2{margin:0;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-.side-head span{font-size:13px;color:var(--faint);flex:none}
+/* other times */
+.h2{margin:26px 2px 10px;font-size:14px;font-weight:600;color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .grid.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
-.opt{display:grid;gap:5px;justify-items:start;align-content:start;text-align:start;padding:14px 14px 13px;border-radius:17px;background:var(--bg-2);border:1px solid var(--line);color:var(--text);transition:border-color .15s,background .15s}
-.opt-time{font:600 27px/1.05 var(--f-display);letter-spacing:-.015em;font-variant-numeric:tabular-nums;white-space:nowrap}
-.opt-time small{font-size:13px;color:var(--muted);margin-inline-start:4px;font-weight:650;letter-spacing:.02em}
+.opt{display:grid;gap:5px;justify-items:start;align-content:start;text-align:start;padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow-s);color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.opt-time{font:650 26px/1.05 var(--f-display);letter-spacing:-.015em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.opt-time small{margin-inline-start:4px;font-size:13px;font-weight:650;color:var(--muted)}
 .opt-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .g3 .opt{padding:12px 11px}
 .g3 .opt-time{font-size:21px}
 .g3 .opt-meta{font-size:12px}
-.g3 .tag{letter-spacing:.04em;white-space:nowrap}
-.tag{font-size:10px;font-weight:750;letter-spacing:.09em;text-transform:uppercase;padding:4px 7px;border-radius:7px;background:var(--bg-3);color:var(--muted);line-height:1}
-.tag.best{background:var(--amber);color:var(--amber-ink)}
-.tag.good{background:rgba(155,212,166,.10);color:var(--good)}
-.tag.short{background:rgba(244,162,89,.10);color:var(--amber-2)}
-.tag.bad{background:rgba(238,130,114,.10);color:var(--warn)}
-.tag.nap{background:rgba(167,148,255,.12);color:var(--rem)}
-.tag.pick{background:var(--bg-3);color:var(--text)}
-.opt.sel{border-color:var(--amber);box-shadow:inset 0 0 0 1px var(--amber);background:#1B1720}
-.opt.past{opacity:.5}
-.note{display:grid;gap:12px;margin-top:12px;padding:14px 15px;border-radius:17px;border:1px dashed var(--line-2);font-size:14px;line-height:1.5;color:var(--muted)}
-.note b{color:var(--text);font-weight:600}
-.foot{margin:22px 2px 0;font-size:12.5px;line-height:1.5;color:var(--faint);max-width:62ch}
+.tag{padding:3px 8px;border-radius:7px;font-size:11px;font-weight:650;line-height:1.4;white-space:nowrap;background:var(--soft-2);color:var(--ink-2)}
+.tag.best{background:var(--sun);color:#fff}
+.tag.good{background:var(--good-soft);color:var(--good)}
+.tag.short{background:var(--ok-soft);color:var(--ok)}
+.tag.bad{background:var(--warn-soft);color:var(--warn)}
+.tag.nap{background:var(--sky-soft);color:var(--night)}
+.tag.passed{color:var(--muted)}
+.opt.sel{border-color:var(--sun);box-shadow:inset 0 0 0 1px var(--sun), var(--shadow-s)}
+.opt.past{opacity:.55}
+.cap{margin:16px 2px 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
 
 @media (min-width: 880px){
-  .app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"ctl hero" "side hero";column-gap:28px;align-items:start}
-  .ctl{grid-area:ctl}.hero{grid-area:hero}.side{grid-area:side}
-  .side-head{margin-top:26px}
-  .hero{margin-top:0}
+  .app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"ctl result" "side result";column-gap:28px;align-items:start}
+  .ctl{grid-area:ctl}.side{grid-area:side}
+  .result{grid-area:result;margin-top:8px;position:sticky;top:calc(env(safe-area-inset-top, 0px) + 12px)}
 }
 
 /* sheets */
-dialog{padding:0;border:1px solid var(--line);background:var(--bg-2);color:var(--text);width:100%;max-width:560px;max-height:min(90vh, 900px);margin:auto auto 0;border-radius:24px 24px 0 0;overflow:hidden}
-dialog::backdrop{background:rgba(6,5,9,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+dialog{width:100%;max-width:560px;max-height:min(90vh, 900px);margin:auto auto 0;padding:0;border:0;border-radius:26px 26px 0 0;background:var(--card);color:var(--ink);overflow:hidden;box-shadow:0 -10px 40px rgba(20,26,49,.18)}
+dialog::backdrop{background:rgba(20,26,49,.32);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 dialog[open]{animation:rise .22s ease-out}
-@keyframes rise{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
-@media (min-width: 640px){ dialog{margin:auto;border-radius:24px} }
-.sh{max-height:min(90vh, 900px);overflow-y:auto;overscroll-behavior:contain;padding:18px 18px calc(22px + env(safe-area-inset-bottom, 0px))}
-.sh-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+@keyframes rise{from{transform:translateY(24px);opacity:.5}to{transform:none;opacity:1}}
+@media (min-width: 640px){ dialog{margin:auto;border-radius:26px} }
+.sh{max-height:min(90vh, 900px);overflow-y:auto;overscroll-behavior:contain;padding:20px 20px calc(24px + env(safe-area-inset-bottom, 0px))}
+.sh-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:4px}
 .sh-head h2{margin:0;font:650 22px/1.2 var(--f-display);text-wrap:balance}
 .sec{display:grid;gap:12px;padding-block:18px;border-top:1px solid var(--line)}
-.sec:first-of-type{border-top:0;padding-top:8px}
-.sec h3{margin:0;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--amber)}
-.latbig{font:600 44px/1 var(--f-display);font-variant-numeric:tabular-nums}
-.latbig small{font-size:16px;color:var(--muted);font-weight:600;margin-inline-start:6px;letter-spacing:0}
-.latbig em{display:block;margin-top:6px;font:500 13px/1.3 var(--f-text);font-style:normal;color:var(--faint)}
-.brk{list-style:none;margin:0;padding:0;display:grid;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.brk li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 12px;font-size:14px;color:var(--muted);border-top:1px solid var(--line)}
-.brk li:first-child{border-top:0}
-.brk li b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.brk li em{font-style:normal;margin-inline-start:8px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-.row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;font-size:15px}
-.row output,.row .val{color:var(--amber-2);font-weight:600;font-variant-numeric:tabular-nums}
-.hint{margin:0;font-size:13px;line-height:1.5;color:var(--faint)}
-.sub{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:650;color:var(--muted);margin-top:4px}
-.sub span + span{font-weight:500;color:var(--faint)}
-.switch{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:44px;font-size:15px;cursor:pointer}
-.switch input{appearance:none;-webkit-appearance:none;flex:none;width:50px;height:30px;border-radius:999px;background:var(--line-2);position:relative;margin:0;transition:background .2s;cursor:pointer}
-.switch input::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:24px;height:24px;border-radius:50%;background:var(--text);transition:transform .2s}
-.switch input:checked{background:var(--amber)}
-.switch input:checked::after{transform:translateX(20px);background:#fff}
-[dir="rtl"] .switch input:checked::after{transform:translateX(-20px)}
-.mini{display:flex;align-items:center;gap:8px}
-.mini button{width:40px;height:40px;border-radius:12px;border:1px solid var(--line-2);background:transparent;color:var(--text);font-size:18px;padding:0}
-.mini .val{min-width:64px;text-align:center}
-.tinput{background:var(--bg-3);border:1px solid var(--line-2);border-radius:12px;padding:8px 10px;font-size:16px;color:var(--text);min-height:42px;max-width:200px}
-.segs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.segs button{min-height:40px;border-radius:11px;border:1px solid var(--line);background:transparent;color:var(--muted);font-weight:600;font-size:14px;padding:0}
-.segs button[aria-pressed="true"]{background:var(--amber-glow);border-color:rgba(244,162,89,.55);color:var(--amber-2)}
+.sec:first-of-type{border-top:0;padding-top:10px}
+.sec h3{margin:0;font-size:16px;font-weight:650}
+.sec h4{margin:4px 0 0;font-size:14px;font-weight:650;color:var(--ink-2)}
+.hint{margin:0;font-size:13px;line-height:1.5;color:var(--muted)}
+.p{margin:0;font-size:15px;line-height:1.5;color:var(--ink-2)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;font-size:15px;color:var(--ink-2)}
+.tinput{max-width:190px;min-height:42px;padding:8px 10px;border:1px solid var(--line-2);border-radius:12px;background:var(--soft);font-size:16px;color:var(--ink)}
 .steps{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:10px}
-.steps li{counter-increment:s;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;font-size:15px;line-height:1.45;color:var(--muted)}
-.steps li::before{content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--bg-3);border:1px solid var(--line-2);color:var(--amber-2);font:700 13px var(--f-mono)}
-html[lang="fa"] .steps li::before{content:counter(s, persian);font:700 14px var(--f-text)}
-.steps b{color:var(--text);font-weight:600}
-.p{margin:0;font-size:15px;line-height:1.5;color:var(--muted)}
-.checks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.checks li{position:relative;padding-inline-start:18px;font-size:14px;line-height:1.5;color:var(--muted)}
-.checks li::before{content:"";position:absolute;inset-inline-start:0;top:7px;width:8px;height:8px;border-radius:50%;background:var(--good)}
-.checks li.ok::before{background:var(--amber)}
-.checks li.warn::before{background:var(--warn)}
-.checks li.warn{color:#E9C9C2}
-.checks b{color:var(--text);font-weight:600}
-.ring{display:grid;gap:10px;margin-top:14px;padding:13px 14px;border-radius:16px;background:var(--bg-3);border:1px solid var(--line-2)}
-.btnrow{display:flex;flex-wrap:wrap;gap:8px}
-.btn.tiny{min-height:38px;font-size:14px;border-radius:12px;padding:0 12px}
-.rem{display:grid;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
-.rem-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
-.rem-head .hint{font-size:13px}
-.rem-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:15px;color:var(--muted)}
-.rem-row .chips button{min-height:36px;padding:0 12px}
-.rem-list{display:flex;flex-wrap:wrap;gap:8px}
-.rem-item{display:grid;gap:2px;padding:8px 12px;border-radius:12px;background:var(--bg-3);border:1px solid var(--line-2);font-variant-numeric:tabular-nums}
-.rem-item b{font:600 17px/1.1 var(--f-display);color:var(--text)}
-.rem-item span{font-size:12px;color:var(--muted)}
-.linkbtn{background:none;border:0;color:var(--faint);font-size:14px;text-decoration:underline;text-underline-offset:3px;padding:10px 0;justify-self:start}
-.linkbtn.armed{color:var(--warn)}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;font-size:15px;line-height:1.45;color:var(--ink-2)}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--sun-soft);color:var(--sun-ink);font:700 13px var(--f-text)}
+html[lang="fa"] .steps li::before{content:counter(s, persian);font-size:14px}
+.steps b,.tip b{color:var(--ink);font-weight:650}
+.tip{margin:0;padding:12px 14px;border-radius:14px;background:var(--ok-soft);color:#5E4310;font-size:14px;line-height:1.5}
+.actions{display:grid;gap:10px}
 
-.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom, 0px));transform:translate(-50%, 20px);opacity:0;pointer-events:none;background:var(--text);color:var(--bg);padding:11px 16px;border-radius:14px;font-size:14px;font-weight:600;max-width:calc(100% - 32px);transition:opacity .2s,transform .2s;z-index:10;text-align:center}
-.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom, 0px));z-index:10;max-width:calc(100% - 32px);padding:11px 16px;border-radius:14px;background:var(--ink);color:#fff;font-size:14px;font-weight:600;text-align:center;opacity:0;pointer-events:none;transform:translate(-50%, 16px);transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translate(-50%, 0)}
 
-/* Persian: Arabic script must never be letter-spaced, and reads best a touch larger with more leading */
+/* Persian: Arabic script is never letter-spaced; a touch more leading reads better */
 html[lang="fa"] *{letter-spacing:0!important}
-html[lang="fa"] .lbl, html[lang="fa"] .eyebrow, html[lang="fa"] .side-head h2, html[lang="fa"] .sec h3{font-size:14px}
-html[lang="fa"] .tag{font-size:12px;padding:4px 8px 5px}
-html[lang="fa"] .brk li em{font-size:11px}
-html[lang="fa"] .seg button{font-size:14.5px}
-html[lang="fa"] .verdict, html[lang="fa"] .note, html[lang="fa"] .hint, html[lang="fa"] .cap,
-html[lang="fa"] .p, html[lang="fa"] .foot, html[lang="fa"] .steps li, html[lang="fa"] .checks li{line-height:1.8}
-html[lang="fa"] .big .ap{font-size:.27em}
-
+html[lang="fa"] .eyebrow{font-size:14px}
+html[lang="fa"] .tag{font-size:12px}
+html[lang="fa"] .verdict, html[lang="fa"] .note, html[lang="fa"] .hint, html[lang="fa"] .cap, html[lang="fa"] .p,
+html[lang="fa"] .steps li, html[lang="fa"] .checks li, html[lang="fa"] .tip, html[lang="fa"] .assume{line-height:1.8}
+html[lang="fa"] .big .ap{font-size:.26em}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a8.6 8.6 0 1 0 10.7 10.7z" fill="#F4A259"/></svg>
+      <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="19.5" cy="7" r="3" fill="#E04E2A"/><path d="M20.4 15.6A8.4 8.4 0 0 1 10.4 5.6a8.4 8.4 0 1 0 10 10z" fill="#3D4FD8"/></svg>
       <span data-t="brand">Cycle Clock</span>
     </div>
     <div class="top-actions">
@@ -250,15 +209,8 @@ html[lang="fa"] .big .ap{font-size:.27em}
     </div>
   </header>
 
-  <div class="status">
-    <span><span data-t="now">Now</span> <b id="nowT">--:--</b></span>
-    <button class="latchip" id="latChip" type="button"><span id="latTxt"></span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-    </button>
-  </div>
-
   <main class="app">
-    <section class="ctl" data-ta="planAria">
+    <section class="ctl">
       <div class="seg" role="tablist">
         <button type="button" role="tab" data-mode="wake" data-t="modeWake" aria-selected="true">Wake up at</button>
         <button type="button" role="tab" data-mode="now" data-t="modeNow" aria-selected="false">Sleep now</button>
@@ -277,7 +229,7 @@ html[lang="fa"] .big .ap{font-size:.27em}
       </div>
 
       <div class="in" data-mode="now" hidden>
-        <div class="lbl" data-t="lblLights">Lights out</div>
+        <div class="lbl" data-t="lblNow">Going to bed</div>
         <div class="chips">
           <button type="button" data-delay="0" data-t="d0">Now</button>
           <button type="button" data-delay="10" data-t="d10">in 10 min</button>
@@ -293,48 +245,36 @@ html[lang="fa"] .big .ap{font-size:.27em}
           <div class="disp" id="dDisp"><span id="dTime">7h 30m</span></div>
           <button class="step" type="button" data-dstep="15" data-ta="more">+15</button>
         </div>
-        <input type="range" id="durRange" min="10" max="720" step="5" value="450" data-ta="durAria">
-        <div class="chips" id="durChips"></div>
-        <div class="lbl" data-t="lblLights">Lights out</div>
-        <div class="chips">
-          <button type="button" data-delay="0" data-t="d0">Now</button>
-          <button type="button" data-delay="10" data-t="d10">in 10 min</button>
-          <button type="button" data-delay="20" data-t="d20">in 20 min</button>
-          <button type="button" data-delay="30" data-t="d30">in 30 min</button>
-        </div>
+        <div class="chips fit" id="durChips"></div>
       </div>
+
+      <button class="assume" type="button" id="assumeBtn"><span id="assumeTxt"></span><span class="link" data-t="change">Change</span></button>
     </section>
 
-    <section class="hero" aria-live="polite">
+    <section class="result" aria-live="polite">
       <div class="eyebrow" id="hEye"></div>
       <div class="big" id="hBig"><span id="hTime">--:--</span><span class="ap" id="hAp"></span></div>
       <div class="hsub" id="hSub"></div>
-      <p class="verdict" id="hVerdict"></p>
-      <svg id="chart" role="img" data-ta="chartAria"></svg>
-      <p class="cap" data-t="cap"></p>
-      <div class="actions">
-        <button class="btn primary" type="button" id="alarmBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.6 1.8H4.4z"/><path d="M10 21a2.2 2.2 0 0 0 4 0"/></svg>
-          <span id="alarmLbl"></span>
-        </button>
-      </div>
-      <div class="rem" id="rem">
-        <div class="rem-head"><span class="lbl" data-t="remTitle">Reminders</span><span class="hint" id="remSub"></span></div>
-        <div class="rem-row"><span data-t="remCount">How many</span>
-          <div class="mini"><button type="button" data-rstep="-1" data-ta="remFewer">−</button><span class="val" id="remN">2</span><button type="button" data-rstep="1" data-ta="remMore">+</button></div>
-        </div>
-        <div class="rem-row"><span data-t="remGap">How far apart</span><div class="chips" id="remGaps"></div></div>
-        <div class="rem-list" id="remList"></div>
-        <button class="btn ghost small" type="button" id="remBtn"></button>
+      <div class="strip" id="strip" role="img" data-ta="stripAria"></div>
+      <div class="axis"><span id="axStart"></span><span id="axEnd"></span></div>
+      <p class="verdict" id="hVerdict" hidden></p>
+      <div class="note" id="note" hidden></div>
+      <button class="btn primary" type="button" id="alarmBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.6 1.8H4.4z"/><path d="M10 21a2.2 2.2 0 0 0 4 0"/></svg>
+        <span class="btxt"><span id="alarmLbl"></span><small id="alarmSub" hidden></small></span>
+      </button>
+      <div class="rem">
+        <div class="remrow"><span class="remlbl" data-t="remTitle">Reminders</span><div class="pills" id="remCount"></div></div>
+        <div class="remrow" id="remEveryRow" hidden><span class="remlbl" data-t="every">Every</span><div class="pills" id="remEvery"></div></div>
+        <p class="remtimes" id="remTimes" hidden></p>
       </div>
       <div class="ring" id="ring" hidden></div>
     </section>
 
     <section class="side">
-      <div class="side-head"><h2 id="optsTitle"></h2><span data-t="tapCompare">Tap to compare</span></div>
+      <h2 class="h2" id="optsTitle"></h2>
       <div class="grid" id="opts"></div>
-      <div class="note" id="note" hidden></div>
-      <p class="foot" id="foot"></p>
+      <p class="cap" data-t="cap"></p>
     </section>
   </main>
 </div>
@@ -344,58 +284,34 @@ html[lang="fa"] .big .ap{font-size:.27em}
     <div class="sh-head"><h2 id="sheetTitle" data-t="settings">Settings</h2>
       <button class="iconbtn" type="button" data-close data-ta="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
-
     <section class="sec">
-      <h3 data-t="secFall">Falling asleep</h3>
-      <div class="latbig"><span id="sLat">15</span><small data-t="min">min</small><em id="sCtx"></em></div>
-      <ul class="brk" id="sBreak"></ul>
-      <label class="row" for="base"><span data-t="usually">Usually takes me</span><output id="baseOut">15 min</output></label>
-      <input type="range" id="base" min="5" max="45" step="5" value="15">
-      <p class="hint" data-t="hintBase"></p>
-      <div class="sub"><span data-t="tonight">Tonight</span><span data-t="tonightClears"></span></div>
-      <div class="chips" id="factors"></div>
-      <label class="switch" for="clockAdj"><span data-t="clockAdj">Adjust for time of night</span><input type="checkbox" id="clockAdj" checked></label>
-      <p class="hint" data-t="hintClock"></p>
+      <h3 data-t="secFall">Time to fall asleep</h3>
+      <div class="pills full" id="latChips" style="--n:6"></div>
+      <p class="hint" data-t="hintFall"></p>
     </section>
-
     <section class="sec">
-      <h3 data-t="secSleep">Your sleep</h3>
-      <label class="row" for="usualWake"><span data-t="usualWake">I usually wake around</span><input class="tinput" type="time" id="usualWake" value="07:00"></label>
-      <div class="row"><span data-t="needLbl">Sleep I need</span></div>
-      <div class="segs" id="needSeg">
-        <button type="button" data-need="420" data-t="n420">7h</button>
-        <button type="button" data-need="450" data-t="n450">7½h</button>
-        <button type="button" data-need="480" data-t="n480">8h</button>
-        <button type="button" data-need="510" data-t="n510">8½h</button>
-        <button type="button" data-need="540" data-t="n540">9h</button>
-      </div>
-      <div class="row"><span data-t="cycleLbl">Sleep cycle length</span>
-        <div class="mini"><button type="button" data-cstep="-5" data-ta="shorter">−</button><span class="val" id="cycleV">90 min</span><button type="button" data-cstep="5" data-ta="longer">+</button></div>
-      </div>
+      <h3 data-t="secCycle">Sleep cycle length</h3>
+      <div class="pills full" id="cycChips" style="--n:5"></div>
       <p class="hint" data-t="hintCycle"></p>
     </section>
-
     <section class="sec">
-      <h3 data-t="secAlarm">One-tap alarms</h3>
+      <h3 data-t="secAlarm">Alarms</h3>
       <p class="p" id="scStatus" data-plat="ios other"></p>
+      <p class="hint" id="dupHint" data-plat="ios other" data-t="dupHint"></p>
       <label class="row" for="scName" data-plat="ios other"><span data-t="scNameLbl">Shortcut name</span><input class="tinput" type="text" id="scName" value="Sleep Alarm" dir="ltr" autocomplete="off" autocapitalize="words" spellcheck="false"></label>
-      <button class="btn ghost small" type="button" id="showSetup" data-plat="ios other" data-t="showSetup">Show setup steps</button>
+      <button class="btn ghost small" type="button" id="showSetup" data-plat="ios other" data-t="showSetup">Setup steps</button>
       <div id="nativeBox" class="ring" data-plat="native"></div>
       <p class="p" data-plat="android" data-t="androidWebStatus"></p>
-      <a class="btn primary small" data-plat="android" data-t="getApk" id="apkLink2" href="#">Download Android app</a>
+      <a class="btn primary small" id="apkLink2" data-plat="android" data-t="getApk" href="#">Download Android app</a>
       <button class="btn ghost small" type="button" id="showAndroid" data-plat="android" data-t="howInstall">How to install</button>
-      <button class="btn ghost small" type="button" id="testAlarm" data-plat="ios native" data-t="btnTest">Test alarm in 2 minutes</button>
-      <p class="hint" id="testHint" data-plat="ios native" data-t="testHint"></p>
-      <div class="sub" data-plat="ios"><span data-t="ringTitle"></span></div>
-      <ul class="checks" data-plat="ios"><li data-t="ios1"></li><li data-t="ios2"></li><li data-t="ios3"></li><li data-t="ios4"></li></ul>
+      <button class="btn ghost small" type="button" id="testAlarm" data-plat="ios native other" data-t="btnTest">Test alarm in 2 minutes</button>
+      <p class="hint" id="testHint" data-plat="ios native other" data-t="testHint"></p>
+      <div data-plat="ios">
+        <h4 data-t="ringTitle">Make sure it rings</h4>
+        <ul class="checks"><li data-t="ios1"></li><li data-t="ios2"></li><li data-t="ios3"></li></ul>
+      </div>
     </section>
-
-    <section class="sec" id="secInstall" hidden>
-      <h3 data-t="secOffline">Offline</h3>
-      <p class="p" id="installTxt"></p>
-    </section>
-
-    <button class="linkbtn" type="button" id="reset" data-t="reset">Reset all settings</button>
+    <section class="sec" id="secInstall" hidden><p class="hint" id="installTxt"></p></section>
   </div>
 </dialog>
 
@@ -410,18 +326,14 @@ html[lang="fa"] .big .ap{font-size:.27em}
         <li><span data-t="st1"></span></li>
         <li><span data-t="st2"></span></li>
         <li><span data-t="st3"></span></li>
-        <li><span data-t="st3b"></span></li>
-        <li><span id="st4"></span></li>
+        <li><span data-t="st4"></span></li>
+        <li><span id="st5"></span></li>
       </ol>
-      <p class="hint" data-t="alarmHint"></p>
+      <p class="tip" data-t="stDup"></p>
       <div class="actions">
         <button class="btn primary" type="button" id="scDone"><span id="scDoneLbl"></span></button>
         <a class="btn ghost small" href="shortcuts://create-shortcut" data-t="openShortcuts">Open Shortcuts</a>
       </div>
-    </section>
-    <section class="sec" data-plat="ios">
-      <h3 data-t="ringTitle"></h3>
-      <ul class="checks"><li data-t="ios1"></li><li data-t="ios2"></li><li data-t="ios3"></li><li data-t="ios4"></li></ul>
     </section>
     <section class="sec" data-plat="android">
       <p class="p" data-t="androidIntro"></p>
@@ -429,9 +341,7 @@ html[lang="fa"] .big .ap{font-size:.27em}
       <a class="btn primary" id="apkLink" data-t="getApk" href="#">Download Android app</a>
       <p class="hint" data-t="androidNote"></p>
     </section>
-    <section class="sec" data-plat="native">
-      <p class="p" data-t="noClock"></p>
-    </section>
+    <section class="sec" data-plat="native"><p class="p" data-t="noClock"></p></section>
     <div class="actions"><button class="btn ghost small" type="button" id="copyTime" hidden><span id="copyLbl"></span></button></div>
   </div>
 </dialog>
@@ -450,240 +360,186 @@ const KEY = 'cycleclock.v1';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const mod = (a, n) => ((a % n) + n) % n;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const Z = '‌'; // zero-width non-joiner, for Persian compound words
-const EZ = 'ٔ'; // ezafe mark (ـهٔ)
+const Z = '\u200c';  // zero-width non-joiner (Persian compound words)
+const EZ = '\u0654'; // ezafe mark
 
 /* ---------- strings ---------- */
 const I18N = {
   en: {
-    brand: 'Cycle Clock', settings: 'Settings', close: 'Close', now: 'Now',
-    langBtn: 'فا', langAria: 'فارسی',
-    modeWake: 'Wake up at', modeNow: 'Sleep now', modeFor: 'Sleep for', planAria: 'What do you want to plan?',
-    lblWake: 'I want to wake up at', lblLights: 'Lights out', lblFor: 'I want to sleep for',
+    brand: 'Cycle Clock', settings: 'Settings', close: 'Close', langBtn: 'فا', langAria: 'فارسی',
+    modeWake: 'Wake up at', modeNow: 'Sleep now', modeFor: 'Sleep for',
+    lblWake: 'I want to wake up at', lblNow: 'Going to bed', lblFor: 'I want to sleep for',
     d0: 'Now', d10: 'in 10 min', d20: 'in 20 min', d30: 'in 30 min',
     earlier: '15 minutes earlier', later: '15 minutes later', less: '15 minutes less', more: '15 minutes more',
-    wakeAria: 'Wake-up time', durAria: 'Sleep length', chartAria: 'Sleep stages through the night',
-    cap: 'Each dip is one sleep cycle. The short rise where a cycle ends is the easiest moment to wake up.',
-    tapCompare: 'Tap to compare',
-    secFall: 'Falling asleep', min: 'min', usually: 'Usually takes me',
-    hintBase: "Most adults drift off in 10 to 20 minutes. If you're out in under 5, you're probably short on sleep.",
-    tonight: 'Tonight', tonightClears: 'clears itself after 12 hours', clockAdj: 'Adjust for time of night',
-    hintClock: 'Going to bed 1 to 3 hours before your usual bedtime is hard because your body clock is still alert. Well past it, you fall asleep faster.',
-    secSleep: 'Your sleep', usualWake: 'I usually wake around', needLbl: 'Sleep I need',
-    n420: '7h', n450: '7½h', n480: '8h', n510: '8½h', n540: '9h',
-    cycleLbl: 'Sleep cycle length', shorter: 'Shorter cycle', longer: 'Longer cycle',
-    hintCycle: 'Cycles run 80 to 110 minutes depending on the person. If you often wake up groggy at a suggested time, nudge this by 5 minutes and see if it feels better.',
-    secAlarm: 'One-tap alarms', scNameLbl: 'Shortcut name', showSetup: 'Show setup steps',
-    secOffline: 'Offline', reset: 'Reset all settings', resetArm: 'Tap again to reset everything',
-    alarmTitle: 'Set up one-tap alarms',
-    alarmIntro: 'iPhone and iPad only let apps create alarms through the Shortcuts app. Build this small shortcut once and every alarm and reminder button here works with a single tap. If you made the older one-step version, add the Split Text and Repeat steps so reminders work too.',
-    st1: 'Open <b>Shortcuts</b> and tap <b>+</b> to start a new shortcut.',
-    st2: 'Add <b>Split Text</b>. Set the text to <b>Shortcut Input</b>, tap <b>New Lines</b>, choose <b>Custom</b> and type a comma.',
-    st3: 'Add <b>Repeat with Each</b> right under it.',
-    st3b: 'Inside the repeat, add <b>Create Alarm</b> (from the Clock app). Tap its time and choose <b>Repeat Item</b>.',
-    st4: n => `Tap the name at the top, choose <b>Rename</b>, call it <b class="nofa">${n}</b>, then tap <b>Done</b>.`,
-    alarmHint: 'The first time it runs, iOS asks to let the shortcut create alarms. Tap Allow. With iCloud on for Shortcuts, it syncs to your iPad too.',
-    openShortcuts: 'Open Shortcuts',
-    sep: ' · ',
+    wakeAria: 'Wake-up time', stripAria: 'Sleep cycles from bedtime to wake-up',
+    assume: (lat, c) => (lat ? `Includes ${lat} min to fall asleep · ${c}-min cycles` : `No time added to fall asleep · ${c}-min cycles`),
+    change: 'Change',
+    eyeBed: 'Go to bed at', eyeBedPast: 'This bedtime has passed', eyeWake: 'Wake up at',
     period: h => (h < 12 ? 'AM' : 'PM'),
     fd: (h, m) => (!h ? m + ' min' : !m ? h + 'h' : h + 'h ' + m + 'm'),
     dec: x => x.toFixed(1),
-    latChip: n => `Asleep in ~<b>${n}</b> min`,
-    untilIn: d => `in ${d}`, ago: d => `${d} ago`, rightNow: 'right now',
+    sep: ' · ', listSep: ', ',
     cyc: n => `${n} ${n === 1 ? 'cycle' : 'cycles'}`, cycF: x => `${x} cycles`,
-    asleep: d => `${d} asleep`, nap: d => `${d} nap`,
-    eyeBed: 'Lights out at', eyeBedPast: 'Lights out was', eyeWake: 'Wake up at',
-    passedAgo: d => `passed ${d} ago`,
-    vPast: 'This bedtime has passed. Pick a later one, or switch to Sleep now.',
-    vBed: (a, lat, n, w) => `Asleep by about ${a} (~${lat} min to drift off). Cycle ${n} ends right at ${w}.`,
-    asleepBy: a => `Asleep by about ${a}.`,
-    vNap: '20 minutes keeps you in light sleep, so you wake up clear-headed.',
-    vCycleEnd: n => `You'd wake as cycle ${n} ends, when sleep is lightest.`,
-    vShortNight: ' A short night, though.',
-    napV: 'Short enough to stay in light sleep, so you should wake up clear-headed.',
+    asleep: d => `${d} of sleep`, nap: d => `${d} nap`,
+    untilIn: d => `in ${d}`, ago: d => `${d} ago`, rightNow: 'right now', passedAgo: d => `passed ${d} ago`,
+    stripBed: t => `Bed ${t}`, stripWake: t => `Wake ${t}`,
+    cap: 'Each block is one sleep cycle. Waking right as one ends feels easiest.',
+    vPast: 'Pick a later bedtime, or switch to Sleep now.',
+    napV: 'Short enough to stay in light sleep, so you wake up clear-headed.',
     powerNap: 'Power nap. ',
-    endV: n => `Ends right as cycle ${n} finishes, the lightest point to wake.`,
-    vDeep: c => `You'd likely wake from deep sleep, which can leave you groggy for up to half an hour. Try 20 minutes or a full ${c} cycle.`,
+    vDeep: c => `You'd likely wake from deep sleep and feel groggy. Try 20 min or ${c}.`,
     vAligned: n => `Ends right as cycle ${n} finishes, so you should wake up refreshed.`,
     vClose: (n, d) => `Close to the end of cycle ${n}. ${d} would line up exactly.`,
-    vMid: (n, lo, hi) => `Lands in the middle of cycle ${n}, which can leave you groggy. ${lo} or ${hi} would end on a cycle.`,
-    noteShift: (k, t1, ago, t2) => `Your ${k}-cycle bedtime (<b>${t1}</b>) passed ${ago} ago. Go to bed now and set your alarm for <b>${t2}</b> instead to still get ${k} full cycles.`,
-    noteBest: (k, t1, t2, n) => `Your ${k}-cycle bedtime (<b>${t1}</b>) has passed. The best one left is <b>${t2}</b>, for ${n === 1 ? '1 cycle' : n + ' cycles'}.`,
-    noteNone: t => `There isn't time for a full cycle before <b>${t}</b>. A 20 minute power nap is your best option, so try Sleep for.`,
-    noteDay: c => `It's the middle of your day, so naps come first. <b>20 minutes</b> keeps you out of deep sleep. A full <b>${c}</b> cycle lets you wake at its lightest point.`,
-    tg_best: 'Best', tg_good: 'Good', tg_short: 'Short', tg_tooShort: 'Too short', tg_long: 'Long', tg_passed: 'Passed',
-    tg_powerNap: 'Power nap', tg_cycleNap: 'Cycle nap', tg_yourPick: 'Your pick', tg_fullCycles: 'Full cycles',
-    bedsFor: t => `Bedtimes for ${t}`, wakeTimes: 'Wake-up times', nearby: 'Nearby options',
-    setAlarm: t => `Set alarm · ${t}`, remind: t => `Bedtime reminder · ${t}`,
-    foot: c => `Times assume ${c}-minute sleep cycles and your fall-asleep estimate. Real cycles vary from person to person and night to night, so use these as a guide.`,
-    stages: ['Awake', 'REM', 'Light', 'Deep'],
-    wakeLbl: t => `wake ${t}`, lightsLbl: t => `lights out ${t}`, inBed: d => `${d} in bed`,
-    sCtx: t => `for lights out at ${t}`,
-    yourUsual: 'Your usual', minutes: n => `${n} min`, clampNote: 'Kept within 3 to 60 min', auto: 'auto',
-    earlierAuto: 'Earlier than your usual bedtime', laterAuto: 'Well past your usual bedtime',
-    f_caffeine: 'Caffeine after 2 PM', f_wired: 'Stressed or wired', f_screens: 'Scrolling in bed', f_nap: 'Napped today', f_tired: 'Short on sleep',
-    scReady: n => `Set up. Alarm buttons run your “${n}” shortcut. If an alarm doesn't appear, check the setup steps.`,
-    scNotReady: 'Not set up yet. It takes about a minute, once.',
-    installed: 'Installed on this device. Cycle Clock runs fully offline from your Home Screen.',
-    notInstalled: 'In Safari, tap Share, then Add to Home Screen. Open it once from the Home Screen while online, and it works offline from then on.',
-    scDoneFor: t => `It's ready · set alarm for ${t}`, scDone: "It's ready", copy: t => `Copy ${t}`,
-    toastAlarm: t => `Setting your ${t} alarm in Shortcuts`, toastOn: 'One-tap alarms are on',
-    copied: t => `Copied ${t}`, resetDone: 'Settings reset',
-    alarmLabel: 'Cycle Clock',
-    remTitle: 'Reminders', remCount: 'How many', remGap: 'How far apart', remFewer: 'Fewer reminders', remMore: 'More reminders',
-    remBedSub: t => `before bedtime, ${t}`, remWakeSub: t => `before wake-up, ${t}`,
-    remLeftBed: d => `${d} to bed`, remLeftWake: d => `${d} to wake-up`,
-    remSet: n => (n === 1 ? 'Set 1 reminder' : `Set ${n} reminders`), remNone: 'Reminders off',
-    remPast: 'These reminder times have already passed.',
-    remDone: n => (n === 1 ? '1 reminder set' : `${n} reminders set`),
-    gapMin: n => `${n} min`,
-    alarmSet: t => `Alarm set for ${t}`,
-    alarmSetRaised: t => `Alarm set for ${t}. Alarm volume was low, so it's turned up to 70%.`,
-    alarmFailed: "Couldn't reach the Clock app. Open Clock and set the alarm there.",
-    rcConfirmed: t => `Clock confirmed it will ring at <b>${t}</b>.`,
-    rcEarlier: (t1, t2) => `Alarm for <b>${t1}</b> sent to Clock. Another alarm rings first, at ${t2}.`,
-    rcUnknown: t => `Alarm for <b>${t}</b> sent to Clock, but it couldn't be confirmed. Open Clock to check.`,
-    rcVol: p => `Alarm volume is ${p}%.`,
-    rcVolLow: p => `Alarm volume is only ${p}%, so you might not hear it.`,
-    rcDnd: 'Do Not Disturb is set to Total silence, so no alarm will ring.',
-    rcSilent: 'Alarms ring even when the phone is on silent or vibrate.',
-    btnOpenClock: 'Open Clock', btnRaise: 'Turn up alarm volume', btnDnd: 'Fix Do Not Disturb',
+    vMid: (n, lo, hi) => `Lands in the middle of cycle ${n}, which can leave you groggy. ${lo} or ${hi} ends on a cycle.`,
+    noteShift: (t1, t2) => `Your 5-cycle bedtime (${t1}) has passed. Go to bed now and wake at <b>${t2}</b> to still get 5 full cycles.`,
+    noteNone: t => `There isn't time for a full cycle before <b>${t}</b>. A 20 min nap in Sleep for is your best bet.`,
+    tg_best: 'Best', tg_good: 'Good', tg_short: 'Short', tg_tooShort: 'Too short', tg_passed: 'Passed', tg_nap: 'Nap',
+    tg_yourPick: 'Your pick', tg_fullCycles: 'Full cycles', tg_powerNap: 'Power nap',
+    otherBed: 'Other bedtimes', otherWake: 'Other wake-up times', otherFor: 'Closest full cycles',
+    setAlarm: t => `Set alarm for ${t}`, plusRem: n => `+ ${n} ${n === 1 ? 'reminder' : 'reminders'}`,
+    remTitle: 'Reminders', off: 'Off', every: 'Every',
+    remBeforeBed: 'before bedtime', remBeforeWake: 'before wake-up', remPast: 'Those reminder times have already passed.',
+    remLeftBed: d => `${d} to bed`, remLeftWake: d => `${d} to wake-up`, alarmLabel: 'Wake up', testLabel: 'Test alarm',
+    secFall: 'Minutes to fall asleep', none: 'None',
+    hintFall: 'Most people take 10 to 20 minutes. Choose None to plan with sleep cycles only.',
+    secCycle: 'Sleep cycle length in minutes',
+    hintCycle: 'Most cycles last about 90 minutes. Only change this if suggested times leave you groggy.',
+    secAlarm: 'Alarms', minutes: n => `${n} min`, scNameLbl: 'Shortcut name', showSetup: 'Setup steps',
+    scReady: n => `Ready. Alarm buttons run your “${n}” shortcut.`,
+    scNotReady: 'Not set up yet. It takes a minute, once.',
+    dupHint: 'Getting two of every alarm? Open Setup steps: your shortcut should have only one Create Alarm.',
     btnTest: 'Test alarm in 2 minutes',
     testHint: 'Sets a real alarm 2 minutes from now so you can hear it. Delete it in Clock afterwards.',
-    volRaised: 'Alarm volume turned up',
-    nativeReady: "Alarms go straight into your phone's Clock app, so they ring like any other alarm, even with this app closed.",
     ringTitle: 'Make sure it rings',
-    ios1: 'iPhone alarms ring even in Silent mode and during Focus or Do Not Disturb.',
-    ios2: 'How loud they ring follows <b><bdi>Settings → Sounds &amp; Haptics → Ringtone and Alerts</bdi></b>. Keep that slider well up.',
-    ios3: "On that screen, turn off <b><bdi>Change with Buttons</bdi></b> so the side buttons can't turn your alarm down by accident.",
-    ios4: 'Tap <b>Test alarm in 2 minutes</b> once to hear it for real.',
+    ios1: 'iPhone alarms ring even in Silent mode, Focus and Do Not Disturb.',
+    ios2: 'Their volume follows <b><bdi>Settings → Sounds &amp; Haptics → Ringtone and Alerts</bdi></b>. Keep it well up.',
+    ios3: "Turn off <b><bdi>Change with Buttons</bdi></b> on that screen so the side buttons can't turn alarms down by accident.",
+    androidWebStatus: 'One-tap alarms on Android need the Cycle Clock Android app.',
+    getApk: 'Download Android app', howInstall: 'How to install',
     androidTitle: 'Alarms on Android',
-    androidIntro: "A web page can't create alarms on Android, but the Cycle Clock Android app can. It's this same app and works offline. It puts each alarm straight into your Clock app, then checks that the alarm is scheduled and that the alarm volume isn't too low.",
+    androidIntro: "A web page can't create alarms on Android, but the Cycle Clock Android app can. It's this same app and works offline. It puts each alarm straight into your Clock app and checks that it will ring.",
     and1: 'Tap <b>Download Android app</b> below.',
     and2: 'Open the downloaded file. If Android asks, allow your browser to <b>install unknown apps</b>.',
     and3: 'Tap <b>Install</b>, then open Cycle Clock from your apps.',
-    getApk: 'Download Android app', howInstall: 'How to install',
     androidNote: "Play Protect may warn that the developer is unknown. That's because this is your own app and isn't on Google Play.",
-    androidWebStatus: 'One-tap alarms on Android need the Cycle Clock Android app.',
+    nativeReady: "Alarms go straight into your phone's Clock app, so they ring like any other alarm, even with this app closed.",
+    rcConfirmed: t => `Clock confirmed the next alarm rings at <b>${t}</b>.`,
+    rcEarlier: t => `Sent to Clock. An alarm you already had rings first, at ${t}.`,
+    rcUnknown: "Sent to Clock, but it couldn't be confirmed. Open Clock to check.",
+    rcVol: p => `Alarm volume is ${p}%.`, rcVolLow: p => `Alarm volume is only ${p}%, so you might not hear it.`,
+    rcDnd: 'Do Not Disturb is on Total silence, so no alarm will ring.',
+    rcSilent: 'Alarms ring even when the phone is on silent or vibrate.',
+    btnOpenClock: 'Open Clock', btnRaise: 'Turn up alarm volume', btnDnd: 'Fix Do Not Disturb',
     noClockTitle: 'No clock app found',
     noClock: "Your phone doesn't have a Clock app that accepts new alarms. Install Google Clock from the Play Store, then try again.",
-    installAndroid: 'In Chrome, tap ⋮ then Add to Home screen. For alarms, get the Android app instead.',
+    installIos: 'To use it offline, open it in Safari, tap Share, then Add to Home Screen.',
+    installed: 'Installed. Works fully offline.',
+    installAndroid: 'In Chrome, tap ⋮ then Add to Home screen. For alarms, use the Android app.',
     installedNative: 'This is the Android app. It works fully offline.',
+    alarmTitle: 'Set up one-tap alarms',
+    alarmIntro: 'iPhone and iPad only let apps create alarms through the Shortcuts app. Build this small shortcut once and every alarm button here works with one tap.',
+    st1: 'Open <b>Shortcuts</b> and tap <b>+</b>.',
+    st2: 'Add <b>Split Text</b>. Set its text to <b>Shortcut Input</b>, tap <b>New Lines</b>, choose <b>Custom</b> and type a comma.',
+    st3: 'Add <b>Repeat with Each</b> under it.',
+    st4: 'Inside the repeat, add <b>Create Alarm</b>. Tap its time and choose <b>Repeat Item</b>.',
+    st5: n => `Tap the name at the top, choose <b>Rename</b>, call it <b class="nofa">${n}</b>, then tap <b>Done</b>.`,
+    stDup: 'Alarms coming out doubled? The shortcut must have only <b>one Create Alarm</b>, the one inside the repeat. Open the shortcut and delete any other Create Alarm, such as one left from the older setup.',
+    scDone: "It's ready", scDoneFor: t => `It's ready · set alarm for ${t}`, scDoneN: n => `It's ready · set ${n} alarms`,
+    openShortcuts: 'Open Shortcuts', copy: t => `Copy ${t}`,
+    toastAlarm: t => `Opening Shortcuts to set ${t}`, toastAlarmN: n => `Opening Shortcuts to set ${n} alarms`,
+    toastOn: 'One-tap alarms are on',
+    alarmSet: t => `Alarm set for ${t}`, alarmSetN: n => `${n} alarms set`,
+    volUp: "Alarm volume was low, so it's now 70%.",
+    alarmFailed: "Couldn't reach the Clock app. Open Clock and set the alarm there.",
+    volRaised: 'Alarm volume turned up', copied: t => `Copied ${t}`,
   },
   fa: {
-    brand: 'ساعت چرخه', settings: 'تنظیمات', close: 'بستن', now: 'الان',
-    langBtn: 'EN', langAria: 'English',
-    modeWake: 'ساعت بیداری', modeNow: `الان می${Z}خوابم`, modeFor: 'مدت خواب', planAria: `چه چیزی را برنامه${Z}ریزی می${Z}کنی؟`,
-    lblWake: `کی می${Z}خواهی بیدار شوی؟`, lblLights: `کی به رختخواب می${Z}روی؟`, lblFor: `چقدر می${Z}خواهی بخوابی؟`,
+    brand: 'ساعت چرخه', settings: 'تنظیمات', close: 'بستن', langBtn: 'EN', langAria: 'English',
+    modeWake: 'ساعت بیداری', modeNow: `الان می${Z}خوابم`, modeFor: 'مدت خواب',
+    lblWake: `کی می${Z}خواهی بیدار شوی؟`, lblNow: `کی به رختخواب می${Z}روی؟`, lblFor: `چقدر می${Z}خواهی بخوابی؟`,
     d0: 'الان', d10: '۱۰ دقیقه دیگر', d20: '۲۰ دقیقه دیگر', d30: '۳۰ دقیقه دیگر',
     earlier: '۱۵ دقیقه زودتر', later: '۱۵ دقیقه دیرتر', less: '۱۵ دقیقه کمتر', more: '۱۵ دقیقه بیشتر',
-    wakeAria: 'ساعت بیداری', durAria: 'مدت خواب', chartAria: 'مراحل خواب در طول شب',
-    cap: `هر فرورفتگی یک چرخه${EZ} خواب است. برآمدگی کوتاه انتهای هر چرخه، راحت${Z}ترین لحظه برای بیدار شدن است.`,
-    tapCompare: 'برای مقایسه بزن',
-    secFall: 'به خواب رفتن', min: 'دقیقه', usually: `معمولاً طول می${Z}کشد`,
-    hintBase: `بیشتر بزرگسالان ظرف ۱۰ تا ۲۰ دقیقه خوابشان می${Z}برد. اگر کمتر از ۵ دقیقه خوابت می${Z}برد، احتمالاً کم${Z}خوابی داری.`,
-    tonight: 'امشب', tonightClears: `بعد از ۱۲ ساعت خودش پاک می${Z}شود`, clockAdj: 'در نظر گرفتن ساعت شب',
-    hintClock: `یک تا سه ساعت قبل از زمان همیشگی خوابت، ساعت بدن هنوز هوشیار است و خوابیدن سخت${Z}تر است. خیلی دیرتر از آن، زودتر خوابت می${Z}برد.`,
-    secSleep: 'خواب تو', usualWake: 'ساعت بیداری همیشگی', needLbl: 'خواب مورد نیازم (ساعت)',
-    n420: '۷', n450: '۷٫۵', n480: '۸', n510: '۸٫۵', n540: '۹',
-    cycleLbl: `طول هر چرخه${EZ} خواب`, shorter: `چرخه${EZ} کوتاه${Z}تر`, longer: `چرخه${EZ} بلندتر`,
-    hintCycle: `طول چرخه${Z}ها بسته به هر فرد بین ۸۰ تا ۱۱۰ دقیقه است. اگر در زمان${Z}های پیشنهادی اغلب گیج بیدار می${Z}شوی، این عدد را ۵ دقیقه جابه${Z}جا کن و ببین بهتر می${Z}شود یا نه.`,
-    secAlarm: 'زنگ با یک لمس', scNameLbl: `نام میان${Z}بر`, showSetup: `نمایش مراحل راه${Z}اندازی`,
-    secOffline: 'آفلاین', reset: `بازنشانی همه${EZ} تنظیمات`, resetArm: `برای بازنشانی همه${Z}چیز دوباره بزن`,
-    alarmTitle: `راه${Z}اندازی زنگ با یک لمس`,
-    alarmIntro: `آیفون و آیپد فقط از راه برنامه${EZ} Shortcuts اجازه${EZ} ساختن زنگ می${Z}دهند. این میان${Z}بر یک${Z}مرحله${Z}ای را یک بار بساز تا همه${EZ} دکمه${Z}های زنگ و یادآور اینجا با یک لمس کار کنند. اگر نسخه${EZ} قدیمی یک${Z}مرحله${Z}ای را ساخته${Z}ای، مراحل Split Text و Repeat را اضافه کن تا یادآورها هم کار کنند.`,
-    st1: `برنامه${EZ} <b>Shortcuts</b> را باز کن و <b>+</b> را بزن تا یک میان${Z}بر تازه شروع شود.`,
-    st2: `کنش <b>Split Text</b> را اضافه کن. متنش را <b>Shortcut Input</b> بگذار، روی <b>New Lines</b> بزن، <b>Custom</b> را انتخاب کن و یک ویرگول انگلیسی (,) بنویس.`,
-    st3: `درست زیر آن، <b>Repeat with Each</b> را اضافه کن.`,
-    st3b: `داخل تکرار، <b>Create Alarm</b> (از برنامه${EZ} Clock) را اضافه کن. روی زمانش بزن و <b>Repeat Item</b> را انتخاب کن.`,
-    st4: n => `روی نام بالای صفحه بزن، <b>Rename</b> را انتخاب کن، نامش را <b class="nofa">${n}</b> بگذار و بعد <b>Done</b> را بزن.`,
-    alarmHint: `اولین بار که اجرا شود، iOS برای ساختن زنگ اجازه می${Z}خواهد؛ Allow را بزن. اگر iCloud برای Shortcuts روشن باشد، روی آیپد هم ظاهر می${Z}شود.`,
-    openShortcuts: 'باز کردن Shortcuts',
-    sep: '، ',
-    period: h => (h < 5 ? 'بامداد' : h < 12 ? 'صبح' : h < 14 ? 'ظهر' : h < 17 ? `بعدازظهر` : h < 19 ? 'عصر' : 'شب'),
+    wakeAria: 'ساعت بیداری', stripAria: `چرخه${Z}های خواب از رفتن به رختخواب تا بیداری`,
+    assume: (lat, c) => (lat ? `با احتساب ${lat} دقیقه تا خوابت ببرد، چرخه${Z}های ${c} دقیقه${Z}ای` : `بدون زمان به خواب رفتن، چرخه${Z}های ${c} دقیقه${Z}ای`),
+    change: 'تغییر',
+    eyeBed: 'به رختخواب برو ساعت', eyeBedPast: 'این زمان خواب گذشته است', eyeWake: 'بیدار شو ساعت',
+    period: h => (h < 5 ? 'بامداد' : h < 12 ? 'صبح' : h < 14 ? 'ظهر' : h < 17 ? 'بعدازظهر' : h < 19 ? 'عصر' : 'شب'),
     fd: (h, m) => (!h ? m + ' دقیقه' : !m ? h + ' ساعت' : m === 30 ? h + '٫۵ ساعت' : h + ' ساعت و ' + m + ' دقیقه'),
     dec: x => x.toFixed(1).replace('.', '٫'),
-    latChip: n => `حدود <b>${n}</b> دقیقه تا خواب`,
-    untilIn: d => `${d} دیگر`, ago: d => `${d} پیش`, rightNow: 'همین حالا',
+    sep: '، ', listSep: '، ',
     cyc: n => `${n} چرخه`, cycF: x => `${x} چرخه`,
     asleep: d => `${d} خواب`, nap: d => `${d} چرت`,
-    eyeBed: 'به رختخواب برو ساعت', eyeBedPast: 'این زمان گذشته است', eyeWake: 'بیدار شو ساعت',
-    passedAgo: d => `${d} پیش گذشت`,
-    vPast: `این زمان خواب گذشته است. یک زمان دیرتر انتخاب کن یا برو سراغ «الان می${Z}خوابم».`,
-    vBed: (a, lat, n, w) => `حدود ${a} خوابت می${Z}برد (حدود ${lat} دقیقه طول می${Z}کشد). چرخه${EZ} ${n} درست ساعت ${w} تمام می${Z}شود.`,
-    asleepBy: a => `حدود ${a} خوابت می${Z}برد.`,
-    vNap: `۲۰ دقیقه تو را در خواب سبک نگه می${Z}دارد، پس سرحال بیدار می${Z}شوی.`,
-    vCycleEnd: n => `با پایان چرخه${EZ} ${n} بیدار می${Z}شوی، در سبک${Z}ترین لحظه${EZ} خواب.`,
-    vShortNight: ' البته شب کوتاهی است.',
+    untilIn: d => `${d} دیگر`, ago: d => `${d} پیش`, rightNow: 'همین حالا', passedAgo: d => `${d} پیش گذشت`,
+    stripBed: t => `خواب ${t}`, stripWake: t => `بیداری ${t}`,
+    cap: `هر خانه یک چرخه${EZ} خواب است. بیدار شدن درست در پایان یک چرخه از همه راحت${Z}تر است.`,
+    vPast: `یک زمان دیرتر انتخاب کن یا برو سراغ «الان می${Z}خوابم».`,
     napV: `آن${Z}قدر کوتاه است که در خواب سبک می${Z}مانی و سرحال بیدار می${Z}شوی.`,
     powerNap: 'چرت کوتاه. ',
-    endV: n => `درست با پایان چرخه${EZ} ${n} تمام می${Z}شود؛ سبک${Z}ترین لحظه برای بیدار شدن.`,
-    vDeep: c => `احتمالاً از خواب عمیق بیدار می${Z}شوی و ممکن است تا نیم ساعت گیج باشی. ۲۰ دقیقه یا یک چرخه${EZ} کامل ${c} را امتحان کن.`,
+    vDeep: c => `احتمالاً از خواب عمیق بیدار می${Z}شوی و گیج می${Z}مانی. ۲۰ دقیقه یا ${c} را امتحان کن.`,
     vAligned: n => `درست با پایان چرخه${EZ} ${n} تمام می${Z}شود، پس سرحال بیدار می${Z}شوی.`,
-    vClose: (n, d) => `نزدیک پایان چرخه${EZ} ${n} است. ${d} دقیقاً با آن جور درمی${Z}آید.`,
+    vClose: (n, d) => `نزدیک پایان چرخه${EZ} ${n} است. ${d} دقیقاً جور درمی${Z}آید.`,
     vMid: (n, lo, hi) => `وسط چرخه${EZ} ${n} می${Z}افتد و ممکن است گیج بیدار شوی. ${lo} یا ${hi} با پایان یک چرخه جور است.`,
-    noteShift: (k, t1, ago, t2) => `زمان خواب ${k} چرخه${Z}ای${Z}ات (<b>${t1}</b>) ${ago} پیش گذشت. همین حالا بخواب و زنگ را برای <b>${t2}</b> بگذار تا باز هم ${k} چرخه${EZ} کامل بخوابی.`,
-    noteBest: (k, t1, t2, n) => `زمان خواب ${k} چرخه${Z}ای${Z}ات (<b>${t1}</b>) گذشته است. بهترین گزینه${EZ} باقی${Z}مانده <b>${t2}</b> است، برای ${n} چرخه.`,
-    noteNone: t => `تا <b>${t}</b> برای یک چرخه${EZ} کامل وقت نیست. بهترین کار یک چرت ۲۰ دقیقه${Z}ای است؛ «مدت خواب» را امتحان کن.`,
-    noteDay: c => `وسط روزت است، پس اول چرت${Z}ها پیشنهاد می${Z}شوند. <b>۲۰ دقیقه</b> تو را از خواب عمیق دور نگه می${Z}دارد. یک چرخه${EZ} کامل <b>${c}</b> هم می${Z}گذارد در سبک${Z}ترین لحظه بیدار شوی.`,
-    tg_best: 'بهترین', tg_good: 'خوب', tg_short: 'کوتاه', tg_tooShort: 'خیلی کوتاه', tg_long: 'طولانی', tg_passed: 'گذشته',
-    tg_powerNap: 'چرت کوتاه', tg_cycleNap: `چرت یک${Z}چرخه`, tg_yourPick: 'انتخاب تو', tg_fullCycles: `چرخه${EZ} کامل`,
-    bedsFor: t => `زمان${Z}های خواب برای بیداری ${t}`, wakeTimes: `زمان${Z}های بیداری`, nearby: `گزینه${Z}های نزدیک`,
-    setAlarm: t => `تنظیم زنگ برای ${t}`, remind: t => `یادآور خواب برای ${t}`,
-    foot: c => `این زمان${Z}ها بر پایه${EZ} چرخه${Z}های ${c} دقیقه${Z}ای و تخمین زمان به خواب رفتنت حساب شده${Z}اند. چرخه${Z}های واقعی از هر کس به کس دیگر و از هر شب به شب دیگر فرق می${Z}کند؛ پس آن${Z}ها را راهنما بدان.`,
-    stages: ['بیدار', 'REM', 'سبک', 'عمیق'],
-    wakeLbl: t => `بیداری ${t}`, lightsLbl: t => `رختخواب ${t}`, inBed: d => `${d} در رختخواب`,
-    sCtx: t => `برای رفتن به رختخواب ساعت ${t}`,
-    yourUsual: 'معمول تو', minutes: n => `${n} دقیقه`, clampNote: 'محدود به ۳ تا ۶۰ دقیقه', auto: 'خودکار',
-    earlierAuto: 'زودتر از زمان همیشگی خوابت', laterAuto: 'خیلی دیرتر از زمان همیشگی خوابت',
-    f_caffeine: 'چای یا قهوه بعدازظهر', f_wired: `استرس یا بی${Z}قراری`, f_screens: 'گوشی در رختخواب', f_nap: 'امروز چرت زدم', f_tired: `کم${Z}خوابی`,
-    scReady: n => `آماده است. دکمه${Z}های زنگ میان${Z}بر «${n}» را اجرا می${Z}کنند. اگر زنگی ساخته نشد، مراحل راه${Z}اندازی را دوباره نگاه کن.`,
+    noteShift: (t1, t2) => `زمان خواب ۵ چرخه${Z}ای${Z}ات (${t1}) گذشته است. همین حالا بخواب و ساعت <b>${t2}</b> بیدار شو تا باز هم ۵ چرخه${EZ} کامل بخوابی.`,
+    noteNone: t => `تا <b>${t}</b> برای یک چرخه${EZ} کامل وقت نیست. یک چرت ۲۰ دقیقه${Z}ای در «مدت خواب» بهترین گزینه است.`,
+    tg_best: 'بهترین', tg_good: 'خوب', tg_short: 'کوتاه', tg_tooShort: 'خیلی کوتاه', tg_passed: 'گذشته', tg_nap: 'چرت',
+    tg_yourPick: 'انتخاب تو', tg_fullCycles: `چرخه${EZ} کامل`, tg_powerNap: 'چرت کوتاه',
+    otherBed: `زمان${Z}های دیگر خواب`, otherWake: `زمان${Z}های دیگر بیداری`, otherFor: `نزدیک${Z}ترین چرخه${Z}های کامل`,
+    setAlarm: t => `تنظیم زنگ برای ${t}`, plusRem: n => `+ ${n} یادآور`,
+    remTitle: 'یادآور', off: 'خاموش', every: 'هر',
+    remBeforeBed: 'پیش از خواب', remBeforeWake: 'پیش از بیداری', remPast: 'زمان این یادآورها گذشته است.',
+    remLeftBed: d => `${d} تا خواب`, remLeftWake: d => `${d} تا بیداری`, alarmLabel: 'بیداری', testLabel: 'زنگ آزمایشی',
+    secFall: 'چند دقیقه طول می' + Z + 'کشد تا خوابت ببرد', none: 'هیچ',
+    hintFall: `بیشتر آدم${Z}ها ۱۰ تا ۲۰ دقیقه طول می${Z}کشد تا خوابشان ببرد. «هیچ» یعنی فقط بر پایه${EZ} چرخه${Z}ها حساب شود.`,
+    secCycle: `طول چرخه${EZ} خواب به دقیقه`,
+    hintCycle: `بیشتر چرخه${Z}ها حدود ۹۰ دقیقه${Z}اند. فقط اگر در زمان${Z}های پیشنهادی گیج بیدار می${Z}شوی تغییرش بده.`,
+    secAlarm: `زنگ${Z}ها`, minutes: n => `${n} دقیقه`, scNameLbl: `نام میان${Z}بر`, showSetup: `مراحل راه${Z}اندازی`,
+    scReady: n => `آماده است. دکمه${Z}های زنگ میان${Z}بر «${n}» را اجرا می${Z}کنند.`,
     scNotReady: `هنوز راه${Z}اندازی نشده. فقط یک بار و حدود یک دقیقه وقت می${Z}گیرد.`,
-    installed: `روی این دستگاه نصب شده و از صفحه${EZ} اصلی کاملاً آفلاین کار می${Z}کند.`,
-    notInstalled: `در سافاری، Share و بعد Add to Home Screen را بزن. یک بار وقتی به اینترنت وصلی از صفحه${EZ} اصلی بازش کن؛ از آن به بعد آفلاین هم کار می${Z}کند.`,
-    scDoneFor: t => `آماده است؛ زنگ ${t} را بگذار`, scDone: 'آماده است', copy: t => `کپی ${t}`,
-    toastAlarm: t => `در حال تنظیم زنگ ${t} در Shortcuts`, toastOn: 'زنگ با یک لمس فعال شد',
-    copied: t => `کپی شد: ${t}`, resetDone: 'تنظیمات بازنشانی شد',
-    alarmLabel: 'ساعت چرخه',
-    remTitle: `یادآورها`, remCount: 'چند تا', remGap: 'فاصله' + ' ' + 'بین' + ' ' + `یادآورها`, remFewer: 'یادآور کمتر', remMore: 'یادآور بیشتر',
-    remBedSub: t => `پیش از زمان خواب، ${t}`, remWakeSub: t => `پیش از بیداری، ${t}`,
-    remLeftBed: d => `${d} تا خواب`, remLeftWake: d => `${d} تا بیداری`,
-    remSet: n => `تنظیم ${n} یادآور`, remNone: `یادآورها خاموش${Z}اند`,
-    remPast: `زمان این یادآورها گذشته است.`,
-    remDone: n => `${n} یادآور تنظیم شد`,
-    gapMin: n => `${n} دقیقه`,
-    alarmSet: t => `زنگ برای ${t} تنظیم شد`,
-    alarmSetRaised: t => `زنگ برای ${t} تنظیم شد. صدای زنگ کم بود، تا 70٪ بالا رفت.`,
-    alarmFailed: `به برنامه${EZ} ساعت دسترسی نشد. ساعت را باز کن و زنگ را آنجا بگذار.`,
-    rcConfirmed: t => `برنامه${EZ} ساعت تأیید کرد که ساعت <b>${t}</b> زنگ می${Z}زند.`,
-    rcEarlier: (t1, t2) => `زنگ <b>${t1}</b> به برنامه${EZ} ساعت رفت. یک زنگ دیگر زودتر، ساعت ${t2}، به صدا درمی${Z}آید.`,
-    rcUnknown: t => `زنگ <b>${t}</b> به برنامه${EZ} ساعت رفت ولی تأیید نشد. ساعت را باز کن و ببین.`,
-    rcVol: p => `صدای زنگ ${p}٪ است.`,
-    rcVolLow: p => `صدای زنگ فقط ${p}٪ است و ممکن است نشنوی.`,
-    rcDnd: `«مزاحم نشوید» روی سکوت کامل است و هیچ زنگی به صدا درنمی${Z}آید.`,
-    rcSilent: `زنگ هشدار حتی وقتی گوشی بی${Z}صدا یا روی لرزش است به صدا درمی${Z}آید.`,
-    btnOpenClock: 'باز کردن ساعت', btnRaise: 'بلند کردن صدای زنگ', btnDnd: 'درست کردن «مزاحم نشوید»',
+    dupHint: `هر زنگ دو بار ساخته می${Z}شود؟ «مراحل راه${Z}اندازی» را باز کن: میان${Z}بر باید فقط یک Create Alarm داشته باشد.`,
     btnTest: 'زنگ آزمایشی ۲ دقیقه دیگر',
     testHint: `یک زنگ واقعی برای ۲ دقیقه بعد می${Z}گذارد تا صدایش را بشنوی. بعد در برنامه${EZ} ساعت پاکش کن.`,
-    volRaised: 'صدای زنگ بلند شد',
-    nativeReady: `زنگ${Z}ها مستقیم در برنامه${EZ} ساعت گوشی ساخته می${Z}شوند، پس مثل هر زنگ دیگری به صدا درمی${Z}آیند، حتی وقتی این برنامه بسته است.`,
     ringTitle: `مطمئن شو زنگ می${Z}زند`,
-    ios1: `زنگ آیفون حتی در حالت بی${Z}صدا و هنگام Focus یا «مزاحم نشوید» به صدا درمی${Z}آید.`,
-    ios2: `بلندی زنگ از <b><bdi>Settings → Sounds &amp; Haptics → Ringtone and Alerts</bdi></b> می${Z}آید. آن نوار را بالا نگه دار.`,
+    ios1: `زنگ آیفون حتی در حالت بی${Z}صدا، Focus و «مزاحم نشوید» به صدا درمی${Z}آید.`,
+    ios2: `بلندی آن از <b><bdi>Settings → Sounds &amp; Haptics → Ringtone and Alerts</bdi></b> می${Z}آید. آن را بالا نگه دار.`,
     ios3: `در همان صفحه <b><bdi>Change with Buttons</bdi></b> را خاموش کن تا دکمه${Z}های کناری صدای زنگ را ناخواسته کم نکنند.`,
-    ios4: `یک بار <b>زنگ آزمایشی ۲ دقیقه دیگر</b> را بزن تا صدایش را واقعاً بشنوی.`,
+    androidWebStatus: `برای زنگ با یک لمس در اندروید، برنامه${EZ} اندروید ساعت چرخه لازم است.`,
+    getApk: `دانلود برنامه${EZ} اندروید`, howInstall: 'روش نصب',
     androidTitle: 'زنگ در اندروید',
-    androidIntro: `صفحه${EZ} وب در اندروید نمی${Z}تواند زنگ بسازد، ولی برنامه${EZ} اندروید ساعت چرخه می${Z}تواند. همین برنامه است و آفلاین کار می${Z}کند. هر زنگ را مستقیم در برنامه${EZ} ساعت گوشی می${Z}گذارد و بعد بررسی می${Z}کند که زنگ ثبت شده و صدایش خیلی کم نیست.`,
+    androidIntro: `صفحه${EZ} وب در اندروید نمی${Z}تواند زنگ بسازد، ولی برنامه${EZ} اندروید ساعت چرخه می${Z}تواند. همین برنامه است و آفلاین کار می${Z}کند. هر زنگ را مستقیم در برنامه${EZ} ساعت گوشی می${Z}گذارد و بررسی می${Z}کند که به صدا درمی${Z}آید.`,
     and1: `دکمه${EZ} <b>دانلود برنامه${EZ} اندروید</b> را بزن.`,
     and2: `فایل دانلودشده را باز کن. اگر اندروید پرسید، به مرورگر اجازه${EZ} <b>نصب برنامه${Z}های ناشناس</b> بده.`,
     and3: `<b>Install</b> را بزن و بعد ساعت چرخه را از فهرست برنامه${Z}ها باز کن.`,
-    getApk: `دانلود برنامه${EZ} اندروید`, howInstall: 'روش نصب',
     androidNote: `ممکن است Play Protect هشدار بدهد که سازنده ناشناس است؛ چون این برنامه${EZ} شخصی خودت است و در Google Play نیست.`,
-    androidWebStatus: `برای زنگ با یک لمس در اندروید، برنامه${EZ} اندروید ساعت چرخه لازم است.`,
+    nativeReady: `زنگ${Z}ها مستقیم در برنامه${EZ} ساعت گوشی ساخته می${Z}شوند، پس مثل هر زنگ دیگری به صدا درمی${Z}آیند، حتی وقتی این برنامه بسته است.`,
+    rcConfirmed: t => `برنامه${EZ} ساعت تأیید کرد: زنگ بعدی ساعت <b>${t}</b> است.`,
+    rcEarlier: t => `به برنامه${EZ} ساعت رفت. زنگی که از قبل داشتی زودتر، ساعت ${t}، به صدا درمی${Z}آید.`,
+    rcUnknown: `به برنامه${EZ} ساعت رفت ولی تأیید نشد. ساعت را باز کن و ببین.`,
+    rcVol: p => `صدای زنگ ${p}٪ است.`, rcVolLow: p => `صدای زنگ فقط ${p}٪ است و ممکن است نشنوی.`,
+    rcDnd: `«مزاحم نشوید» روی سکوت کامل است و هیچ زنگی به صدا درنمی${Z}آید.`,
+    rcSilent: `زنگ هشدار حتی وقتی گوشی بی${Z}صدا یا روی لرزش است به صدا درمی${Z}آید.`,
+    btnOpenClock: 'باز کردن ساعت', btnRaise: 'بلند کردن صدای زنگ', btnDnd: 'درست کردن «مزاحم نشوید»',
     noClockTitle: `برنامه${EZ} ساعتی پیدا نشد`,
     noClock: `گوشی${Z}ات برنامه${EZ} ساعتی ندارد که زنگ تازه بپذیرد. Google Clock را از Play Store نصب کن و دوباره امتحان کن.`,
-    installAndroid: 'در Chrome، ⋮ و بعد Add to Home screen را بزن. برای زنگ، برنامه' + EZ + ' اندروید را نصب کن.',
+    installIos: `برای استفاده${EZ} آفلاین، آن را در سافاری باز کن و Share و بعد Add to Home Screen را بزن.`,
+    installed: `نصب شده و کاملاً آفلاین کار می${Z}کند.`,
+    installAndroid: `در Chrome، ⋮ و بعد Add to Home screen را بزن. برای زنگ، برنامه${EZ} اندروید را نصب کن.`,
     installedNative: `این برنامه${EZ} اندروید است و کاملاً آفلاین کار می${Z}کند.`,
+    alarmTitle: `راه${Z}اندازی زنگ با یک لمس`,
+    alarmIntro: `آیفون و آیپد فقط از راه برنامه${EZ} Shortcuts اجازه${EZ} ساختن زنگ می${Z}دهند. این میان${Z}بر کوچک را یک بار بساز تا همه${EZ} دکمه${Z}های زنگ اینجا با یک لمس کار کنند.`,
+    st1: `برنامه${EZ} <b>Shortcuts</b> را باز کن و <b>+</b> را بزن.`,
+    st2: `کنش <b>Split Text</b> را اضافه کن. متنش را <b>Shortcut Input</b> بگذار، روی <b>New Lines</b> بزن، <b>Custom</b> را انتخاب کن و یک ویرگول انگلیسی (,) بنویس.`,
+    st3: `زیر آن <b>Repeat with Each</b> را اضافه کن.`,
+    st4: `داخل تکرار، <b>Create Alarm</b> را اضافه کن. روی زمانش بزن و <b>Repeat Item</b> را انتخاب کن.`,
+    st5: n => `روی نام بالای صفحه بزن، <b>Rename</b> را انتخاب کن، نامش را <b class="nofa">${n}</b> بگذار و بعد <b>Done</b> را بزن.`,
+    stDup: `زنگ${Z}ها دوتا دوتا ساخته می${Z}شوند؟ میان${Z}بر باید فقط <b>یک Create Alarm</b> داشته باشد، همانی که داخل تکرار است. میان${Z}بر را باز کن و هر Create Alarm دیگری را پاک کن، مثلاً همانی که از نسخه${EZ} قدیمی مانده.`,
+    scDone: 'آماده است', scDoneFor: t => `آماده است؛ زنگ ${t} را بگذار`, scDoneN: n => `آماده است؛ ${n} زنگ را بگذار`,
+    openShortcuts: 'باز کردن Shortcuts', copy: t => `کپی ${t}`,
+    toastAlarm: t => `باز کردن Shortcuts برای زنگ ${t}`, toastAlarmN: n => `باز کردن Shortcuts برای ${n} زنگ`,
+    toastOn: 'زنگ با یک لمس فعال شد',
+    alarmSet: t => `زنگ برای ${t} تنظیم شد`, alarmSetN: n => `${n} زنگ تنظیم شد`,
+    volUp: 'صدای زنگ کم بود، حالا 70٪ است.',
+    alarmFailed: `به برنامه${EZ} ساعت دسترسی نشد. ساعت را باز کن و زنگ را آنجا بگذار.`,
+    volRaised: 'صدای زنگ بلند شد', copied: t => `کپی شد: ${t}`,
   },
 };
 function T(k, ...a) {
@@ -692,7 +548,7 @@ function T(k, ...a) {
   return typeof v === 'function' ? v(...a) : v;
 }
 
-/* Persian digits: swap 0-9 in visible text only (never attributes, inputs or URLs) */
+/* Persian digits in visible text only (never attributes, inputs or URLs) */
 const FA_D = '۰۱۲۳۴۵۶۷۸۹';
 const faStr = s => (S.lang === 'fa' ? String(s).replace(/[0-9]/g, c => FA_D[c]) : String(s));
 function faDigits(root) {
@@ -715,16 +571,15 @@ const PLATFORM = NATIVE ? 'native' : IS_IOS ? 'ios' : IS_ANDROID ? 'android' : '
 const APK_URL = 'https://github.com/naamimaalek/cycle-clock/releases/latest/download/cycle-clock.apk';
 function applyPlat() {
   $$('[data-plat]').forEach(el => { el.hidden = !el.dataset.plat.split(' ').includes(PLATFORM); });
-  ['#apkLink', '#apkLink2'].forEach(id => { $(id).href = APK_URL; });
+  $('#apkLink').href = APK_URL; $('#apkLink2').href = APK_URL;
 }
 function nativeStatus() { try { return JSON.parse(NATIVE.alarmStatus()); } catch (e) { return null; } }
 const volPct = st => Math.round(100 * st.vol / Math.max(1, st.max));
 function statusLis(st) {
   if (!st) return '';
-  const pct = volPct(st);
+  const p = volPct(st);
   return (st.dndBlocks ? `<li class="warn">${T('rcDnd')}</li>` : '') +
-    (pct < 40 ? `<li class="warn">${T('rcVolLow', pct)}</li>` : `<li>${T('rcVol', pct)}</li>`) +
-    `<li>${T('rcSilent')}</li>`;
+    (p < 40 ? `<li class="warn">${T('rcVolLow', p)}</li>` : `<li>${T('rcVol', p)}</li>`) + `<li>${T('rcSilent')}</li>`;
 }
 function fixBtns(st, withClock) {
   let b = '';
@@ -735,27 +590,32 @@ function fixBtns(st, withClock) {
 }
 
 /* ---------- state ---------- */
+const LATS = [0, 5, 10, 15, 20, 30], CYCS = [80, 85, 90, 95, 100], GAPS = [10, 15, 30, 60];
 const sysLang = () => (/^fa\b/i.test(navigator.language || '') ? 'fa' : 'en');
-const DEF = { mode: 'wake', wake: '06:30', usualWake: '07:00', delay: 0, dur: 450, base: 15,
-  tonight: {}, tonightAt: 0, clockAdj: true, cycle: 90, need: 480, scName: 'Sleep Alarm', scReady: false, scV2: false, lang: '', remN: 2, remGap: 15 };
+const DEF = { mode: 'wake', wake: '06:30', delay: 0, dur: 450, base: 15, cycle: 90,
+  scName: 'Sleep Alarm', scReady: false, scV2: false, lang: '', rem: 0, remEvery: 15 };
 function load() {
   let s = {};
   try { s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { s = {}; }
   const o = Object.assign({}, DEF, s);
-  o.tonight = Object.assign({}, s.tonight || {});
-  o.cycle = clamp(+o.cycle || 90, 80, 110);
-  o.base = clamp(+o.base || 15, 5, 45);
-  o.dur = clamp(+o.dur || 450, 10, 720);
   if (!['wake', 'now', 'for'].includes(o.mode)) o.mode = 'wake';
+  if (!/^\d\d:\d\d$/.test(o.wake)) o.wake = DEF.wake;
+  o.base = LATS.includes(+o.base) ? +o.base : 15;
+  o.cycle = CYCS.includes(+o.cycle) ? +o.cycle : 90;
+  o.dur = clamp(+o.dur || 450, 10, 720);
+  o.delay = [0, 10, 20, 30].includes(+o.delay) ? +o.delay : 0;
+  o.rem = clamp(+o.rem || 0, 0, 4);
+  o.remEvery = GAPS.includes(+o.remEvery) ? +o.remEvery : 15;
   if (!['en', 'fa'].includes(o.lang)) o.lang = sysLang();
-  o.remN = clamp(+o.remN || 0, 0, 6);
-  if (![5, 10, 15, 30, 60].includes(+o.remGap)) o.remGap = 15;
   return o;
 }
 let S = load();
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function save() {
+  const keep = {}; Object.keys(DEF).forEach(k => { keep[k] = S[k]; }); // old, removed settings are dropped
+  try { localStorage.setItem(KEY, JSON.stringify(keep)); } catch (e) {}
+}
 const sel = { wake: null, now: null, for: null };
-let remList = [], pendingList = null, pending = null, lastO = null, ctxAt = null, lastBig = '', ringInfo = null;
+let pending = null, lastBig = '', ringInfo = null, remList = [], alarmAt = null, lastRun = 0, lastMinute = -1;
 
 /* ---------- time helpers ---------- */
 const H12 = (() => {
@@ -772,9 +632,7 @@ function tp(d) {
 }
 const ft = d => { const p = tp(d); return p.ap ? p.t + ' ' + p.ap : p.t; };
 function fd(min) { min = Math.round(min); return T('fd', Math.floor(min / 60), min % 60); }
-const dec1 = x => T('dec', x);
 const addMin = (d, m) => new Date(d.getTime() + Math.round(m) * MIN);
-const mOfDay = d => d.getHours() * 60 + d.getMinutes();
 const hm = s => { const p = String(s || '0:0').split(':'); return (+p[0] || 0) * 60 + (+p[1] || 0); };
 const hmStr = m => { m = mod(m, 1440); return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
 const hhmm = d => pad(d.getHours()) + ':' + pad(d.getMinutes());
@@ -785,118 +643,46 @@ function until(d, now) {
   return diff > 0 ? T('untilIn', fd(diff)) : T('ago', fd(-diff));
 }
 
-/* ---------- fall-asleep model ---------- */
-const FACT = [
-  { k: 'caffeine', d: 10 }, { k: 'wired', d: 10 }, { k: 'screens', d: 5 }, { k: 'nap', d: 5 }, { k: 'tired', d: -5 },
-];
-const habitual = () => mod(hm(S.usualWake) - S.need, 1440);
-function latency(at) {
-  const parts = [{ key: 'yourUsual', d: S.base, base: true }];
-  FACT.forEach(f => { if (S.tonight[f.k]) parts.push({ key: 'f_' + f.k, d: f.d }); });
-  if (S.clockAdj) {
-    const delta = mod(mOfDay(at) - habitual() + 720, 1440) - 720;
-    if (delta >= -180 && delta < -60) parts.push({ key: 'earlierAuto', d: 10, auto: true });
-    else if (delta >= 120 && delta <= 420) parts.push({ key: 'laterAuto', d: -5, auto: true });
-  }
-  const sum = parts.reduce((a, p) => a + p.d, 0);
-  return { min: clamp(sum, 3, 60), parts };
-}
-function isDaytime(d) {
-  const w = hm(S.usualWake), dW = mod(mOfDay(d) - w, 1440), dayLen = mod(habitual() - w, 1440);
-  return dW >= 150 && dW <= dayLen - 180;
-}
-function expireTonight() {
-  if (S.tonightAt && Date.now() - S.tonightAt > 12 * 3600e3) { S.tonight = {}; S.tonightAt = 0; save(); }
-}
-function tagFor(asleep, isBest) {
-  if (isBest) return ['best', 'best'];
-  if (asleep > S.need + 90) return ['long', 'pick'];
-  if (asleep >= 420) return ['good', 'good'];
-  if (asleep >= 330) return ['short', 'short'];
-  return ['tooShort', 'bad'];
-}
-function idealN() {
-  let best = 5, bd = Infinity;
-  for (let n = 1; n <= 7; n++) { const dd = Math.abs(n * S.cycle - S.need); if (dd <= bd) { bd = dd; best = n; } }
-  return best;
-}
-const nearest = list => list.reduce((a, b) => (Math.abs(b.asleep - S.need) <= Math.abs(a.asleep - S.need) ? b : a));
+/* ---------- calculations ---------- */
+const TAGCLS = { best: 'best', good: 'good', short: 'short', tooShort: 'bad', passed: 'passed', nap: 'nap', yourPick: '', fullCycles: 'good', powerNap: 'nap' };
+function tagFor(n, isBest) { return isBest ? 'best' : n >= 5 ? 'good' : n === 4 ? 'short' : n === 1 ? 'nap' : 'tooShort'; }
 
-/* ---------- mode: wake up at ---------- */
 function calcWake(now) {
-  const C = S.cycle;
-  const wake = new Date(now); const w = hm(S.wake);
+  const C = S.cycle, lat = S.base;
+  const wake = new Date(now), w = hm(S.wake);
   wake.setHours(Math.floor(w / 60), w % 60, 0, 0);
   if (wake <= now) wake.setDate(wake.getDate() + 1);
   const all = [];
   for (let n = 6; n >= 1; n--) {
-    const sleepStart = addMin(wake, -n * C);
-    let lat = latency(sleepStart).min;
-    let lightsOut = addMin(sleepStart, -lat);
-    lat = latency(lightsOut).min; lightsOut = addMin(sleepStart, -lat);
-    all.push({ key: 'w' + n, n, asleep: n * C, lightsOut, sleepStart, wake, lat, past: lightsOut < now, show: n >= 3 });
+    const sleepStart = addMin(wake, -n * C), lightsOut = addMin(sleepStart, -lat);
+    all.push({ key: 'w' + n, n, asleep: n * C, lightsOut, sleepStart, wake, past: lightsOut < now, show: n >= 3 });
   }
   if (!all.some(o => o.show && !o.past)) all.forEach(o => { if (o.n < 3) o.show = true; });
   const opts = all.filter(o => o.show);
-  const fut = opts.filter(o => !o.past);
-  const best = fut.length ? nearest(fut) : null;
-  opts.forEach(o => { o.tag = o.past ? ['passed', 'pick'] : tagFor(o.asleep, o === best); });
-
+  const best = [5, 6, 4, 3, 2, 1].map(n => opts.find(o => o.n === n && !o.past)).find(Boolean) || null;
+  opts.forEach(o => { o.tag = o.past ? 'passed' : tagFor(o.n, o === best); });
   let note = null;
-  const ideal = idealN();
-  const io = all.find(o => o.n === ideal);
-  if (io && io.past) {
-    const lat0 = latency(now).min;
-    const wNow = addMin(now, lat0 + ideal * C);
-    const diff = (wNow - wake) / MIN;
-    if (diff >= -20 && diff <= 30) {
-      note = { html: T('noteShift', ideal, ft(io.lightsOut), fd((now - io.lightsOut) / MIN), ft(wNow)), alarm: wNow };
-    } else if (best) {
-      note = { html: T('noteBest', ideal, ft(io.lightsOut), ft(best.lightsOut), best.n) };
-    } else {
-      note = { html: T('noteNone', ft(wake)) };
-    }
+  const five = all.find(o => o.n === 5);
+  if (five.past) {
+    const wNow = addMin(now, lat + 5 * C), diff = (wNow - wake) / MIN;
+    if (diff >= -20 && diff <= 30) note = { html: T('noteShift', ft(five.lightsOut), ft(wNow)), alarm: wNow };
+    else if (!best) note = { html: T('noteNone', ft(wake)) };
   }
   return { kind: 'bed', wake, opts, best, note };
 }
 
-/* ---------- mode: sleep now ---------- */
 function calcNow(now) {
-  const C = S.cycle;
-  const lightsOut = addMin(now, S.delay);
-  const lat = latency(lightsOut).min;
-  const sleepStart = addMin(lightsOut, lat);
-  const day = isDaytime(lightsOut);
-  const opts = [];
-  const asleepBy = T('asleepBy', ft(sleepStart));
-  if (day) opts.push({ key: 'nap', nap: true, n: 0, asleep: 20, lightsOut, sleepStart, lat, wake: addMin(sleepStart, 20),
-    verdict: { cls: 'good', text: asleepBy + ' ' + T('vNap') } });
-  const ns = day ? [1, 2, 3, 4, 5] : [2, 3, 4, 5, 6, 7];
-  ns.forEach(n => {
-    const short = n * C < 330 && !(day && n === 1);
-    opts.push({ key: 'n' + n, n, asleep: n * C, lightsOut, sleepStart, lat, wake: addMin(sleepStart, n * C),
-      verdict: { cls: short ? 'ok' : 'good', text: asleepBy + ' ' + T('vCycleEnd', n) + (short ? T('vShortNight') : '') } });
-  });
-  const best = day ? opts[0] : nearest(opts);
-  opts.forEach(o => {
-    if (o === best) o.tag = ['best', 'best'];
-    else if (o.nap) o.tag = ['powerNap', 'nap'];
-    else if (day && o.n === 1) o.tag = ['cycleNap', 'nap'];
-    else o.tag = tagFor(o.asleep, false);
-  });
-  const note = day ? { html: T('noteDay', fd(C)) } : null;
-  return { kind: 'wake', opts, best, note };
+  const C = S.cycle, lightsOut = addMin(now, S.delay), sleepStart = addMin(lightsOut, S.base);
+  const opts = [1, 2, 3, 4, 5, 6].map(n => ({ key: 'n' + n, n, asleep: n * C, lightsOut, sleepStart, wake: addMin(sleepStart, n * C) }));
+  const best = opts[4];
+  opts.forEach(o => { o.tag = tagFor(o.n, o === best); });
+  return { kind: 'wake', opts, best, note: null };
 }
 
-/* ---------- mode: sleep for ---------- */
 function calcFor(now) {
-  const C = S.cycle, d = S.dur;
-  const lightsOut = addMin(now, S.delay);
-  const lat = latency(lightsOut).min;
-  const sleepStart = addMin(lightsOut, lat);
-  const mk = (m, extra) => Object.assign({ key: 'm' + m, n: Math.round(m / C), asleep: m, lightsOut, sleepStart, lat, wake: addMin(sleepStart, m) }, extra);
+  const C = S.cycle, d = S.dur, lightsOut = now, sleepStart = addMin(now, S.base);
+  const mk = (m, x) => Object.assign({ key: 'm' + m, n: Math.round(m / C), asleep: m, lightsOut, sleepStart, wake: addMin(sleepStart, m) }, x);
   const napV = { cls: 'good', text: T('napV') };
-  const endV = n => ({ cls: 'good', text: T('endV', n) });
   const r = mod(d, C), toEnd = Math.min(r, C - r), nearN = Math.round(d / C);
   const lo = Math.floor(d / C) * C, hi = Math.ceil(d / C) * C;
   let verdict, aligned = false;
@@ -905,80 +691,42 @@ function calcFor(now) {
   else if (toEnd <= 10) { aligned = true; verdict = { cls: 'good', text: T('vAligned', nearN) }; }
   else if (toEnd <= 20) verdict = { cls: 'ok', text: T('vClose', nearN, fd(nearN * C)) };
   else verdict = { cls: 'warn', text: T('vMid', Math.floor(d / C) + 1, fd(lo), fd(hi)) };
-
-  const exact = mk(d, { key: 'x', exact: true, aligned, nap: d <= 30, verdict, n: aligned ? nearN : 0, tag: ['yourPick', 'pick'] });
+  const exact = mk(d, { key: 'x', exact: true, aligned, nap: d <= 30, verdict, n: aligned ? nearN : 0, tag: 'yourPick' });
   const opts = [exact];
-  const add = (m, extra) => { if (m > 0 && m <= 720 && !opts.some(o => o.asleep === m)) opts.push(mk(m, extra)); };
-  const napX = { nap: true, verdict: napV, tag: ['powerNap', 'nap'] };
-  const cyc1 = m => ({ verdict: endV(Math.round(m / C)), tag: m >= 420 ? ['fullCycles', 'good'] : m >= C ? ['fullCycles', 'short'] : ['powerNap', 'nap'] });
-  if (d <= 30) { add(20, napX); add(C, cyc1(C)); if (opts.length < 3) add(2 * C, cyc1(2 * C)); }
-  else if (d < C - 15) { add(20, napX); add(C, cyc1(C)); }
+  const add = (m, x) => { if (m > 0 && m <= 720 && !opts.some(o => o.asleep === m)) opts.push(mk(m, x)); };
+  const napX = { nap: true, verdict: napV, tag: 'powerNap' };
+  const full = m => ({ aligned: true, verdict: { cls: 'good', text: T('vAligned', Math.round(m / C)) }, tag: 'fullCycles' });
+  if (d <= 30) { add(20, napX); add(C, full(C)); if (opts.length < 3) add(2 * C, full(2 * C)); }
+  else if (d < C - 15) { add(20, napX); add(C, full(C)); }
   else if (aligned) {
-    if (nearN * C !== d) add(nearN * C, cyc1(nearN * C));
-    if (opts.length < 3) add((nearN - 1) * C, cyc1((nearN - 1) * C));
-    if (opts.length < 3) add((nearN + 1) * C, cyc1((nearN + 1) * C));
-  } else { add(lo, cyc1(lo)); add(hi, cyc1(hi)); }
+    if (nearN * C !== d) add(nearN * C, full(nearN * C));
+    if (opts.length < 3) add((nearN - 1) * C, full((nearN - 1) * C));
+    if (opts.length < 3) add((nearN + 1) * C, full((nearN + 1) * C));
+  } else { add(lo, full(lo)); add(hi, full(hi)); }
   opts.sort((a, b) => a.asleep - b.asleep);
   return { kind: 'wake', opts, best: exact, note: null };
 }
 
-/* ---------- chart (hypnogram); time runs right-to-left in Persian ---------- */
-const TPL = [
-  [[2, 0, .26], [3, .26, .62], [2, .62, .85], [1, .85, .97], [0, .97, 1]],
-  [[2, 0, .20], [3, .20, .48], [2, .48, .76], [1, .76, .97], [0, .97, 1]],
-  [[2, 0, .25], [3, .25, .38], [2, .38, .66], [1, .66, .97], [0, .97, 1]],
-  [[2, 0, .42], [1, .42, .97], [0, .97, 1]],
-];
-function drawChart(o) {
-  if (!o) return;
-  const svg = $('#chart');
-  const rtl = S.lang === 'fa';
-  const bd = s => (rtl ? '\u200F' + s : s);
-  const W = Math.max(260, Math.round(svg.getBoundingClientRect().width || 330)), H = 156;
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  const L = 50, R = 8, T0 = 24, B = 36, ih = H - T0 - B;
-  const x0 = rtl ? W - L : L, x1 = rtl ? R : W - R;          // plot start (lights out) and end
-  const gx0 = Math.min(x0, x1), gx1 = Math.max(x0, x1);
-  const C = S.cycle;
-  const lat = (o.sleepStart - o.lightsOut) / MIN, total = (o.wake - o.lightsOut) / MIN;
-  const span = total + clamp(total * .08, 12, 40);
-  const X = m => +(x0 + (m / span) * (x1 - x0)).toFixed(1), Y = s => +(T0 + s * (ih / 3)).toFixed(1);
-  const segs = [];
-  if (lat > 0) segs.push({ s: 0, a: 0, b: lat, lat: true });
-  for (let t = lat, i = 0; t < span; t += C, i++) {
-    for (const [s, fa, fb] of TPL[Math.min(i, 3)]) {
-      const a = t + fa * C; if (a >= span) break;
-      segs.push({ s, a, b: Math.min(t + fb * C, span) });
-    }
+/* ---------- the cycle strip: night blue to dawn ---------- */
+const STOPS = [[61, 79, 216], [122, 155, 255], [255, 174, 140]];
+function stripColor(t) {
+  const [a, b, u] = t < .6 ? [STOPS[0], STOPS[1], t / .6] : [STOPS[1], STOPS[2], (t - .6) / .4];
+  return 'rgb(' + a.map((v, i) => Math.round(v + (b[i] - v) * u)).join(',') + ')';
+}
+function renderStrip(o) {
+  const C = S.cycle, lat = Math.max(0, (o.sleepStart - o.lightsOut) / MIN), asleep = o.asleep;
+  const full = Math.floor(asleep / C + 1e-6), rest = asleep - full * C;
+  const extra = rest < 0.5 ? null : (o.aligned && rest >= C - 10) ? 'cyc' : (o.aligned || asleep <= 30) ? 'nap' : 'part';
+  const count = full + (extra === 'cyc' ? 1 : 0);
+  let h = lat > 0 ? `<i class="blk lat" style="flex-grow:${lat}"></i>` : '';
+  for (let i = 0; i < count; i++) {
+    const t = count <= 1 ? 1 : i / (count - 1), grow = i < full ? C : rest;
+    h += `<i class="blk" style="flex-grow:${grow};background:${stripColor(t)};color:${t > .85 ? '#5B2A18' : '#fff'}">${count <= 8 ? i + 1 : ''}</i>`;
   }
-  let g = '';
-  T('stages').forEach((lab, s) => {
-    g += `<line class="gl" x1="${gx0}" x2="${gx1}" y1="${Y(s)}" y2="${Y(s)}"/>` +
-         `<text class="rl" x="${rtl ? W - L + 10 : L - 10}" y="${Y(s) + 3.5}" text-anchor="${rtl ? 'start' : 'end'}">${lab}</text>`;
-  });
-  for (let k = 1; k < segs.length; k++) {
-    const p = segs[k - 1], c = segs[k];
-    if (p.s !== c.s) g += `<line class="conn" x1="${X(c.a)}" x2="${X(c.a)}" y1="${Y(p.s)}" y2="${Y(c.s)}"/>`;
-  }
-  segs.forEach(sg => { g += `<line class="sg s${sg.s}${sg.lat ? ' lat' : ''}" x1="${X(sg.a)}" x2="${X(sg.b)}" y1="${Y(sg.s)}" y2="${Y(sg.s)}"/>`; });
-  const yb = T0 + ih;
-  for (let i = 0; lat + i * C < total - 1; i++) {
-    const a = lat + i * C, b = Math.min(a + C, total);
-    g += `<line class="tick" x1="${X(a)}" x2="${X(a)}" y1="${yb + 5}" y2="${yb + 10}"/>`;
-    if (Math.abs(X(b) - X(a)) > 14) g += `<text class="cn" x="${((X(a) + X(b)) / 2).toFixed(1)}" y="${yb + 14}" text-anchor="middle">${i + 1}</text>`;
-  }
-  const xw = X(total);
-  g += rtl ? `<rect class="fade" x="0" y="0" width="${Math.max(0, xw - 2)}" height="${yb + 4}"/>`
-           : `<rect class="fade" x="${xw + 2}" y="0" width="${Math.max(0, W - xw - 2)}" height="${yb + 4}"/>`;
-  let sw = 2; for (const sg of segs) { if (sg.a < total && total <= sg.b) { sw = sg.s; break; } }
-  const anchor = xw > W - 70 ? 'end' : xw < 70 ? 'start' : 'middle';
-  const lx = xw + (anchor === 'end' ? 4 : anchor === 'start' ? -4 : 0);
-  g += `<g class="${sw === 3 ? 'warn' : ''}"><line class="wk" x1="${xw}" x2="${xw}" y1="${T0 - 8}" y2="${yb}"/><circle class="wkdot" cx="${xw}" cy="${Y(sw)}" r="5"/>` +
-       `<text class="wkl" x="${lx}" y="${T0 - 13}" text-anchor="${anchor}">${bd(T('wakeLbl', ft(o.wake)))}</text></g>`;
-  g += `<text class="ax" x="${x0}" y="${H - 4}" text-anchor="${rtl ? 'end' : 'start'}">${bd(T('lightsLbl', ft(o.lightsOut)))}</text>`;
-  g += `<text class="ax" x="${x1}" y="${H - 4}" text-anchor="${rtl ? 'start' : 'end'}">${bd(T('inBed', fd(total)))}</text>`;
-  svg.innerHTML = g;
-  faDigits(svg);
+  if (extra === 'nap' || extra === 'part') h += `<i class="blk ${extra}" style="flex-grow:${rest}"></i>`;
+  $('#strip').innerHTML = h;
+  $('#axStart').textContent = T('stripBed', ft(o.lightsOut));
+  $('#axEnd').textContent = T('stripWake', ft(o.wake));
 }
 
 /* ---------- language ---------- */
@@ -991,102 +739,85 @@ function applyLang() {
 }
 
 /* ---------- render ---------- */
-let lastMinute = -1;
 function render() {
-  expireTonight();
   lastMinute = Math.floor(Date.now() / MIN);
   const now = nowMin();
-  $('#nowT').textContent = ft(now);
   $$('.seg button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === S.mode)));
   $$('.in').forEach(el => { el.hidden = el.dataset.mode !== S.mode; });
   renderInputs();
   const r = S.mode === 'wake' ? calcWake(now) : S.mode === 'now' ? calcNow(now) : calcFor(now);
   const o = r.opts.find(x => x.key === sel[S.mode]) || r.best || r.opts[r.opts.length - 1];
-  renderHero(r, o, now);
+  renderResult(r, o, now);
   renderOpts(r, o);
   renderNote(r);
-  $('#foot').textContent = T('foot', S.cycle);
-  ctxAt = o.lightsOut;
-  $('#latTxt').innerHTML = T('latChip', o.lat);
+  $('#assumeTxt').textContent = T('assume', S.base, S.cycle);
   renderRing();
   faDigits($('.wrap'));
   if ($('#sheet').open) renderSheet();
 }
 
 function renderInputs() {
-  const w = new Date(); const m = hm(S.wake); w.setHours(Math.floor(m / 60), m % 60, 0, 0);
+  const w = new Date(), m = hm(S.wake); w.setHours(Math.floor(m / 60), m % 60, 0, 0);
   const p = tp(w); $('#wTime').textContent = p.t; $('#wAp').textContent = p.ap;
   const wi = $('#wakeInput'); if (wi.value !== S.wake && document.activeElement !== wi) wi.value = S.wake;
   $$('[data-delay]').forEach(b => b.classList.toggle('on', +b.dataset.delay === S.delay));
   const dt = fd(S.dur);
   $('#dTime').textContent = dt;
   $('#dDisp').classList.toggle('long', dt.length > 9);
-  const dr = $('#durRange'); if (+dr.value !== S.dur) dr.value = S.dur;
   const C = S.cycle;
   $('#durChips').innerHTML = [20, C, 4 * C, 5 * C, 6 * C]
     .map(v => `<button type="button" data-dur="${v}" class="${v === S.dur ? 'on' : ''}">${fd(v)}</button>`).join('');
 }
 
-function renderHero(r, o, now) {
-  let eye, big, sub, v;
-  const alarmAt = o.wake;
-  if (r.kind === 'bed') {
-    eye = T(o.past ? 'eyeBedPast' : 'eyeBed');
-    big = o.lightsOut;
-    sub = [T('cyc', o.n), T('asleep', fd(o.asleep)), o.past ? T('passedAgo', fd((now - o.lightsOut) / MIN)) : until(o.lightsOut, now)].join(T('sep'));
-    v = o.past ? { cls: 'warn', text: T('vPast') }
-      : { cls: o.asleep >= 420 ? 'good' : 'ok', text: T('vBed', ft(o.sleepStart), o.lat, o.n, ft(o.wake)) };
-  } else {
-    eye = T('eyeWake');
-    big = o.wake;
-    const inTxt = until(o.wake, now);
-    sub = (o.nap ? [T('nap', fd(o.asleep)), inTxt]
-      : (o.exact && !o.aligned) ? [T('asleep', fd(o.asleep)), T('cycF', dec1(o.asleep / S.cycle)), inTxt]
-      : [T('cyc', o.n), T('asleep', fd(o.asleep)), inTxt]).join(T('sep'));
-    v = o.verdict || { cls: 'good', text: '' };
-  }
-  $('#hEye').textContent = eye;
-  const p = tp(big), bigEl = $('#hBig');
+function renderResult(r, o, now) {
+  const bed = r.kind === 'bed';
+  const eye = $('#hEye');
+  eye.textContent = bed ? T(o.past ? 'eyeBedPast' : 'eyeBed') : T('eyeWake');
+  eye.className = 'eyebrow' + (bed ? ' bed' : '');
+  const p = tp(bed ? o.lightsOut : o.wake), bigEl = $('#hBig');
   if (lastBig && lastBig !== p.t) { bigEl.classList.remove('flip'); void bigEl.offsetWidth; bigEl.classList.add('flip'); }
   lastBig = p.t;
   $('#hTime').textContent = p.t; $('#hAp').textContent = p.ap;
-  $('#hSub').textContent = sub;
-  const ve = $('#hVerdict'); ve.className = 'verdict ' + v.cls; ve.textContent = v.text;
-  $('#alarmBtn').dataset.alarm = alarmAt.getTime();
-  $('#alarmLbl').textContent = T('setAlarm', ft(alarmAt));
-  renderReminders(r.kind === 'bed', r.kind === 'bed' ? o.lightsOut : o.wake, now);
-  lastO = o; drawChart(o);
-}
-
-function renderReminders(bed, target, now) {
-  $('#remSub').textContent = T(bed ? 'remBedSub' : 'remWakeSub', ft(target));
-  $('#remN').textContent = S.remN;
-  $('#remGaps').innerHTML = [5, 10, 15, 30, 60].map(g =>
-    `<button type="button" data-rgap="${g}" class="${g === S.remGap ? 'on' : ''}">${T('gapMin', g)}</button>`).join('');
+  const sep = T('sep');
+  $('#hSub').textContent = (bed
+    ? [T('cyc', o.n), T('asleep', fd(o.asleep)), o.past ? T('passedAgo', fd((now - o.lightsOut) / MIN)) : until(o.lightsOut, now)]
+    : o.nap ? [T('nap', fd(o.asleep)), until(o.wake, now)]
+    : (o.exact && !o.aligned) ? [T('asleep', fd(o.asleep)), T('cycF', T('dec', o.asleep / S.cycle)), until(o.wake, now)]
+    : [T('cyc', o.n), T('asleep', fd(o.asleep)), until(o.wake, now)]).join(sep);
+  const v = bed && o.past ? { cls: 'warn', text: T('vPast') } : o.verdict || null;
+  const ve = $('#hVerdict'); ve.hidden = !v;
+  if (v) { ve.className = 'verdict ' + v.cls; ve.textContent = v.text; }
+  renderStrip(o);
+  alarmAt = o.wake;
   remList = [];
-  for (let i = S.remN; i >= 1; i--) {
-    const at = addMin(target, -i * S.remGap);
-    if (at > now) remList.push({ at, label: T(bed ? 'remLeftBed' : 'remLeftWake', fd(i * S.remGap)) });
+  const target = bed ? o.lightsOut : o.wake;
+  for (let i = S.rem; i >= 1; i--) {
+    const at = addMin(target, -i * S.remEvery);
+    if (at > now) remList.push({ at, label: T(bed ? 'remLeftBed' : 'remLeftWake', fd(i * S.remEvery)) });
   }
-  $('#remList').innerHTML = !S.remN ? `<span class="hint">${T('remNone')}</span>`
-    : !remList.length ? `<span class="hint">${T('remPast')}</span>`
-    : remList.map(x => { const p = tp(x.at); return `<div class="rem-item"><b>${p.t}${p.ap ? ' <small>' + p.ap + '</small>' : ''}</b><span>${x.label}</span></div>`; }).join('');
-  const b = $('#remBtn'); b.hidden = !remList.length; b.textContent = T('remSet', remList.length);
+  $('#alarmLbl').textContent = T('setAlarm', ft(alarmAt));
+  const as = $('#alarmSub'); as.hidden = !remList.length; as.textContent = remList.length ? T('plusRem', remList.length) : '';
+  $('#remCount').innerHTML = [0, 1, 2, 3, 4].map(n =>
+    `<button type="button" data-rem="${n}" aria-pressed="${n === S.rem}">${n ? n : T('off')}</button>`).join('');
+  $('#remEveryRow').hidden = !S.rem;
+  $('#remEvery').innerHTML = GAPS.map(g => `<button type="button" data-every="${g}" aria-pressed="${g === S.remEvery}">${fd(g)}</button>`).join('');
+  const rt = $('#remTimes'); rt.hidden = !S.rem;
+  rt.textContent = !remList.length ? T('remPast') : remList.map(x => ft(x.at)).join(T('listSep')) + sep + T(bed ? 'remBeforeBed' : 'remBeforeWake');
 }
 
 function renderOpts(r, o) {
-  $('#optsTitle').textContent = r.kind === 'bed' ? T('bedsFor', ft(r.wake)) : T(S.mode === 'now' ? 'wakeTimes' : 'nearby');
+  $('#optsTitle').textContent = T(r.kind === 'bed' ? 'otherBed' : S.mode === 'now' ? 'otherWake' : 'otherFor');
   const grid = $('#opts');
   grid.className = 'grid' + (r.opts.length === 3 ? ' g3' : '');
   grid.innerHTML = r.opts.map(x => {
     const p = tp(r.kind === 'bed' ? x.lightsOut : x.wake);
     const meta = x.nap ? T('nap', fd(x.asleep))
-      : (x.exact && !x.aligned) ? fd(x.asleep) + T('sep') + T('cycF', dec1(x.asleep / S.cycle))
+      : (x.exact && !x.aligned) ? fd(x.asleep) + T('sep') + T('cycF', T('dec', x.asleep / S.cycle))
       : T('cyc', x.n) + T('sep') + fd(x.asleep);
     const on = x.key === o.key;
     return `<button type="button" class="opt${on ? ' sel' : ''}${x.past ? ' past' : ''}" data-k="${x.key}" aria-pressed="${on}">` +
       `<span class="opt-time">${p.t}${p.ap ? `<small>${p.ap}</small>` : ''}</span><span class="opt-meta">${meta}</span>` +
-      `<span class="tag ${x.tag[1]}">${T('tg_' + x.tag[0])}</span></button>`;
+      `<span class="tag ${TAGCLS[x.tag]}">${T('tg_' + x.tag)}</span></button>`;
   }).join('');
 }
 
@@ -1099,82 +830,62 @@ function renderNote(r) {
 }
 
 function renderSheet() {
-  const at = ctxAt || nowMin();
-  const L = latency(at);
-  $('#sLat').textContent = '~' + L.min;
-  $('#sCtx').textContent = T('sCtx', ft(at));
-  const sum = L.parts.reduce((a, p) => a + p.d, 0);
-  $('#sBreak').innerHTML = L.parts.map(p =>
-    `<li><span>${T(p.key)}${p.auto ? `<em>${T('auto')}</em>` : ''}</span><b>${p.base ? T('minutes', p.d) : (p.d > 0 ? '+' : '−') + T('minutes', Math.abs(p.d))}</b></li>`).join('') +
-    (sum !== L.min ? `<li><span>${T('clampNote')}</span><b>${T('minutes', L.min)}</b></li>` : '');
-  $('#base').value = S.base; $('#baseOut').textContent = T('minutes', S.base);
-  $('#factors').innerHTML = FACT.map(f =>
-    `<button type="button" data-f="${f.k}" aria-pressed="${!!S.tonight[f.k]}">${T('f_' + f.k)}<span>${f.d > 0 ? '+' : '−'}${Math.abs(f.d)}</span></button>`).join('');
-  $('#clockAdj').checked = !!S.clockAdj;
-  const uw = $('#usualWake'); if (document.activeElement !== uw) uw.value = S.usualWake;
-  $$('[data-need]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.need === S.need)));
-  $('#cycleV').textContent = T('minutes', S.cycle);
-  const sn = $('#scName'); if (document.activeElement !== sn) sn.value = S.scName;
+  $('#latChips').innerHTML = LATS.map(v => `<button type="button" data-lat="${v}" aria-pressed="${v === S.base}">${v || T('none')}</button>`).join('');
+  $('#cycChips').innerHTML = CYCS.map(v => `<button type="button" data-cyc="${v}" aria-pressed="${v === S.cycle}">${v}</button>`).join('');
   $('#scStatus').textContent = S.scReady ? T('scReady', S.scName) : T('scNotReady');
+  const sn = $('#scName'); if (document.activeElement !== sn) sn.value = S.scName;
   if (PLATFORM === 'ios') $('#testAlarm').hidden = $('#testHint').hidden = !S.scReady;
+  if (PLATFORM === 'ios' || PLATFORM === 'other') $('#dupHint').hidden = !S.scReady;
   if (NATIVE) { const st = nativeStatus(); $('#nativeBox').innerHTML = `<p class="p">${T('nativeReady')}</p><ul class="checks">${statusLis(st)}</ul>` + fixBtns(st, true); }
   if (PWA || NATIVE) {
-    $('#secInstall').hidden = false;
     const standalone = navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
-    $('#installTxt').textContent = T(NATIVE ? 'installedNative' : (IS_ANDROID && !standalone) ? 'installAndroid' : standalone ? 'installed' : 'notInstalled');
+    $('#secInstall').hidden = false;
+    $('#installTxt').textContent = T(NATIVE ? 'installedNative' : standalone ? 'installed' : IS_ANDROID ? 'installAndroid' : 'installIos');
   }
   faDigits($('#sheet'));
 }
 
-/* ---------- sheets, alarms, toast ---------- */
+/* ---------- sheets ---------- */
 function openSheet(d) { if (d.open) return; try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } }
 function closeSheet(d) { try { d.close(); } catch (e) { d.removeAttribute('open'); } }
 function renderAlarmSheet() {
-  const d = pending;
+  const l = pending;
   $('#alarmTitle').textContent = T(PLATFORM === 'android' ? 'androidTitle' : PLATFORM === 'native' ? 'noClockTitle' : 'alarmTitle');
-  $('#st4').innerHTML = T('st4', esc(S.scName));
-  $('#scDoneLbl').textContent = d ? T('scDoneFor', ft(d)) : T('scDone');
-  $('#copyTime').hidden = !d;
-  if (d) $('#copyLbl').textContent = T('copy', ft(d));
+  $('#st5').innerHTML = T('st5', esc(S.scName));
+  $('#scDoneLbl').textContent = !l ? T('scDone') : l.length > 1 ? T('scDoneN', l.length) : T('scDoneFor', ft(l[0].at));
+  $('#copyTime').hidden = !l;
+  if (l) $('#copyLbl').textContent = T('copy', l.map(x => ft(x.at)).join(T('listSep')));
   faDigits($('#alarmSheet'));
 }
-function openAlarmSheet(d) { pending = d || null; if (!d) pendingList = null; renderAlarmSheet(); openSheet($('#alarmSheet')); }
-function runAlarm(d) {
-  pendingList = null;
-  if (NATIVE) { nativeAlarm(d); return; }
-  if (PLATFORM === 'android' || !S.scReady) { openAlarmSheet(d); return; }
-  const url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(S.scName) + '&input=text&text=' + encodeURIComponent(hhmm(d));
-  toast(T('toastAlarm', ft(d)));
-  setTimeout(() => { try { window.location.href = url; } catch (e) {} }, 60);
-}
-function runReminders(list) {
-  if (!list.length) return;
-  if (NATIVE) {
-    const st = nativeStatus();
-    if (st && volPct(st) < 40) { try { NATIVE.raiseAlarmVolume(0.7); } catch (e) {} }
-    let res = 'error';
-    try { res = NATIVE.setAlarms(JSON.stringify(list.map(x => ({ h: x.at.getHours(), m: x.at.getMinutes(), label: x.label })))); } catch (e) {}
-    if (res === 'noclock') { openAlarmSheet(list[0].at); return; }
-    toast(res === 'ok' ? T('remDone', list.length) : T('alarmFailed'));
-    return;
-  }
-  if (PLATFORM === 'android' || !S.scReady || !S.scV2) { pendingList = list; openAlarmSheet(list[0].at); return; }
-  const url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(S.scName) + '&input=text&text=' + encodeURIComponent(list.map(x => hhmm(x.at)).join(','));
-  toast(T('remDone', list.length));
-  setTimeout(() => { try { window.location.href = url; } catch (e) {} }, 60);
-}
+function openAlarmSheet(list) { pending = list && list.length ? list : null; renderAlarmSheet(); openSheet($('#alarmSheet')); }
 
-/* Android app: hand the alarm to the phone's Clock app, then check it will really ring */
-function nativeAlarm(d) {
+/* ---------- alarms: one tap sends each alarm exactly once ---------- */
+function runAlarms(list) {
+  if (!list || !list.length) return;
+  list = list.slice().sort((a, b) => a.at - b.at);
+  if (Date.now() - lastRun < 4000) return; // ignore a second tap while the first is still being handled
+  if (NATIVE) { lastRun = Date.now(); nativeAlarms(list); return; }
+  if (PLATFORM === 'android' || !S.scReady || (list.length > 1 && !S.scV2)) { openAlarmSheet(list); return; }
+  lastRun = Date.now();
+  const url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(S.scName) +
+    '&input=text&text=' + encodeURIComponent(list.map(x => hhmm(x.at)).join(','));
+  toast(list.length > 1 ? T('toastAlarmN', list.length) : T('toastAlarm', ft(list[0].at)));
+  setTimeout(() => { try { (window.__ccOpen || (u => { window.location.href = u; }))(url); } catch (e) {} }, 60);
+}
+function nativeAlarms(list) {
   let raised = false;
   const st = nativeStatus();
   if (st && volPct(st) < 40) { try { NATIVE.raiseAlarmVolume(0.7); raised = true; } catch (e) {} }
   let res = 'error';
-  try { res = NATIVE.setAlarm(d.getHours(), d.getMinutes(), T('alarmLabel')); } catch (e) {}
-  if (res === 'noclock') { openAlarmSheet(d); return; }
-  if (res !== 'ok') { toast(T('alarmFailed')); return; }
-  toast(T(raised ? 'alarmSetRaised' : 'alarmSet', ft(d)));
-  ringInfo = { at: d, next: -1 };
+  try {
+    res = list.length === 1
+      ? NATIVE.setAlarm(list[0].at.getHours(), list[0].at.getMinutes(), list[0].label)
+      : NATIVE.setAlarms(JSON.stringify(list.map(x => ({ h: x.at.getHours(), m: x.at.getMinutes(), label: x.label }))));
+  } catch (e) {}
+  if (res === 'noclock') { lastRun = 0; openAlarmSheet(list); return; }
+  if (res !== 'ok') { lastRun = 0; toast(T('alarmFailed')); return; }
+  toast((list.length > 1 ? T('alarmSetN', list.length) : T('alarmSet', ft(list[0].at))) + (raised ? ' ' + T('volUp') : ''));
+  ringInfo = { list: list.map(x => x.at), next: -1 };
   setTimeout(verifyAlarm, 1500);
 }
 function verifyAlarm() {
@@ -1184,17 +895,18 @@ function verifyAlarm() {
 }
 function renderRing() {
   const el = $('#ring'), r = ringInfo;
-  if (!NATIVE || !r || r.at.getTime() < Date.now() - 60000) { el.hidden = true; return; }
+  if (!NATIVE || !r || r.list[r.list.length - 1].getTime() < Date.now() - 60000) { el.hidden = true; return; }
   const st = nativeStatus(), nd = r.next > 0 ? new Date(r.next) : null;
+  const match = nd && r.list.some(d => d.getHours() === nd.getHours() && d.getMinutes() === nd.getMinutes());
   let li, clock = false;
-  if (nd && nd.getHours() === r.at.getHours() && nd.getMinutes() === r.at.getMinutes()) li = `<li>${T('rcConfirmed', ft(r.at))}</li>`;
-  else if (nd && nd < r.at) { li = `<li class="ok">${T('rcEarlier', ft(r.at), ft(nd))}</li>`; clock = true; }
-  else { li = `<li class="warn">${T('rcUnknown', ft(r.at))}</li>`; clock = true; }
+  if (match) li = `<li>${T('rcConfirmed', ft(nd))}</li>`;
+  else if (nd && nd < r.list[0]) { li = `<li class="ok">${T('rcEarlier', ft(nd))}</li>`; clock = true; }
+  else { li = `<li class="warn">${T('rcUnknown')}</li>`; clock = true; }
   el.innerHTML = `<ul class="checks">${li}${statusLis(st)}</ul>` + fixBtns(st, clock);
   el.hidden = false;
   faDigits(el);
 }
-window.onNativeResume = () => { render(); if (ringInfo) verifyAlarm(); if ($('#sheet').open) renderSheet(); };
+window.onNativeResume = () => { render(); if (ringInfo) verifyAlarm(); };
 window.onNativeBack = () => {
   const open = $$('dialog').filter(x => x.open);
   if (open.length) { closeSheet(open[open.length - 1]); return true; }
@@ -1220,8 +932,6 @@ function fallbackCopy(txt, ok) {
 
 /* ---------- events ---------- */
 const commit = () => { save(); render(); };
-let resetArmed = false, resetT;
-function disarmReset() { resetArmed = false; clearTimeout(resetT); const b = $('#reset'); b.textContent = T('reset'); b.classList.remove('armed'); }
 document.addEventListener('click', e => {
   const t = e.target.closest('button, a');
   if (!t) return;
@@ -1229,16 +939,15 @@ document.addEventListener('click', e => {
   if (t.hasAttribute('data-close')) { closeSheet(t.closest('dialog')); return; }
   if (ds.mode) { S.mode = ds.mode; commit(); return; }
   if (ds.wstep) { S.wake = hmStr(hm(S.wake) + +ds.wstep); sel.wake = null; commit(); return; }
-  if (ds.delay !== undefined) { S.delay = +ds.delay; sel.now = sel.for = null; commit(); return; }
+  if (ds.delay !== undefined) { S.delay = +ds.delay; sel.now = null; commit(); return; }
   if (ds.dstep) { S.dur = clamp(S.dur + +ds.dstep, 10, 720); sel.for = null; commit(); return; }
   if (ds.dur) { S.dur = +ds.dur; sel.for = null; commit(); return; }
   if (ds.k) { sel[S.mode] = ds.k; render(); return; }
-  if (ds.alarm) { runAlarm(new Date(+ds.alarm)); return; }
-  if (ds.f) { S.tonight[ds.f] = !S.tonight[ds.f]; S.tonightAt = Date.now(); commit(); return; }
-  if (ds.need) { S.need = +ds.need; commit(); return; }
-  if (ds.rstep) { S.remN = clamp(S.remN + +ds.rstep, 0, 6); commit(); return; }
-  if (ds.rgap) { S.remGap = +ds.rgap; commit(); return; }
-  if (ds.cstep) { S.cycle = clamp(S.cycle + +ds.cstep, 80, 110); commit(); return; }
+  if (ds.rem !== undefined) { S.rem = +ds.rem; commit(); return; }
+  if (ds.every) { S.remEvery = +ds.every; commit(); return; }
+  if (ds.lat !== undefined) { S.base = +ds.lat; commit(); return; }
+  if (ds.cyc) { S.cycle = +ds.cyc; sel.wake = sel.now = sel.for = null; commit(); return; }
+  if (ds.alarm) { runAlarms([{ at: new Date(+ds.alarm), label: T('alarmLabel') }]); return; }
   if (ds.act && NATIVE) {
     if (ds.act === 'raise') { try { NATIVE.raiseAlarmVolume(0.7); } catch (err) {} toast(T('volRaised')); }
     if (ds.act === 'dnd') { try { NATIVE.openDnd(); } catch (err) {} }
@@ -1248,39 +957,33 @@ document.addEventListener('click', e => {
   }
   switch (t.id) {
     case 'langBtn':
-      S.lang = S.lang === 'fa' ? 'en' : 'fa'; save(); disarmReset(); applyLang(); render();
-      if ($('#alarmSheet').open) renderAlarmSheet();
+      S.lang = S.lang === 'fa' ? 'en' : 'fa'; save(); applyLang(); render();
+      renderSheet(); renderAlarmSheet(); $('#toast').textContent = '';
       break;
-    case 'openSettings': case 'latChip': renderSheet(); openSheet($('#sheet')); break;
+    case 'openSettings': case 'assumeBtn': renderSheet(); openSheet($('#sheet')); break;
+    case 'alarmBtn': if (alarmAt) runAlarms([{ at: alarmAt, label: T('alarmLabel') }].concat(remList)); break;
     case 'showSetup': case 'showAndroid': openAlarmSheet(null); break;
-    case 'testAlarm': closeSheet($('#sheet')); runAlarm(addMin(nowMin(), 2)); break;
-    case 'scDone': S.scReady = true; S.scV2 = true; save(); closeSheet($('#alarmSheet')); if ($('#sheet').open) renderSheet();
-      if (pendingList) { const l = pendingList; pendingList = null; runReminders(l); }
-      else if (pending) runAlarm(pending); else toast(T('toastOn')); break;
-    case 'remBtn': runReminders(remList); break;
-    case 'copyTime': if (pending) copyText(faStr(ft(pending))); break;
-    case 'reset':
-      if (!resetArmed) { resetArmed = true; t.textContent = T('resetArm'); t.classList.add('armed'); resetT = setTimeout(disarmReset, 3500); }
-      else { disarmReset(); S = Object.assign({}, DEF, { tonight: {}, lang: S.lang }); sel.wake = sel.now = sel.for = null; commit(); toast(T('resetDone')); }
+    case 'testAlarm': closeSheet($('#sheet')); runAlarms([{ at: addMin(nowMin(), 2), label: T('testLabel') }]); break;
+    case 'scDone': {
+      S.scReady = true; S.scV2 = true; save(); closeSheet($('#alarmSheet'));
+      if ($('#sheet').open) renderSheet();
+      const l = pending; pending = null;
+      if (l) runAlarms(l); else toast(T('toastOn'));
       break;
+    }
+    case 'copyTime': if (pending) copyText(faStr(pending.map(x => ft(x.at)).join(T('listSep')))); break;
   }
 });
 $$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d) closeSheet(d); }));
 
 const wi = $('#wakeInput');
-const onWake = () => { if (wi.value && wi.value !== S.wake) { S.wake = wi.value.slice(0, 5); sel.wake = null; commit(); } };
+const onWake = () => { if (wi.value && wi.value.slice(0, 5) !== S.wake) { S.wake = wi.value.slice(0, 5); sel.wake = null; commit(); } };
 wi.addEventListener('input', onWake); wi.addEventListener('change', onWake);
 wi.addEventListener('click', () => { try { if (wi.showPicker) wi.showPicker(); } catch (e) {} });
-$('#durRange').addEventListener('input', e => { S.dur = clamp(+e.target.value, 10, 720); sel.for = null; commit(); });
-$('#base').addEventListener('input', e => { S.base = clamp(+e.target.value, 5, 45); commit(); });
-$('#clockAdj').addEventListener('change', e => { S.clockAdj = e.target.checked; commit(); });
-const uw = $('#usualWake');
-uw.addEventListener('change', () => { if (uw.value) { S.usualWake = uw.value.slice(0, 5); commit(); } });
 $('#scName').addEventListener('input', e => { S.scName = e.target.value.trim() || 'Sleep Alarm'; save(); });
 
 setInterval(() => { if (Math.floor(Date.now() / MIN) !== lastMinute) render(); }, 5000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
-let rz; window.addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => drawChart(lastO)); });
 
 if (PWA && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   const hadController = !!navigator.serviceWorker.controller;

@@ -1,0 +1,982 @@
+<title>Cycle Clock</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#EEF1F8;
+  --card:#FFFFFF; --soft:#F4F6FB; --soft-2:#E8ECF5; --line:#E2E6EF; --line-2:#D3D9E6;
+  --ink:#141A31; --ink-2:#3E4767; --muted:#646D8A;
+  --night:#3D4FD8; --sky:#7A9BFF; --sky-soft:#E6ECFF;
+  --sun:#E04E2A; --sun-soft:#FFECE5; --sun-ink:#B53A1A;
+  --good:#12855A; --good-soft:#E1F4EB; --warn:#D23A40; --warn-soft:#FDEBEC; --ok:#A6600B; --ok-soft:#FCF0DE;
+  --shadow:0 1px 2px rgba(20,26,49,.05), 0 12px 32px -10px rgba(20,26,49,.16);
+  --shadow-s:0 1px 2px rgba(20,26,49,.06);
+  --f-display: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, sans-serif;
+  --f-text: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+html[lang="fa"]{
+  --f-display: -apple-system, BlinkMacSystemFont, system-ui, "Vazirmatn", "Noto Sans Arabic", Tahoma, sans-serif;
+  --f-text: -apple-system, BlinkMacSystemFont, system-ui, "Vazirmatn", "Noto Sans Arabic", Tahoma, sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--ink);font:16px/1.45 var(--f-text);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;
+  background:radial-gradient(90% 50% at 0% 0%, #DCE5FF 0%, rgba(220,229,255,0) 70%), radial-gradient(80% 45% at 100% 0%, #FFE6DA 0%, rgba(255,230,218,0) 70%), var(--bg)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+:focus-visible{outline:2px solid var(--night);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));padding-block:8px 32px}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px}
+.brand{display:flex;align-items:center;gap:9px;font:650 19px/1 var(--f-display)}
+.brand svg{width:26px;height:26px;flex:none}
+.top-actions{display:flex;gap:8px}
+.iconbtn{min-width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink-2);display:grid;place-items:center;padding:0 10px;box-shadow:var(--shadow-s)}
+.iconbtn svg{width:20px;height:20px}
+.iconbtn.lang{font:700 16px/1 -apple-system, system-ui, "Vazirmatn", "Noto Sans Arabic", Tahoma, sans-serif;color:var(--ink)}
+html[lang="fa"] .iconbtn.lang{font-size:14px}
+
+/* mode tabs */
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;padding:4px;margin-top:8px;background:var(--soft-2);border-radius:16px}
+.seg button{border:0;background:transparent;color:var(--ink-2);font-weight:600;font-size:15px;min-height:44px;border-radius:12px;padding:0 4px;transition:background .15s,color .15s,box-shadow .15s}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(20,26,49,.14)}
+
+/* inputs */
+.in{display:grid;gap:10px;padding-top:18px}
+.lbl{font-size:14px;font-weight:550;color:var(--muted)}
+.picker{display:grid;grid-template-columns:58px minmax(0,1fr) 58px;gap:10px}
+.step,.disp{background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow-s)}
+.step{min-height:74px;border-radius:18px;color:var(--ink-2);font:600 16px/1 var(--f-display);font-variant-numeric:tabular-nums;padding:0}
+.disp{position:relative;display:flex;align-items:baseline;justify-content:center;gap:7px;min-height:74px;border-radius:20px;padding:18px 8px 0;font:650 44px/1 var(--f-display);letter-spacing:-.01em;font-variant-numeric:tabular-nums;overflow:hidden}
+.disp.long{font-size:25px;padding-top:24px;white-space:nowrap}
+.disp small{font-size:17px;font-weight:650;color:var(--muted)}
+.disp input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;margin:0;cursor:pointer}
+.step:active,.opt:active,.chips button:active,.pills button:active{transform:scale(.96)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{min-height:40px;padding:0 15px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink-2);font-size:14.5px;font-weight:550;font-variant-numeric:tabular-nums;box-shadow:var(--shadow-s);transition:background .15s,border-color .15s,color .15s}
+.chips button.on,.chips button[aria-pressed="true"]{background:var(--sun-soft);border-color:#F3A58F;color:var(--sun-ink)}
+.chips.fit{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.chips.fit button{padding:0 4px;font-size:14px}
+.pills.full{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr))}
+.pills.full button{padding:0 4px;min-height:40px}
+.assume{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;margin-top:14px;padding:0;border:0;background:none;color:var(--muted);font-size:13.5px;text-align:start;line-height:1.4}
+.assume .link{color:var(--night);font-weight:600}
+
+/* result card */
+.result{position:relative;margin-top:20px;padding:22px 20px 20px;border-radius:28px;background:var(--card);box-shadow:var(--shadow);border:1px solid rgba(20,26,49,.04)}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--sun)}
+.eyebrow.bed{color:var(--night)}
+.big{display:flex;align-items:baseline;gap:10px;margin-top:6px;font:700 clamp(64px,19vw,100px)/.95 var(--f-display);letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+.big .ap{font-size:.28em;letter-spacing:0;color:var(--muted);font-weight:650}
+.big.flip{animation:flip .22s ease-out}
+@keyframes flip{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
+.hsub{margin-top:10px;font-size:15px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.strip{display:flex;gap:3px;height:30px;margin-top:20px}
+.strip::after{content:"";flex:none;align-self:center;width:12px;height:12px;margin-inline-start:4px;border-radius:50%;background:var(--sun);box-shadow:0 0 0 4px var(--sun-soft)}
+.blk{display:grid;place-items:center;min-width:3px;border-radius:8px;font:650 11px/1 var(--f-text);font-style:normal;color:#fff;overflow:hidden}
+.blk.lat{background:repeating-linear-gradient(135deg, var(--soft-2) 0 4px, var(--card) 4px 8px);box-shadow:inset 0 0 0 1px var(--line)}
+.blk.nap{background:var(--sky-soft);color:var(--night)}
+.blk.part{background:repeating-linear-gradient(135deg, var(--warn-soft) 0 4px, var(--card) 4px 8px);box-shadow:inset 0 0 0 1.5px var(--warn)}
+.axis{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.verdict{display:flex;gap:9px;margin:14px 0 0;font-size:14px;line-height:1.45;color:var(--ink-2)}
+.verdict::before{content:"";flex:0 0 8px;height:8px;border-radius:50%;margin-top:6px;background:var(--good)}
+.verdict.ok::before{background:var(--ok)}
+.verdict.warn::before{background:var(--warn)}
+.note{display:grid;gap:10px;margin-top:14px;padding:12px 14px;border-radius:16px;background:var(--sky-soft);color:var(--ink-2);font-size:14px;line-height:1.5}
+.note b{color:var(--ink)}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:6px 18px;border-radius:18px;border:1px solid transparent;font-size:17px;font-weight:650;text-decoration:none;font-variant-numeric:tabular-nums;transition:transform .08s}
+.btn:active{transform:scale(.985)}
+.btn svg{width:21px;height:21px;flex:none}
+.btn.primary{background:var(--sun);color:#fff;box-shadow:0 10px 22px -10px rgba(224,78,42,.7)}
+.btn.ghost{background:var(--card);border-color:var(--line-2);color:var(--ink)}
+.btn.small{min-height:46px;font-size:15px;border-radius:14px}
+.btn.tiny{min-height:38px;padding:0 12px;font-size:14px;border-radius:12px}
+.btxt{display:grid;justify-items:center;line-height:1.2}
+.btxt small{font-size:12.5px;font-weight:550;opacity:.92}
+#alarmBtn{width:100%;margin-top:18px}
+.rem{display:grid;gap:10px;margin-top:16px}
+.remrow{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+.remlbl{font-size:14.5px;font-weight:550;color:var(--ink-2)}
+.pills{display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;border-radius:12px;background:var(--soft-2)}
+.pills button{min-width:40px;min-height:34px;padding:0 10px;border:0;border-radius:9px;background:transparent;color:var(--ink-2);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.pills button[aria-pressed="true"]{background:var(--card);color:var(--sun-ink);box-shadow:0 1px 3px rgba(20,26,49,.14)}
+.remtimes{margin:0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ring{display:grid;gap:10px;margin-top:14px;padding:12px 14px;border-radius:16px;background:var(--soft)}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.checks li{position:relative;padding-inline-start:18px;font-size:14px;line-height:1.5;color:var(--ink-2)}
+.checks li::before{content:"";position:absolute;inset-inline-start:0;top:7px;width:8px;height:8px;border-radius:50%;background:var(--good)}
+.checks li.ok::before{background:var(--ok)}
+.checks li.warn::before{background:var(--warn)}
+.checks b{color:var(--ink)}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+
+/* other times */
+.h2{margin:26px 2px 10px;font-size:14px;font-weight:600;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.grid.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.opt{display:grid;gap:5px;justify-items:start;align-content:start;text-align:start;padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow-s);color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.opt-time{font:650 26px/1.05 var(--f-display);letter-spacing:-.015em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.opt-time small{margin-inline-start:4px;font-size:13px;font-weight:650;color:var(--muted)}
+.opt-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.g3 .opt{padding:12px 11px}
+.g3 .opt-time{font-size:21px}
+.g3 .opt-meta{font-size:12px}
+.tag{padding:3px 8px;border-radius:7px;font-size:11px;font-weight:650;line-height:1.4;white-space:nowrap;background:var(--soft-2);color:var(--ink-2)}
+.tag.best{background:var(--sun);color:#fff}
+.tag.good{background:var(--good-soft);color:var(--good)}
+.tag.short{background:var(--ok-soft);color:var(--ok)}
+.tag.bad{background:var(--warn-soft);color:var(--warn)}
+.tag.nap{background:var(--sky-soft);color:var(--night)}
+.tag.passed{color:var(--muted)}
+.opt.sel{border-color:var(--sun);box-shadow:inset 0 0 0 1px var(--sun), var(--shadow-s)}
+.opt.past{opacity:.55}
+.cap{margin:16px 2px 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
+
+@media (min-width: 880px){
+  .app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"ctl result" "side result";column-gap:28px;align-items:start}
+  .ctl{grid-area:ctl}.side{grid-area:side}
+  .result{grid-area:result;margin-top:8px;position:sticky;top:calc(env(safe-area-inset-top, 0px) + 12px)}
+}
+
+/* sheets */
+dialog{width:100%;max-width:560px;max-height:min(90vh, 900px);margin:auto auto 0;padding:0;border:0;border-radius:26px 26px 0 0;background:var(--card);color:var(--ink);overflow:hidden;box-shadow:0 -10px 40px rgba(20,26,49,.18)}
+dialog::backdrop{background:rgba(20,26,49,.32);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+dialog[open]{animation:rise .22s ease-out}
+@keyframes rise{from{transform:translateY(24px);opacity:.5}to{transform:none;opacity:1}}
+@media (min-width: 640px){ dialog{margin:auto;border-radius:26px} }
+.sh{max-height:min(90vh, 900px);overflow-y:auto;overscroll-behavior:contain;padding:20px 20px calc(24px + env(safe-area-inset-bottom, 0px))}
+.sh-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:4px}
+.sh-head h2{margin:0;font:650 22px/1.2 var(--f-display);text-wrap:balance}
+.sec{display:grid;gap:12px;padding-block:18px;border-top:1px solid var(--line)}
+.sec:first-of-type{border-top:0;padding-top:10px}
+.sec h3{margin:0;font-size:16px;font-weight:650}
+.sec h4{margin:4px 0 0;font-size:14px;font-weight:650;color:var(--ink-2)}
+.hint{margin:0;font-size:13px;line-height:1.5;color:var(--muted)}
+.p{margin:0;font-size:15px;line-height:1.5;color:var(--ink-2)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;font-size:15px;color:var(--ink-2)}
+.tinput{max-width:190px;min-height:42px;padding:8px 10px;border:1px solid var(--line-2);border-radius:12px;background:var(--soft);font-size:16px;color:var(--ink)}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:10px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;font-size:15px;line-height:1.45;color:var(--ink-2)}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--sun-soft);color:var(--sun-ink);font:700 13px var(--f-text)}
+html[lang="fa"] .steps li::before{content:counter(s, persian);font-size:14px}
+.steps b,.tip b{color:var(--ink);font-weight:650}
+.tip{margin:0;padding:12px 14px;border-radius:14px;background:var(--ok-soft);color:#5E4310;font-size:14px;line-height:1.5}
+.actions{display:grid;gap:10px}
+
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom, 0px));z-index:10;max-width:calc(100% - 32px);padding:11px 16px;border-radius:14px;background:var(--ink);color:#fff;font-size:14px;font-weight:600;text-align:center;opacity:0;pointer-events:none;transform:translate(-50%, 16px);transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translate(-50%, 0)}
+
+/* Persian: Arabic script is never letter-spaced; a touch more leading reads better */
+html[lang="fa"] *{letter-spacing:0!important}
+html[lang="fa"] .eyebrow{font-size:14px}
+html[lang="fa"] .tag{font-size:12px}
+html[lang="fa"] .verdict, html[lang="fa"] .note, html[lang="fa"] .hint, html[lang="fa"] .cap, html[lang="fa"] .p,
+html[lang="fa"] .steps li, html[lang="fa"] .checks li, html[lang="fa"] .tip, html[lang="fa"] .assume{line-height:1.8}
+html[lang="fa"] .big .ap{font-size:.26em}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="19.5" cy="7" r="3" fill="#E04E2A"/><path d="M20.4 15.6A8.4 8.4 0 0 1 10.4 5.6a8.4 8.4 0 1 0 10 10z" fill="#3D4FD8"/></svg>
+      <span data-t="brand">Cycle Clock</span>
+    </div>
+    <div class="top-actions">
+      <button class="iconbtn lang" id="langBtn" type="button" data-t="langBtn" data-ta="langAria">فا</button>
+      <button class="iconbtn" id="openSettings" type="button" data-ta="settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="ctl">
+      <div class="seg" role="tablist">
+        <button type="button" role="tab" data-mode="wake" data-t="modeWake" aria-selected="true">Wake up at</button>
+        <button type="button" role="tab" data-mode="now" data-t="modeNow" aria-selected="false">Sleep now</button>
+        <button type="button" role="tab" data-mode="for" data-t="modeFor" aria-selected="false">Sleep for</button>
+      </div>
+
+      <div class="in" data-mode="wake">
+        <div class="lbl" data-t="lblWake">I want to wake up at</div>
+        <div class="picker">
+          <button class="step" type="button" data-wstep="-15" data-ta="earlier">−15</button>
+          <label class="disp" for="wakeInput"><span id="wTime">6:30</span><small id="wAp">AM</small>
+            <input type="time" id="wakeInput" value="06:30" data-ta="wakeAria">
+          </label>
+          <button class="step" type="button" data-wstep="15" data-ta="later">+15</button>
+        </div>
+      </div>
+
+      <div class="in" data-mode="now" hidden>
+        <div class="lbl" data-t="lblNow">Going to bed</div>
+        <div class="chips">
+          <button type="button" data-delay="0" data-t="d0">Now</button>
+          <button type="button" data-delay="10" data-t="d10">in 10 min</button>
+          <button type="button" data-delay="20" data-t="d20">in 20 min</button>
+          <button type="button" data-delay="30" data-t="d30">in 30 min</button>
+        </div>
+      </div>
+
+      <div class="in" data-mode="for" hidden>
+        <div class="lbl" data-t="lblFor">I want to sleep for</div>
+        <div class="picker">
+          <button class="step" type="button" data-dstep="-15" data-ta="less">−15</button>
+          <div class="disp" id="dDisp"><span id="dTime">7h 30m</span></div>
+          <button class="step" type="button" data-dstep="15" data-ta="more">+15</button>
+        </div>
+        <div class="chips fit" id="durChips"></div>
+      </div>
+
+      <button class="assume" type="button" id="assumeBtn"><span id="assumeTxt"></span><span class="link" data-t="change">Change</span></button>
+    </section>
+
+    <section class="result" aria-live="polite">
+      <div class="eyebrow" id="hEye"></div>
+      <div class="big" id="hBig"><span id="hTime">--:--</span><span class="ap" id="hAp"></span></div>
+      <div class="hsub" id="hSub"></div>
+      <div class="strip" id="strip" role="img" data-ta="stripAria"></div>
+      <div class="axis"><span id="axStart"></span><span id="axEnd"></span></div>
+      <p class="verdict" id="hVerdict" hidden></p>
+      <div class="note" id="note" hidden></div>
+      <button class="btn primary" type="button" id="alarmBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.6 1.8H4.4z"/><path d="M10 21a2.2 2.2 0 0 0 4 0"/></svg>
+        <span class="btxt"><span id="alarmLbl"></span><small id="alarmSub" hidden></small></span>
+      </button>
+      <div class="rem">
+        <div class="remrow"><span class="remlbl" data-t="remTitle">Reminders</span><div class="pills" id="remCount"></div></div>
+        <div class="remrow" id="remEveryRow" hidden><span class="remlbl" data-t="every">Every</span><div class="pills" id="remEvery"></div></div>
+        <p class="remtimes" id="remTimes" hidden></p>
+      </div>
+      <div class="ring" id="ring" hidden></div>
+    </section>
+
+    <section class="side">
+      <h2 class="h2" id="optsTitle"></h2>
+      <div class="grid" id="opts"></div>
+      <p class="cap" data-t="cap"></p>
+    </section>
+  </main>
+</div>
+
+<dialog id="sheet" aria-labelledby="sheetTitle">
+  <div class="sh">
+    <div class="sh-head"><h2 id="sheetTitle" data-t="settings">Settings</h2>
+      <button class="iconbtn" type="button" data-close data-ta="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <section class="sec">
+      <h3 data-t="secFall">Time to fall asleep</h3>
+      <div class="pills full" id="latChips" style="--n:6"></div>
+      <p class="hint" data-t="hintFall"></p>
+    </section>
+    <section class="sec">
+      <h3 data-t="secCycle">Sleep cycle length</h3>
+      <div class="pills full" id="cycChips" style="--n:5"></div>
+      <p class="hint" data-t="hintCycle"></p>
+    </section>
+    <section class="sec">
+      <h3 data-t="secAlarm">Alarms</h3>
+      <p class="p" id="scStatus" data-plat="ios other"></p>
+      <p class="hint" id="dupHint" data-plat="ios other" data-t="dupHint"></p>
+      <label class="row" for="scName" data-plat="ios other"><span data-t="scNameLbl">Shortcut name</span><input class="tinput" type="text" id="scName" value="Sleep Alarm" dir="ltr" autocomplete="off" autocapitalize="words" spellcheck="false"></label>
+      <button class="btn ghost small" type="button" id="showSetup" data-plat="ios other" data-t="showSetup">Setup steps</button>
+      <div id="nativeBox" class="ring" data-plat="native"></div>
+      <p class="p" data-plat="android" data-t="androidWebStatus"></p>
+      <a class="btn primary small" id="apkLink2" data-plat="android" data-t="getApk" href="#">Download Android app</a>
+      <button class="btn ghost small" type="button" id="showAndroid" data-plat="android" data-t="howInstall">How to install</button>
+      <button class="btn ghost small" type="button" id="testAlarm" data-plat="ios native other" data-t="btnTest">Test alarm in 2 minutes</button>
+      <p class="hint" id="testHint" data-plat="ios native other" data-t="testHint"></p>
+      <div data-plat="ios">
+        <h4 data-t="ringTitle">Make sure it rings</h4>
+        <ul class="checks"><li data-t="ios1"></li><li data-t="ios2"></li><li data-t="ios3"></li></ul>
+      </div>
+    </section>
+    <section class="sec" id="secInstall" hidden><p class="hint" id="installTxt"></p></section>
+  </div>
+</dialog>
+
+<dialog id="alarmSheet" aria-labelledby="alarmTitle">
+  <div class="sh">
+    <div class="sh-head"><h2 id="alarmTitle">Set up one-tap alarms</h2>
+      <button class="iconbtn" type="button" data-close data-ta="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <section class="sec" data-plat="ios other">
+      <p class="p" data-t="alarmIntro"></p>
+      <ol class="steps">
+        <li><span data-t="st1"></span></li>
+        <li><span data-t="st2"></span></li>
+        <li><span data-t="st3"></span></li>
+        <li><span data-t="st4"></span></li>
+        <li><span id="st5"></span></li>
+      </ol>
+      <p class="tip" data-t="stDup"></p>
+      <div class="actions">
+        <button class="btn primary" type="button" id="scDone"><span id="scDoneLbl"></span></button>
+        <a class="btn ghost small" href="shortcuts://create-shortcut" data-t="openShortcuts">Open Shortcuts</a>
+      </div>
+    </section>
+    <section class="sec" data-plat="android">
+      <p class="p" data-t="androidIntro"></p>
+      <ol class="steps"><li><span data-t="and1"></span></li><li><span data-t="and2"></span></li><li><span data-t="and3"></span></li></ol>
+      <a class="btn primary" id="apkLink" data-t="getApk" href="#">Download Android app</a>
+      <p class="hint" data-t="androidNote"></p>
+    </section>
+    <section class="sec" data-plat="native"><p class="p" data-t="noClock"></p></section>
+    <div class="actions"><button class="btn ghost small" type="button" id="copyTime" hidden><span id="copyLbl"></span></button></div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+const PWA = /*PWA*/false;
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const pad = n => String(n).padStart(2, '0');
+const MIN = 60000;
+const KEY = 'cycleclock.v1';
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const mod = (a, n) => ((a % n) + n) % n;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const Z = '\u200c';  // zero-width non-joiner (Persian compound words)
+const EZ = '\u0654'; // ezafe mark
+
+/* ---------- strings ---------- */
+const I18N = {
+  en: {
+    brand: 'Cycle Clock', settings: 'Settings', close: 'Close', langBtn: 'فا', langAria: 'فارسی',
+    modeWake: 'Wake up at', modeNow: 'Sleep now', modeFor: 'Sleep for',
+    lblWake: 'I want to wake up at', lblNow: 'Going to bed', lblFor: 'I want to sleep for',
+    d0: 'Now', d10: 'in 10 min', d20: 'in 20 min', d30: 'in 30 min',
+    earlier: '15 minutes earlier', later: '15 minutes later', less: '15 minutes less', more: '15 minutes more',
+    wakeAria: 'Wake-up time', stripAria: 'Sleep cycles from bedtime to wake-up',
+    assume: (lat, c) => (lat ? `Includes ${lat} min to fall asleep · ${c}-min cycles` : `No time added to fall asleep · ${c}-min cycles`),
+    change: 'Change',
+    eyeBed: 'Go to bed at', eyeBedPast: 'This bedtime has passed', eyeWake: 'Wake up at',
+    period: h => (h < 12 ? 'AM' : 'PM'),
+    fd: (h, m) => (!h ? m + ' min' : !m ? h + 'h' : h + 'h ' + m + 'm'),
+    dec: x => x.toFixed(1),
+    sep: ' · ', listSep: ', ',
+    cyc: n => `${n} ${n === 1 ? 'cycle' : 'cycles'}`, cycF: x => `${x} cycles`,
+    asleep: d => `${d} of sleep`, nap: d => `${d} nap`,
+    untilIn: d => `in ${d}`, ago: d => `${d} ago`, rightNow: 'right now', passedAgo: d => `passed ${d} ago`,
+    stripBed: t => `Bed ${t}`, stripWake: t => `Wake ${t}`,
+    cap: 'Each block is one sleep cycle. Waking right as one ends feels easiest.',
+    vPast: 'Pick a later bedtime, or switch to Sleep now.',
+    napV: 'Short enough to stay in light sleep, so you wake up clear-headed.',
+    powerNap: 'Power nap. ',
+    vDeep: c => `You'd likely wake from deep sleep and feel groggy. Try 20 min or ${c}.`,
+    vAligned: n => `Ends right as cycle ${n} finishes, so you should wake up refreshed.`,
+    vClose: (n, d) => `Close to the end of cycle ${n}. ${d} would line up exactly.`,
+    vMid: (n, lo, hi) => `Lands in the middle of cycle ${n}, which can leave you groggy. ${lo} or ${hi} ends on a cycle.`,
+    noteShift: (t1, t2) => `Your 5-cycle bedtime (${t1}) has passed. Go to bed now and wake at <b>${t2}</b> to still get 5 full cycles.`,
+    noteNone: t => `There isn't time for a full cycle before <b>${t}</b>. A 20 min nap in Sleep for is your best bet.`,
+    tg_best: 'Best', tg_good: 'Good', tg_short: 'Short', tg_tooShort: 'Too short', tg_passed: 'Passed', tg_nap: 'Nap',
+    tg_yourPick: 'Your pick', tg_fullCycles: 'Full cycles', tg_powerNap: 'Power nap',
+    otherBed: 'Other bedtimes', otherWake: 'Other wake-up times', otherFor: 'Closest full cycles',
+    setAlarm: t => `Set alarm for ${t}`, plusRem: n => `+ ${n} ${n === 1 ? 'reminder' : 'reminders'}`,
+    remTitle: 'Reminders', off: 'Off', every: 'Every',
+    remBeforeBed: 'before bedtime', remBeforeWake: 'before wake-up', remPast: 'Those reminder times have already passed.',
+    remLeftBed: d => `${d} to bed`, remLeftWake: d => `${d} to wake-up`, alarmLabel: 'Wake up', testLabel: 'Test alarm',
+    secFall: 'Minutes to fall asleep', none: 'None',
+    hintFall: 'Most people take 10 to 20 minutes. Choose None to plan with sleep cycles only.',
+    secCycle: 'Sleep cycle length in minutes',
+    hintCycle: 'Most cycles last about 90 minutes. Only change this if suggested times leave you groggy.',
+    secAlarm: 'Alarms', minutes: n => `${n} min`, scNameLbl: 'Shortcut name', showSetup: 'Setup steps',
+    scReady: n => `Ready. Alarm buttons run your “${n}” shortcut.`,
+    scNotReady: 'Not set up yet. It takes a minute, once.',
+    dupHint: 'Getting two of every alarm? Open Setup steps: your shortcut should have only one Create Alarm.',
+    btnTest: 'Test alarm in 2 minutes',
+    testHint: 'Sets a real alarm 2 minutes from now so you can hear it. Delete it in Clock afterwards.',
+    ringTitle: 'Make sure it rings',
+    ios1: 'iPhone alarms ring even in Silent mode, Focus and Do Not Disturb.',
+    ios2: 'Their volume follows <b><bdi>Settings → Sounds &amp; Haptics → Ringtone and Alerts</bdi></b>. Keep it well up.',
+    ios3: "Turn off <b><bdi>Change with Buttons</bdi></b> on that screen so the side buttons can't turn alarms down by accident.",
+    androidWebStatus: 'One-tap alarms on Android need the Cycle Clock Android app.',
+    getApk: 'Download Android app', howInstall: 'How to install',
+    androidTitle: 'Alarms on Android',
+    androidIntro: "A web page can't create alarms on Android, but the Cycle Clock Android app can. It's this same app and works offline. It puts each alarm straight into your Clock app and checks that it will ring.",
+    and1: 'Tap <b>Download Android app</b> below.',
+    and2: 'Open the downloaded file. If Android asks, allow your browser to <b>install unknown apps</b>.',
+    and3: 'Tap <b>Install</b>, then open Cycle Clock from your apps.',
+    androidNote: "Play Protect may warn that the developer is unknown. That's because this is your own app and isn't on Google Play.",
+    nativeReady: "Alarms go straight into your phone's Clock app, so they ring like any other alarm, even with this app closed.",
+    rcConfirmed: t => `Clock confirmed the next alarm rings at <b>${t}</b>.`,
+    rcEarlier: t => `Sent to Clock. An alarm you already had rings first, at ${t}.`,
+    rcUnknown: "Sent to Clock, but it couldn't be confirmed. Open Clock to check.",
+    rcVol: p => `Alarm volume is ${p}%.`, rcVolLow: p => `Alarm volume is only ${p}%, so you might not hear it.`,
+    rcDnd: 'Do Not Disturb is on Total silence, so no alarm will ring.',
+    rcSilent: 'Alarms ring even when the phone is on silent or vibrate.',
+    btnOpenClock: 'Open Clock', btnRaise: 'Turn up alarm volume', btnDnd: 'Fix Do Not Disturb',
+    noClockTitle: 'No clock app found',
+    noClock: "Your phone doesn't have a Clock app that accepts new alarms. Install Google Clock from the Play Store, then try again.",
+    installIos: 'To use it offline, open it in Safari, tap Share, then Add to Home Screen.',
+    installed: 'Installed. Works fully offline.',
+    installAndroid: 'In Chrome, tap ⋮ then Add to Home screen. For alarms, use the Android app.',
+    installedNative: 'This is the Android app. It works fully offline.',
+    alarmTitle: 'Set up one-tap alarms',
+    alarmIntro: 'iPhone and iPad only let apps create alarms through the Shortcuts app. Build this small shortcut once and every alarm button here works with one tap.',
+    st1: 'Open <b>Shortcuts</b> and tap <b>+</b>.',
+    st2: 'Add <b>Split Text</b>. Set its text to <b>Shortcut Input</b>, tap <b>New Lines</b>, choose <b>Custom</b> and type a comma.',
+    st3: 'Add <b>Repeat with Each</b> under it.',
+    st4: 'Inside the repeat, add <b>Create Alarm</b>. Tap its time and choose <b>Repeat Item</b>.',
+    st5: n => `Tap the name at the top, choose <b>Rename</b>, call it <b class="nofa">${n}</b>, then tap <b>Done</b>.`,
+    stDup: 'Alarms coming out doubled? The shortcut must have only <b>one Create Alarm</b>, the one inside the repeat. Open the shortcut and delete any other Create Alarm, such as one left from the older setup.',
+    scDone: "It's ready", scDoneFor: t => `It's ready · set alarm for ${t}`, scDoneN: n => `It's ready · set ${n} alarms`,
+    openShortcuts: 'Open Shortcuts', copy: t => `Copy ${t}`,
+    toastAlarm: t => `Opening Shortcuts to set ${t}`, toastAlarmN: n => `Opening Shortcuts to set ${n} alarms`,
+    toastOn: 'One-tap alarms are on',
+    alarmSet: t => `Alarm set for ${t}`, alarmSetN: n => `${n} alarms set`,
+    volUp: "Alarm volume was low, so it's now 70%.",
+    alarmFailed: "Couldn't reach the Clock app. Open Clock and set the alarm there.",
+    volRaised: 'Alarm volume turned up', copied: t => `Copied ${t}`,
+  },
+  fa: {
+    brand: 'ساعت چرخه', settings: 'تنظیمات', close: 'بستن', langBtn: 'EN', langAria: 'English',
+    modeWake: 'ساعت بیداری', modeNow: `الان می${Z}خوابم`, modeFor: 'مدت خواب',
+    lblWake: `کی می${Z}خواهی بیدار شوی؟`, lblNow: `کی به رختخواب می${Z}روی؟`, lblFor: `چقدر می${Z}خواهی بخوابی؟`,
+    d0: 'الان', d10: '۱۰ دقیقه دیگر', d20: '۲۰ دقیقه دیگر', d30: '۳۰ دقیقه دیگر',
+    earlier: '۱۵ دقیقه زودتر', later: '۱۵ دقیقه دیرتر', less: '۱۵ دقیقه کمتر', more: '۱۵ دقیقه بیشتر',
+    wakeAria: 'ساعت بیداری', stripAria: `چرخه${Z}های خواب از رفتن به رختخواب تا بیداری`,
+    assume: (lat, c) => (lat ? `با احتساب ${lat} دقیقه تا خوابت ببرد، چرخه${Z}های ${c} دقیقه${Z}ای` : `بدون زمان به خواب رفتن، چرخه${Z}های ${c} دقیقه${Z}ای`),
+    change: 'تغییر',
+    eyeBed: 'به رختخواب برو ساعت', eyeBedPast: 'این زمان خواب گذشته است', eyeWake: 'بیدار شو ساعت',
+    period: h => (h < 5 ? 'بامداد' : h < 12 ? 'صبح' : h < 14 ? 'ظهر' : h < 17 ? 'بعدازظهر' : h < 19 ? 'عصر' : 'شب'),
+    fd: (h, m) => (!h ? m + ' دقیقه' : !m ? h + ' ساعت' : m === 30 ? h + '٫۵ ساعت' : h + ' ساعت و ' + m + ' دقیقه'),
+    dec: x => x.toFixed(1).replace('.', '٫'),
+    sep: '، ', listSep: '، ',
+    cyc: n => `${n} چرخه`, cycF: x => `${x} چرخه`,
+    asleep: d => `${d} خواب`, nap: d => `${d} چرت`,
+    untilIn: d => `${d} دیگر`, ago: d => `${d} پیش`, rightNow: 'همین حالا', passedAgo: d => `${d} پیش گذشت`,
+    stripBed: t => `خواب ${t}`, stripWake: t => `بیداری ${t}`,
+    cap: `هر خانه یک چرخه${EZ} خواب است. بیدار شدن درست در پایان یک چرخه از همه راحت${Z}تر است.`,
+    vPast: `یک زمان دیرتر انتخاب کن یا برو سراغ «الان می${Z}خوابم».`,
+    napV: `آن${Z}قدر کوتاه است که در خواب سبک می${Z}مانی و سرحال بیدار می${Z}شوی.`,
+    powerNap: 'چرت کوتاه. ',
+    vDeep: c => `احتمالاً از خواب عمیق بیدار می${Z}شوی و گیج می${Z}مانی. ۲۰ دقیقه یا ${c} را امتحان کن.`,
+    vAligned: n => `درست با پایان چرخه${EZ} ${n} تمام می${Z}شود، پس سرحال بیدار می${Z}شوی.`,
+    vClose: (n, d) => `نزدیک پایان چرخه${EZ} ${n} است. ${d} دقیقاً جور درمی${Z}آید.`,
+    vMid: (n, lo, hi) => `وسط چرخه${EZ} ${n} می${Z}افتد و ممکن است گیج بیدار شوی. ${lo} یا ${hi} با پایان یک چرخه جور است.`,
+    noteShift: (t1, t2) => `زمان خواب ۵ چرخه${Z}ای${Z}ات (${t1}) گذشته است. همین حالا بخواب و ساعت <b>${t2}</b> بیدار شو تا باز هم ۵ چرخه${EZ} کامل بخوابی.`,
+    noteNone: t => `تا <b>${t}</b> برای یک چرخه${EZ} کامل وقت نیست. یک چرت ۲۰ دقیقه${Z}ای در «مدت خواب» بهترین گزینه است.`,
+    tg_best: 'بهترین', tg_good: 'خوب', tg_short: 'کوتاه', tg_tooShort: 'خیلی کوتاه', tg_passed: 'گذشته', tg_nap: 'چرت',
+    tg_yourPick: 'انتخاب تو', tg_fullCycles: `چرخه${EZ} کامل`, tg_powerNap: 'چرت کوتاه',
+    otherBed: `زمان${Z}های دیگر خواب`, otherWake: `زمان${Z}های دیگر بیداری`, otherFor: `نزدیک${Z}ترین چرخه${Z}های کامل`,
+    setAlarm: t => `تنظیم زنگ برای ${t}`, plusRem: n => `+ ${n} یادآور`,
+    remTitle: 'یادآور', off: 'خاموش', every: 'هر',
+    remBeforeBed: 'پیش از خواب', remBeforeWake: 'پیش از بیداری', remPast: 'زمان این یادآورها گذشته است.',
+    remLeftBed: d => `${d} تا خواب`, remLeftWake: d => `${d} تا بیداری`, alarmLabel: 'بیداری', testLabel: 'زنگ آزمایشی',
+    secFall: 'چند دقیقه طول می' + Z + 'کشد تا خوابت ببرد', none: 'هیچ',
+    hintFall: `بیشتر آدم${Z}ها ۱۰ تا ۲۰ دقیقه طول می${Z}کشد تا خوابشان ببرد. «هیچ» یعنی فقط بر پایه${EZ} چرخه${Z}ها حساب شود.`,
+    secCycle: `طول چرخه${EZ} خواب به دقیقه`,
+    hintCycle: `بیشتر چرخه${Z}ها حدود ۹۰ دقیقه${Z}اند. فقط اگر در زمان${Z}های پیشنهادی گیج بیدار می${Z}شوی تغییرش بده.`,
+    secAlarm: `زنگ${Z}ها`, minutes: n => `${n} دقیقه`, scNameLbl: `نام میان${Z}بر`, showSetup: `مراحل راه${Z}اندازی`,
+    scReady: n => `آماده است. دکمه${Z}های زنگ میان${Z}بر «${n}» را اجرا می${Z}کنند.`,
+    scNotReady: `هنوز راه${Z}اندازی نشده. فقط یک بار و حدود یک دقیقه وقت می${Z}گیرد.`,
+    dupHint: `هر زنگ دو بار ساخته می${Z}شود؟ «مراحل راه${Z}اندازی» را باز کن: میان${Z}بر باید فقط یک Create Alarm داشته باشد.`,
+    btnTest: 'زنگ آزمایشی ۲ دقیقه دیگر',
+    testHint: `یک زنگ واقعی برای ۲ دقیقه بعد می${Z}گذارد تا صدایش را بشنوی. بعد در برنامه${EZ} ساعت پاکش کن.`,
+    ringTitle: `مطمئن شو زنگ می${Z}زند`,
+    ios1: `زنگ آیفون حتی در حالت بی${Z}صدا، Focus و «مزاحم نشوید» به صدا درمی${Z}آید.`,
+    ios2: `بلندی آن از <b><bdi>Settings → Sounds &amp; Haptics → Ringtone and Alerts</bdi></b> می${Z}آید. آن را بالا نگه دار.`,
+    ios3: `در همان صفحه <b><bdi>Change with Buttons</bdi></b> را خاموش کن تا دکمه${Z}های کناری صدای زنگ را ناخواسته کم نکنند.`,
+    androidWebStatus: `برای زنگ با یک لمس در اندروید، برنامه${EZ} اندروید ساعت چرخه لازم است.`,
+    getApk: `دانلود برنامه${EZ} اندروید`, howInstall: 'روش نصب',
+    androidTitle: 'زنگ در اندروید',
+    androidIntro: `صفحه${EZ} وب در اندروید نمی${Z}تواند زنگ بسازد، ولی برنامه${EZ} اندروید ساعت چرخه می${Z}تواند. همین برنامه است و آفلاین کار می${Z}کند. هر زنگ را مستقیم در برنامه${EZ} ساعت گوشی می${Z}گذارد و بررسی می${Z}کند که به صدا درمی${Z}آید.`,
+    and1: `دکمه${EZ} <b>دانلود برنامه${EZ} اندروید</b> را بزن.`,
+    and2: `فایل دانلودشده را باز کن. اگر اندروید پرسید، به مرورگر اجازه${EZ} <b>نصب برنامه${Z}های ناشناس</b> بده.`,
+    and3: `<b>Install</b> را بزن و بعد ساعت چرخه را از فهرست برنامه${Z}ها باز کن.`,
+    androidNote: `ممکن است Play Protect هشدار بدهد که سازنده ناشناس است؛ چون این برنامه${EZ} شخصی خودت است و در Google Play نیست.`,
+    nativeReady: `زنگ${Z}ها مستقیم در برنامه${EZ} ساعت گوشی ساخته می${Z}شوند، پس مثل هر زنگ دیگری به صدا درمی${Z}آیند، حتی وقتی این برنامه بسته است.`,
+    rcConfirmed: t => `برنامه${EZ} ساعت تأیید کرد: زنگ بعدی ساعت <b>${t}</b> است.`,
+    rcEarlier: t => `به برنامه${EZ} ساعت رفت. زنگی که از قبل داشتی زودتر، ساعت ${t}، به صدا درمی${Z}آید.`,
+    rcUnknown: `به برنامه${EZ} ساعت رفت ولی تأیید نشد. ساعت را باز کن و ببین.`,
+    rcVol: p => `صدای زنگ ${p}٪ است.`, rcVolLow: p => `صدای زنگ فقط ${p}٪ است و ممکن است نشنوی.`,
+    rcDnd: `«مزاحم نشوید» روی سکوت کامل است و هیچ زنگی به صدا درنمی${Z}آید.`,
+    rcSilent: `زنگ هشدار حتی وقتی گوشی بی${Z}صدا یا روی لرزش است به صدا درمی${Z}آید.`,
+    btnOpenClock: 'باز کردن ساعت', btnRaise: 'بلند کردن صدای زنگ', btnDnd: 'درست کردن «مزاحم نشوید»',
+    noClockTitle: `برنامه${EZ} ساعتی پیدا نشد`,
+    noClock: `گوشی${Z}ات برنامه${EZ} ساعتی ندارد که زنگ تازه بپذیرد. Google Clock را از Play Store نصب کن و دوباره امتحان کن.`,
+    installIos: `برای استفاده${EZ} آفلاین، آن را در سافاری باز کن و Share و بعد Add to Home Screen را بزن.`,
+    installed: `نصب شده و کاملاً آفلاین کار می${Z}کند.`,
+    installAndroid: `در Chrome، ⋮ و بعد Add to Home screen را بزن. برای زنگ، برنامه${EZ} اندروید را نصب کن.`,
+    installedNative: `این برنامه${EZ} اندروید است و کاملاً آفلاین کار می${Z}کند.`,
+    alarmTitle: `راه${Z}اندازی زنگ با یک لمس`,
+    alarmIntro: `آیفون و آیپد فقط از راه برنامه${EZ} Shortcuts اجازه${EZ} ساختن زنگ می${Z}دهند. این میان${Z}بر کوچک را یک بار بساز تا همه${EZ} دکمه${Z}های زنگ اینجا با یک لمس کار کنند.`,
+    st1: `برنامه${EZ} <b>Shortcuts</b> را باز کن و <b>+</b> را بزن.`,
+    st2: `کنش <b>Split Text</b> را اضافه کن. متنش را <b>Shortcut Input</b> بگذار، روی <b>New Lines</b> بزن، <b>Custom</b> را انتخاب کن و یک ویرگول انگلیسی (,) بنویس.`,
+    st3: `زیر آن <b>Repeat with Each</b> را اضافه کن.`,
+    st4: `داخل تکرار، <b>Create Alarm</b> را اضافه کن. روی زمانش بزن و <b>Repeat Item</b> را انتخاب کن.`,
+    st5: n => `روی نام بالای صفحه بزن، <b>Rename</b> را انتخاب کن، نامش را <b class="nofa">${n}</b> بگذار و بعد <b>Done</b> را بزن.`,
+    stDup: `زنگ${Z}ها دوتا دوتا ساخته می${Z}شوند؟ میان${Z}بر باید فقط <b>یک Create Alarm</b> داشته باشد، همانی که داخل تکرار است. میان${Z}بر را باز کن و هر Create Alarm دیگری را پاک کن، مثلاً همانی که از نسخه${EZ} قدیمی مانده.`,
+    scDone: 'آماده است', scDoneFor: t => `آماده است؛ زنگ ${t} را بگذار`, scDoneN: n => `آماده است؛ ${n} زنگ را بگذار`,
+    openShortcuts: 'باز کردن Shortcuts', copy: t => `کپی ${t}`,
+    toastAlarm: t => `باز کردن Shortcuts برای زنگ ${t}`, toastAlarmN: n => `باز کردن Shortcuts برای ${n} زنگ`,
+    toastOn: 'زنگ با یک لمس فعال شد',
+    alarmSet: t => `زنگ برای ${t} تنظیم شد`, alarmSetN: n => `${n} زنگ تنظیم شد`,
+    volUp: 'صدای زنگ کم بود، حالا 70٪ است.',
+    alarmFailed: `به برنامه${EZ} ساعت دسترسی نشد. ساعت را باز کن و زنگ را آنجا بگذار.`,
+    volRaised: 'صدای زنگ بلند شد', copied: t => `کپی شد: ${t}`,
+  },
+};
+function T(k, ...a) {
+  const d = I18N[S.lang] || I18N.en;
+  const v = k in d ? d[k] : I18N.en[k];
+  return typeof v === 'function' ? v(...a) : v;
+}
+
+/* Persian digits in visible text only (never attributes, inputs or URLs) */
+const FA_D = '۰۱۲۳۴۵۶۷۸۹';
+const faStr = s => (S.lang === 'fa' ? String(s).replace(/[0-9]/g, c => FA_D[c]) : String(s));
+function faDigits(root) {
+  if (S.lang !== 'fa' || !root) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: n => (/[0-9]/.test(n.nodeValue) && !n.parentElement.closest('script,style,title,.nofa')
+      ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
+  });
+  const list = []; let n;
+  while ((n = w.nextNode())) list.push(n);
+  list.forEach(t => { t.nodeValue = t.nodeValue.replace(/[0-9]/g, c => FA_D[c]); });
+}
+
+/* ---------- platform ---------- */
+const NATIVE = (typeof window.CycleClockAndroid === 'object' && window.CycleClockAndroid) || null;
+const UA = navigator.userAgent || '';
+const IS_IOS = /iPad|iPhone|iPod/.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1);
+const IS_ANDROID = /Android/i.test(UA);
+const PLATFORM = NATIVE ? 'native' : IS_IOS ? 'ios' : IS_ANDROID ? 'android' : 'other';
+const APK_URL = 'https://github.com/naamimaalek/cycle-clock/releases/latest/download/cycle-clock.apk';
+function applyPlat() {
+  $$('[data-plat]').forEach(el => { el.hidden = !el.dataset.plat.split(' ').includes(PLATFORM); });
+  $('#apkLink').href = APK_URL; $('#apkLink2').href = APK_URL;
+}
+function nativeStatus() { try { return JSON.parse(NATIVE.alarmStatus()); } catch (e) { return null; } }
+const volPct = st => Math.round(100 * st.vol / Math.max(1, st.max));
+function statusLis(st) {
+  if (!st) return '';
+  const p = volPct(st);
+  return (st.dndBlocks ? `<li class="warn">${T('rcDnd')}</li>` : '') +
+    (p < 40 ? `<li class="warn">${T('rcVolLow', p)}</li>` : `<li>${T('rcVol', p)}</li>`) + `<li>${T('rcSilent')}</li>`;
+}
+function fixBtns(st, withClock) {
+  let b = '';
+  if (st && volPct(st) < 40) b += `<button class="btn primary tiny" type="button" data-act="raise">${T('btnRaise')}</button>`;
+  if (st && st.dndBlocks) b += `<button class="btn ghost tiny" type="button" data-act="dnd">${T('btnDnd')}</button>`;
+  if (withClock) b += `<button class="btn ghost tiny" type="button" data-act="clock">${T('btnOpenClock')}</button>`;
+  return b ? `<div class="btnrow">${b}</div>` : '';
+}
+
+/* ---------- state ---------- */
+const LATS = [0, 5, 10, 15, 20, 30], CYCS = [80, 85, 90, 95, 100], GAPS = [10, 15, 30, 60];
+const sysLang = () => (/^fa\b/i.test(navigator.language || '') ? 'fa' : 'en');
+const DEF = { mode: 'wake', wake: '06:30', delay: 0, dur: 450, base: 15, cycle: 90,
+  scName: 'Sleep Alarm', scReady: false, scV2: false, lang: '', rem: 0, remEvery: 15 };
+function load() {
+  let s = {};
+  try { s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { s = {}; }
+  const o = Object.assign({}, DEF, s);
+  if (!['wake', 'now', 'for'].includes(o.mode)) o.mode = 'wake';
+  if (!/^\d\d:\d\d$/.test(o.wake)) o.wake = DEF.wake;
+  o.base = LATS.includes(+o.base) ? +o.base : 15;
+  o.cycle = CYCS.includes(+o.cycle) ? +o.cycle : 90;
+  o.dur = clamp(+o.dur || 450, 10, 720);
+  o.delay = [0, 10, 20, 30].includes(+o.delay) ? +o.delay : 0;
+  o.rem = clamp(+o.rem || 0, 0, 4);
+  o.remEvery = GAPS.includes(+o.remEvery) ? +o.remEvery : 15;
+  if (!['en', 'fa'].includes(o.lang)) o.lang = sysLang();
+  return o;
+}
+let S = load();
+function save() {
+  const keep = {}; Object.keys(DEF).forEach(k => { keep[k] = S[k]; }); // old, removed settings are dropped
+  try { localStorage.setItem(KEY, JSON.stringify(keep)); } catch (e) {}
+}
+const sel = { wake: null, now: null, for: null };
+let pending = null, lastBig = '', ringInfo = null, remList = [], alarmAt = null, lastRun = 0, lastMinute = -1;
+
+/* ---------- time helpers ---------- */
+const H12 = (() => {
+  try {
+    const o = new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).resolvedOptions();
+    if (typeof o.hour12 === 'boolean') return o.hour12;
+    return o.hourCycle ? /h1[12]/.test(o.hourCycle) : true;
+  } catch (e) { return true; }
+})();
+function tp(d) {
+  const h = d.getHours(), m = d.getMinutes();
+  if (!H12) return { t: pad(h) + ':' + pad(m), ap: '' };
+  return { t: (h % 12 || 12) + ':' + pad(m), ap: T('period', h) };
+}
+const ft = d => { const p = tp(d); return p.ap ? p.t + ' ' + p.ap : p.t; };
+function fd(min) { min = Math.round(min); return T('fd', Math.floor(min / 60), min % 60); }
+const addMin = (d, m) => new Date(d.getTime() + Math.round(m) * MIN);
+const hm = s => { const p = String(s || '0:0').split(':'); return (+p[0] || 0) * 60 + (+p[1] || 0); };
+const hmStr = m => { m = mod(m, 1440); return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
+const hhmm = d => pad(d.getHours()) + ':' + pad(d.getMinutes());
+function nowMin() { const d = new Date(); d.setSeconds(0, 0); return d; }
+function until(d, now) {
+  const diff = Math.round((d - now) / MIN);
+  if (diff === 0) return T('rightNow');
+  return diff > 0 ? T('untilIn', fd(diff)) : T('ago', fd(-diff));
+}
+
+/* ---------- calculations ---------- */
+const TAGCLS = { best: 'best', good: 'good', short: 'short', tooShort: 'bad', passed: 'passed', nap: 'nap', yourPick: '', fullCycles: 'good', powerNap: 'nap' };
+function tagFor(n, isBest) { return isBest ? 'best' : n >= 5 ? 'good' : n === 4 ? 'short' : n === 1 ? 'nap' : 'tooShort'; }
+
+function calcWake(now) {
+  const C = S.cycle, lat = S.base;
+  const wake = new Date(now), w = hm(S.wake);
+  wake.setHours(Math.floor(w / 60), w % 60, 0, 0);
+  if (wake <= now) wake.setDate(wake.getDate() + 1);
+  const all = [];
+  for (let n = 6; n >= 1; n--) {
+    const sleepStart = addMin(wake, -n * C), lightsOut = addMin(sleepStart, -lat);
+    all.push({ key: 'w' + n, n, asleep: n * C, lightsOut, sleepStart, wake, past: lightsOut < now, show: n >= 3 });
+  }
+  if (!all.some(o => o.show && !o.past)) all.forEach(o => { if (o.n < 3) o.show = true; });
+  const opts = all.filter(o => o.show);
+  const best = [5, 6, 4, 3, 2, 1].map(n => opts.find(o => o.n === n && !o.past)).find(Boolean) || null;
+  opts.forEach(o => { o.tag = o.past ? 'passed' : tagFor(o.n, o === best); });
+  let note = null;
+  const five = all.find(o => o.n === 5);
+  if (five.past) {
+    const wNow = addMin(now, lat + 5 * C), diff = (wNow - wake) / MIN;
+    if (diff >= -20 && diff <= 30) note = { html: T('noteShift', ft(five.lightsOut), ft(wNow)), alarm: wNow };
+    else if (!best) note = { html: T('noteNone', ft(wake)) };
+  }
+  return { kind: 'bed', wake, opts, best, note };
+}
+
+function calcNow(now) {
+  const C = S.cycle, lightsOut = addMin(now, S.delay), sleepStart = addMin(lightsOut, S.base);
+  const opts = [1, 2, 3, 4, 5, 6].map(n => ({ key: 'n' + n, n, asleep: n * C, lightsOut, sleepStart, wake: addMin(sleepStart, n * C) }));
+  const best = opts[4];
+  opts.forEach(o => { o.tag = tagFor(o.n, o === best); });
+  return { kind: 'wake', opts, best, note: null };
+}
+
+function calcFor(now) {
+  const C = S.cycle, d = S.dur, lightsOut = now, sleepStart = addMin(now, S.base);
+  const mk = (m, x) => Object.assign({ key: 'm' + m, n: Math.round(m / C), asleep: m, lightsOut, sleepStart, wake: addMin(sleepStart, m) }, x);
+  const napV = { cls: 'good', text: T('napV') };
+  const r = mod(d, C), toEnd = Math.min(r, C - r), nearN = Math.round(d / C);
+  const lo = Math.floor(d / C) * C, hi = Math.ceil(d / C) * C;
+  let verdict, aligned = false;
+  if (d <= 30) verdict = { cls: 'good', text: T('powerNap') + T('napV') };
+  else if (d < C - 15) verdict = { cls: 'warn', text: T('vDeep', fd(C)) };
+  else if (toEnd <= 10) { aligned = true; verdict = { cls: 'good', text: T('vAligned', nearN) }; }
+  else if (toEnd <= 20) verdict = { cls: 'ok', text: T('vClose', nearN, fd(nearN * C)) };
+  else verdict = { cls: 'warn', text: T('vMid', Math.floor(d / C) + 1, fd(lo), fd(hi)) };
+  const exact = mk(d, { key: 'x', exact: true, aligned, nap: d <= 30, verdict, n: aligned ? nearN : 0, tag: 'yourPick' });
+  const opts = [exact];
+  const add = (m, x) => { if (m > 0 && m <= 720 && !opts.some(o => o.asleep === m)) opts.push(mk(m, x)); };
+  const napX = { nap: true, verdict: napV, tag: 'powerNap' };
+  const full = m => ({ aligned: true, verdict: { cls: 'good', text: T('vAligned', Math.round(m / C)) }, tag: 'fullCycles' });
+  if (d <= 30) { add(20, napX); add(C, full(C)); if (opts.length < 3) add(2 * C, full(2 * C)); }
+  else if (d < C - 15) { add(20, napX); add(C, full(C)); }
+  else if (aligned) {
+    if (nearN * C !== d) add(nearN * C, full(nearN * C));
+    if (opts.length < 3) add((nearN - 1) * C, full((nearN - 1) * C));
+    if (opts.length < 3) add((nearN + 1) * C, full((nearN + 1) * C));
+  } else { add(lo, full(lo)); add(hi, full(hi)); }
+  opts.sort((a, b) => a.asleep - b.asleep);
+  return { kind: 'wake', opts, best: exact, note: null };
+}
+
+/* ---------- the cycle strip: night blue to dawn ---------- */
+const STOPS = [[61, 79, 216], [122, 155, 255], [255, 174, 140]];
+function stripColor(t) {
+  const [a, b, u] = t < .6 ? [STOPS[0], STOPS[1], t / .6] : [STOPS[1], STOPS[2], (t - .6) / .4];
+  return 'rgb(' + a.map((v, i) => Math.round(v + (b[i] - v) * u)).join(',') + ')';
+}
+function renderStrip(o) {
+  const C = S.cycle, lat = Math.max(0, (o.sleepStart - o.lightsOut) / MIN), asleep = o.asleep;
+  const full = Math.floor(asleep / C + 1e-6), rest = asleep - full * C;
+  const extra = rest < 0.5 ? null : (o.aligned && rest >= C - 10) ? 'cyc' : (o.aligned || asleep <= 30) ? 'nap' : 'part';
+  const count = full + (extra === 'cyc' ? 1 : 0);
+  let h = lat > 0 ? `<i class="blk lat" style="flex-grow:${lat}"></i>` : '';
+  for (let i = 0; i < count; i++) {
+    const t = count <= 1 ? 1 : i / (count - 1), grow = i < full ? C : rest;
+    h += `<i class="blk" style="flex-grow:${grow};background:${stripColor(t)};color:${t > .85 ? '#5B2A18' : '#fff'}">${count <= 8 ? i + 1 : ''}</i>`;
+  }
+  if (extra === 'nap' || extra === 'part') h += `<i class="blk ${extra}" style="flex-grow:${rest}"></i>`;
+  $('#strip').innerHTML = h;
+  $('#axStart').textContent = T('stripBed', ft(o.lightsOut));
+  $('#axEnd').textContent = T('stripWake', ft(o.wake));
+}
+
+/* ---------- language ---------- */
+function applyLang() {
+  const fa = S.lang === 'fa', root = document.documentElement;
+  root.lang = fa ? 'fa' : 'en';
+  root.dir = fa ? 'rtl' : 'ltr';
+  $$('[data-t]').forEach(el => { el.innerHTML = T(el.dataset.t); });
+  $$('[data-ta]').forEach(el => el.setAttribute('aria-label', T(el.dataset.ta)));
+}
+
+/* ---------- render ---------- */
+function render() {
+  lastMinute = Math.floor(Date.now() / MIN);
+  const now = nowMin();
+  $$('.seg button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.mode === S.mode)));
+  $$('.in').forEach(el => { el.hidden = el.dataset.mode !== S.mode; });
+  renderInputs();
+  const r = S.mode === 'wake' ? calcWake(now) : S.mode === 'now' ? calcNow(now) : calcFor(now);
+  const o = r.opts.find(x => x.key === sel[S.mode]) || r.best || r.opts[r.opts.length - 1];
+  renderResult(r, o, now);
+  renderOpts(r, o);
+  renderNote(r);
+  $('#assumeTxt').textContent = T('assume', S.base, S.cycle);
+  renderRing();
+  faDigits($('.wrap'));
+  if ($('#sheet').open) renderSheet();
+}
+
+function renderInputs() {
+  const w = new Date(), m = hm(S.wake); w.setHours(Math.floor(m / 60), m % 60, 0, 0);
+  const p = tp(w); $('#wTime').textContent = p.t; $('#wAp').textContent = p.ap;
+  const wi = $('#wakeInput'); if (wi.value !== S.wake && document.activeElement !== wi) wi.value = S.wake;
+  $$('[data-delay]').forEach(b => b.classList.toggle('on', +b.dataset.delay === S.delay));
+  const dt = fd(S.dur);
+  $('#dTime').textContent = dt;
+  $('#dDisp').classList.toggle('long', dt.length > 9);
+  const C = S.cycle;
+  $('#durChips').innerHTML = [20, C, 4 * C, 5 * C, 6 * C]
+    .map(v => `<button type="button" data-dur="${v}" class="${v === S.dur ? 'on' : ''}">${fd(v)}</button>`).join('');
+}
+
+function renderResult(r, o, now) {
+  const bed = r.kind === 'bed';
+  const eye = $('#hEye');
+  eye.textContent = bed ? T(o.past ? 'eyeBedPast' : 'eyeBed') : T('eyeWake');
+  eye.className = 'eyebrow' + (bed ? ' bed' : '');
+  const p = tp(bed ? o.lightsOut : o.wake), bigEl = $('#hBig');
+  if (lastBig && lastBig !== p.t) { bigEl.classList.remove('flip'); void bigEl.offsetWidth; bigEl.classList.add('flip'); }
+  lastBig = p.t;
+  $('#hTime').textContent = p.t; $('#hAp').textContent = p.ap;
+  const sep = T('sep');
+  $('#hSub').textContent = (bed
+    ? [T('cyc', o.n), T('asleep', fd(o.asleep)), o.past ? T('passedAgo', fd((now - o.lightsOut) / MIN)) : until(o.lightsOut, now)]
+    : o.nap ? [T('nap', fd(o.asleep)), until(o.wake, now)]
+    : (o.exact && !o.aligned) ? [T('asleep', fd(o.asleep)), T('cycF', T('dec', o.asleep / S.cycle)), until(o.wake, now)]
+    : [T('cyc', o.n), T('asleep', fd(o.asleep)), until(o.wake, now)]).join(sep);
+  const v = bed && o.past ? { cls: 'warn', text: T('vPast') } : o.verdict || null;
+  const ve = $('#hVerdict'); ve.hidden = !v;
+  if (v) { ve.className = 'verdict ' + v.cls; ve.textContent = v.text; }
+  renderStrip(o);
+  alarmAt = o.wake;
+  remList = [];
+  const target = bed ? o.lightsOut : o.wake;
+  for (let i = S.rem; i >= 1; i--) {
+    const at = addMin(target, -i * S.remEvery);
+    if (at > now) remList.push({ at, label: T(bed ? 'remLeftBed' : 'remLeftWake', fd(i * S.remEvery)) });
+  }
+  $('#alarmLbl').textContent = T('setAlarm', ft(alarmAt));
+  const as = $('#alarmSub'); as.hidden = !remList.length; as.textContent = remList.length ? T('plusRem', remList.length) : '';
+  $('#remCount').innerHTML = [0, 1, 2, 3, 4].map(n =>
+    `<button type="button" data-rem="${n}" aria-pressed="${n === S.rem}">${n ? n : T('off')}</button>`).join('');
+  $('#remEveryRow').hidden = !S.rem;
+  $('#remEvery').innerHTML = GAPS.map(g => `<button type="button" data-every="${g}" aria-pressed="${g === S.remEvery}">${fd(g)}</button>`).join('');
+  const rt = $('#remTimes'); rt.hidden = !S.rem;
+  rt.textContent = !remList.length ? T('remPast') : remList.map(x => ft(x.at)).join(T('listSep')) + sep + T(bed ? 'remBeforeBed' : 'remBeforeWake');
+}
+
+function renderOpts(r, o) {
+  $('#optsTitle').textContent = T(r.kind === 'bed' ? 'otherBed' : S.mode === 'now' ? 'otherWake' : 'otherFor');
+  const grid = $('#opts');
+  grid.className = 'grid' + (r.opts.length === 3 ? ' g3' : '');
+  grid.innerHTML = r.opts.map(x => {
+    const p = tp(r.kind === 'bed' ? x.lightsOut : x.wake);
+    const meta = x.nap ? T('nap', fd(x.asleep))
+      : (x.exact && !x.aligned) ? fd(x.asleep) + T('sep') + T('cycF', T('dec', x.asleep / S.cycle))
+      : T('cyc', x.n) + T('sep') + fd(x.asleep);
+    const on = x.key === o.key;
+    return `<button type="button" class="opt${on ? ' sel' : ''}${x.past ? ' past' : ''}" data-k="${x.key}" aria-pressed="${on}">` +
+      `<span class="opt-time">${p.t}${p.ap ? `<small>${p.ap}</small>` : ''}</span><span class="opt-meta">${meta}</span>` +
+      `<span class="tag ${TAGCLS[x.tag]}">${T('tg_' + x.tag)}</span></button>`;
+  }).join('');
+}
+
+function renderNote(r) {
+  const n = $('#note');
+  if (!r.note) { n.hidden = true; n.innerHTML = ''; return; }
+  n.hidden = false;
+  n.innerHTML = `<div>${r.note.html}</div>` + (r.note.alarm
+    ? `<button class="btn ghost small" type="button" data-alarm="${r.note.alarm.getTime()}">${T('setAlarm', ft(r.note.alarm))}</button>` : '');
+}
+
+function renderSheet() {
+  $('#latChips').innerHTML = LATS.map(v => `<button type="button" data-lat="${v}" aria-pressed="${v === S.base}">${v || T('none')}</button>`).join('');
+  $('#cycChips').innerHTML = CYCS.map(v => `<button type="button" data-cyc="${v}" aria-pressed="${v === S.cycle}">${v}</button>`).join('');
+  $('#scStatus').textContent = S.scReady ? T('scReady', S.scName) : T('scNotReady');
+  const sn = $('#scName'); if (document.activeElement !== sn) sn.value = S.scName;
+  if (PLATFORM === 'ios') $('#testAlarm').hidden = $('#testHint').hidden = !S.scReady;
+  if (PLATFORM === 'ios' || PLATFORM === 'other') $('#dupHint').hidden = !S.scReady;
+  if (NATIVE) { const st = nativeStatus(); $('#nativeBox').innerHTML = `<p class="p">${T('nativeReady')}</p><ul class="checks">${statusLis(st)}</ul>` + fixBtns(st, true); }
+  if (PWA || NATIVE) {
+    const standalone = navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+    $('#secInstall').hidden = false;
+    $('#installTxt').textContent = T(NATIVE ? 'installedNative' : standalone ? 'installed' : IS_ANDROID ? 'installAndroid' : 'installIos');
+  }
+  faDigits($('#sheet'));
+}
+
+/* ---------- sheets ---------- */
+function openSheet(d) { if (d.open) return; try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } }
+function closeSheet(d) { try { d.close(); } catch (e) { d.removeAttribute('open'); } }
+function renderAlarmSheet() {
+  const l = pending;
+  $('#alarmTitle').textContent = T(PLATFORM === 'android' ? 'androidTitle' : PLATFORM === 'native' ? 'noClockTitle' : 'alarmTitle');
+  $('#st5').innerHTML = T('st5', esc(S.scName));
+  $('#scDoneLbl').textContent = !l ? T('scDone') : l.length > 1 ? T('scDoneN', l.length) : T('scDoneFor', ft(l[0].at));
+  $('#copyTime').hidden = !l;
+  if (l) $('#copyLbl').textContent = T('copy', l.map(x => ft(x.at)).join(T('listSep')));
+  faDigits($('#alarmSheet'));
+}
+function openAlarmSheet(list) { pending = list && list.length ? list : null; renderAlarmSheet(); openSheet($('#alarmSheet')); }
+
+/* ---------- alarms: one tap sends each alarm exactly once ---------- */
+function runAlarms(list) {
+  if (!list || !list.length) return;
+  list = list.slice().sort((a, b) => a.at - b.at);
+  if (Date.now() - lastRun < 4000) return; // ignore a second tap while the first is still being handled
+  if (NATIVE) { lastRun = Date.now(); nativeAlarms(list); return; }
+  if (PLATFORM === 'android' || !S.scReady || (list.length > 1 && !S.scV2)) { openAlarmSheet(list); return; }
+  lastRun = Date.now();
+  const url = 'shortcuts://run-shortcut?name=' + encodeURIComponent(S.scName) +
+    '&input=text&text=' + encodeURIComponent(list.map(x => hhmm(x.at)).join(','));
+  toast(list.length > 1 ? T('toastAlarmN', list.length) : T('toastAlarm', ft(list[0].at)));
+  setTimeout(() => { try { (window.__ccOpen || (u => { window.location.href = u; }))(url); } catch (e) {} }, 60);
+}
+function nativeAlarms(list) {
+  let raised = false;
+  const st = nativeStatus();
+  if (st && volPct(st) < 40) { try { NATIVE.raiseAlarmVolume(0.7); raised = true; } catch (e) {} }
+  let res = 'error';
+  try {
+    res = list.length === 1
+      ? NATIVE.setAlarm(list[0].at.getHours(), list[0].at.getMinutes(), list[0].label)
+      : NATIVE.setAlarms(JSON.stringify(list.map(x => ({ h: x.at.getHours(), m: x.at.getMinutes(), label: x.label }))));
+  } catch (e) {}
+  if (res === 'noclock') { lastRun = 0; openAlarmSheet(list); return; }
+  if (res !== 'ok') { lastRun = 0; toast(T('alarmFailed')); return; }
+  toast((list.length > 1 ? T('alarmSetN', list.length) : T('alarmSet', ft(list[0].at))) + (raised ? ' ' + T('volUp') : ''));
+  ringInfo = { list: list.map(x => x.at), next: -1 };
+  setTimeout(verifyAlarm, 1500);
+}
+function verifyAlarm() {
+  if (!NATIVE || !ringInfo) return;
+  try { ringInfo.next = +NATIVE.nextAlarm(); } catch (e) { ringInfo.next = -1; }
+  renderRing();
+}
+function renderRing() {
+  const el = $('#ring'), r = ringInfo;
+  if (!NATIVE || !r || r.list[r.list.length - 1].getTime() < Date.now() - 60000) { el.hidden = true; return; }
+  const st = nativeStatus(), nd = r.next > 0 ? new Date(r.next) : null;
+  const match = nd && r.list.some(d => d.getHours() === nd.getHours() && d.getMinutes() === nd.getMinutes());
+  let li, clock = false;
+  if (match) li = `<li>${T('rcConfirmed', ft(nd))}</li>`;
+  else if (nd && nd < r.list[0]) { li = `<li class="ok">${T('rcEarlier', ft(nd))}</li>`; clock = true; }
+  else { li = `<li class="warn">${T('rcUnknown')}</li>`; clock = true; }
+  el.innerHTML = `<ul class="checks">${li}${statusLis(st)}</ul>` + fixBtns(st, clock);
+  el.hidden = false;
+  faDigits(el);
+}
+window.onNativeResume = () => { render(); if (ringInfo) verifyAlarm(); };
+window.onNativeBack = () => {
+  const open = $$('dialog').filter(x => x.open);
+  if (open.length) { closeSheet(open[open.length - 1]); return true; }
+  return false;
+};
+
+let toastT;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; faDigits(t); t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function copyText(txt) {
+  const ok = () => toast(T('copied', txt));
+  try { navigator.clipboard.writeText(txt).then(ok, () => fallbackCopy(txt, ok)); } catch (e) { fallbackCopy(txt, ok); }
+}
+function fallbackCopy(txt, ok) {
+  const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', '');
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); ok(); } catch (e) { toast(txt); }
+  ta.remove();
+}
+
+/* ---------- events ---------- */
+const commit = () => { save(); render(); };
+document.addEventListener('click', e => {
+  const t = e.target.closest('button, a');
+  if (!t) return;
+  const ds = t.dataset;
+  if (t.hasAttribute('data-close')) { closeSheet(t.closest('dialog')); return; }
+  if (ds.mode) { S.mode = ds.mode; commit(); return; }
+  if (ds.wstep) { S.wake = hmStr(hm(S.wake) + +ds.wstep); sel.wake = null; commit(); return; }
+  if (ds.delay !== undefined) { S.delay = +ds.delay; sel.now = null; commit(); return; }
+  if (ds.dstep) { S.dur = clamp(S.dur + +ds.dstep, 10, 720); sel.for = null; commit(); return; }
+  if (ds.dur) { S.dur = +ds.dur; sel.for = null; commit(); return; }
+  if (ds.k) { sel[S.mode] = ds.k; render(); return; }
+  if (ds.rem !== undefined) { S.rem = +ds.rem; commit(); return; }
+  if (ds.every) { S.remEvery = +ds.every; commit(); return; }
+  if (ds.lat !== undefined) { S.base = +ds.lat; commit(); return; }
+  if (ds.cyc) { S.cycle = +ds.cyc; sel.wake = sel.now = sel.for = null; commit(); return; }
+  if (ds.alarm) { runAlarms([{ at: new Date(+ds.alarm), label: T('alarmLabel') }]); return; }
+  if (ds.act && NATIVE) {
+    if (ds.act === 'raise') { try { NATIVE.raiseAlarmVolume(0.7); } catch (err) {} toast(T('volRaised')); }
+    if (ds.act === 'dnd') { try { NATIVE.openDnd(); } catch (err) {} }
+    if (ds.act === 'clock') { try { NATIVE.openClock(); } catch (err) {} }
+    renderRing(); if ($('#sheet').open) renderSheet();
+    return;
+  }
+  switch (t.id) {
+    case 'langBtn':
+      S.lang = S.lang === 'fa' ? 'en' : 'fa'; save(); applyLang(); render();
+      renderSheet(); renderAlarmSheet(); $('#toast').textContent = '';
+      break;
+    case 'openSettings': case 'assumeBtn': renderSheet(); openSheet($('#sheet')); break;
+    case 'alarmBtn': if (alarmAt) runAlarms([{ at: alarmAt, label: T('alarmLabel') }].concat(remList)); break;
+    case 'showSetup': case 'showAndroid': openAlarmSheet(null); break;
+    case 'testAlarm': closeSheet($('#sheet')); runAlarms([{ at: addMin(nowMin(), 2), label: T('testLabel') }]); break;
+    case 'scDone': {
+      S.scReady = true; S.scV2 = true; save(); closeSheet($('#alarmSheet'));
+      if ($('#sheet').open) renderSheet();
+      const l = pending; pending = null;
+      if (l) runAlarms(l); else toast(T('toastOn'));
+      break;
+    }
+    case 'copyTime': if (pending) copyText(faStr(pending.map(x => ft(x.at)).join(T('listSep')))); break;
+  }
+});
+$$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d) closeSheet(d); }));
+
+const wi = $('#wakeInput');
+const onWake = () => { if (wi.value && wi.value.slice(0, 5) !== S.wake) { S.wake = wi.value.slice(0, 5); sel.wake = null; commit(); } };
+wi.addEventListener('input', onWake); wi.addEventListener('change', onWake);
+wi.addEventListener('click', () => { try { if (wi.showPicker) wi.showPicker(); } catch (e) {} });
+$('#scName').addEventListener('input', e => { S.scName = e.target.value.trim() || 'Sleep Alarm'; save(); });
+
+setInterval(() => { if (Math.floor(Date.now() / MIN) !== lastMinute) render(); }, 5000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
+
+if (PWA && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController && !reloaded) { reloaded = true; location.reload(); }
+  });
+  window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
+}
+applyPlat();
+applyLang();
+render();
+})();
+</script>

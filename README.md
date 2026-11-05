@@ -1,17 +1,17 @@
 # Cycle Clock
 
-A small offline sleep-cycle calculator for iPhone and iPad.
+A light, offline sleep-cycle calculator for iPhone, iPad and Android, in English and فارسی.
 
 - **Wake up at**: bedtimes that end on a full sleep cycle
-- **Sleep now**: wake-up times if you go to bed now
+- **Sleep now**: wake-up times if you go to bed now (or in 10 to 30 minutes)
 - **Sleep for**: a wake-up time for any sleep length, with a warning if it lands mid-cycle
-- **Reminders**: pick how many and how far apart, each one says how much time is left
-- **English / فارسی**: one tap switches the whole app to Persian, right to left, with Persian digits
+- **One-tap alarms** with optional reminders (how many, how far apart), each saying how much time is left
+- Two simple settings: minutes to fall asleep (or none) and sleep cycle length
 
-Open https://naamimaalek.github.io/cycle-clock/ in Safari, then Share → Add to Home Screen. Open it once from the Home Screen while online and it works offline after that.
+**iPhone / iPad**: open https://naamimaalek.github.io/cycle-clock/ in Safari, then Share → Add to Home Screen. Open it once from the Home Screen while online and it works offline after that. Alarms use a small Shortcuts shortcut; the app shows the setup steps.
 
-## Android
+**Android**: install https://github.com/naamimaalek/cycle-clock/releases/latest/download/cycle-clock.apk. Alarms go straight into the phone's Clock app; the app confirms the next alarm, raises a too-low alarm volume and warns about Do Not Disturb on total silence.
 
-Download the Android app: https://github.com/naamimaalek/cycle-clock/releases/latest/download/cycle-clock.apk
+## Changing the app
 
-It puts alarms and reminders straight into your phone's Clock app, then checks the alarm is scheduled, the alarm volume isn't too low and Do Not Disturb isn't on total silence. GitHub builds it automatically on every change (see `.github/workflows/android.yml`).
+Edit `src/app.html`, then run `python3 build.py`. That rebuilds `index.html`, the offline files and the icons. Bump `VERSION` in `build.py` for every release so installed copies update. Pushing to `main` publishes the site and GitHub Actions rebuilds the Android app (`.github/workflows/android.yml`).
