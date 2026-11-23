@@ -10,7 +10,7 @@ import json, os, re, sys
 from PIL import Image, ImageDraw
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-VERSION = 'cycle-clock-v5'            # bump on every release so installed copies update
+VERSION = 'cycle-clock-v6'            # bump on every release so installed copies update
 BG = '#EEF1F8'
 src = open(os.path.join(ROOT, 'src', 'app.html'), encoding='utf-8').read()
 assert '/*PWA*/false' in src
@@ -18,6 +18,16 @@ assert '/*PWA*/false' in src
 if len(sys.argv) > 1:                 # preview page: the host adds the document skeleton
     open(sys.argv[1], 'w', encoding='utf-8').write(src)
 
+def compact(html):
+    """Safe size trim: drop CSS comments and spacing around CSS punctuation, and leading indentation."""
+    def css(m):
+        c = re.sub(r'/\*.*?\*/', '', m.group(1), flags=re.S)
+        c = re.sub(r'\s*([{};,])\s*', r'\1', c)
+        return '<style>' + re.sub(r'\s+', ' ', c).strip() + '</style>'
+    html = re.sub(r'<style>(.*?)</style>', css, html, flags=re.S)
+    return re.sub(r'\n[ \t]+', '\n', html)
+
+src = compact(src)
 title = re.search(r'<title>.*?</title>', src).group(0)
 body = src.replace(title, '', 1).replace('/*PWA*/false', 'true')
 head = f"""<!doctype html>
@@ -27,6 +37,7 @@ head = f"""<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 {title}
 <meta name="cc-version" content="{VERSION}">
+<meta name="description" content="Find the best time to go to bed or wake up, in full sleep cycles. Works offline, in English and Persian.">
 <meta name="theme-color" content="{BG}">
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">

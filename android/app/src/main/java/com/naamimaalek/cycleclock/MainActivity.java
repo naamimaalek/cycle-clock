@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.AlarmClock;
 import android.provider.Settings;
+import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -257,6 +258,23 @@ public class MainActivity extends Activity {
         try { startActivity(new Intent(Settings.ACTION_SOUND_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); }
         catch (Exception ignored) { }
       }
+    }
+
+    /** Match the status and navigation bars to the page's light or dark look. */
+    @JavascriptInterface
+    public void setBars(String color, boolean dark) {
+      runOnUiThread(() -> {
+        try {
+          int c = Color.parseColor(color);
+          getWindow().setStatusBarColor(c);
+          getWindow().setNavigationBarColor(c);
+          web.setBackgroundColor(c);
+          View d = getWindow().getDecorView();
+          int light = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | (Build.VERSION.SDK_INT >= 26 ? View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR : 0);
+          int f = d.getSystemUiVisibility();
+          d.setSystemUiVisibility(dark ? (f & ~light) : (f | light));
+        } catch (Exception ignored) { }
+      });
     }
 
     // ---------- updates ----------

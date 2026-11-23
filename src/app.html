@@ -10,8 +10,21 @@
   --good:#12855A; --good-soft:#E1F4EB; --warn:#D23A40; --warn-soft:#FDEBEC; --ok:#A6600B; --ok-soft:#FCF0DE;
   --shadow:0 1px 2px rgba(20,26,49,.05), 0 12px 32px -10px rgba(20,26,49,.16);
   --shadow-s:0 1px 2px rgba(20,26,49,.06);
+  --glow1:#DCE5FF; --glow2:#FFE6DA; --tip-ink:#5E4310; --solid:#141A31;
   --f-display: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, sans-serif;
   --f-text: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+html[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0E1324;
+  --card:#171E36; --soft:#1C2440; --soft-2:#222B4A; --line:#29324F; --line-2:#36405F;
+  --ink:#EDF0FA; --ink-2:#C2C9DF; --muted:#8F98B6;
+  --night:#93A2FF; --sky:#7A9BFF; --sky-soft:#1F2950;
+  --sun:#E8562F; --sun-soft:#3A2119; --sun-ink:#FFB49A;
+  --good:#45CF95; --good-soft:#12352A; --warn:#FF7B80; --warn-soft:#3B1A20; --ok:#F2B35A; --ok-soft:#382A15;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 32px -10px rgba(0,0,0,.55);
+  --shadow-s:0 1px 2px rgba(0,0,0,.25);
+  --glow1:#1A2550; --glow2:#2B1D2C; --tip-ink:#F5D9A8; --solid:#2C3760;
 }
 html[lang="fa"]{
   --f-display: -apple-system, BlinkMacSystemFont, system-ui, "Vazirmatn", "Noto Sans Arabic", Tahoma, sans-serif;
@@ -21,7 +34,7 @@ html[lang="fa"]{
 [hidden]{display:none!important}
 html{background:var(--bg)}
 body{margin:0;min-height:100vh;color:var(--ink);font:16px/1.45 var(--f-text);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;
-  background:radial-gradient(90% 50% at 0% 0%, #DCE5FF 0%, rgba(220,229,255,0) 70%), radial-gradient(80% 45% at 100% 0%, #FFE6DA 0%, rgba(255,230,218,0) 70%), var(--bg)}
+  background:radial-gradient(90% 50% at 0% 0%, var(--glow1) 0%, transparent 70%), radial-gradient(80% 45% at 100% 0%, var(--glow2) 0%, transparent 70%), var(--bg)}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
 :focus-visible{outline:2px solid var(--night);outline-offset:2px}
@@ -94,8 +107,8 @@ html[lang="fa"] .iconbtn.lang{font-size:14px}
 .btn.tiny{min-height:38px;padding:0 12px;font-size:14px;border-radius:12px}
 .btxt{display:grid;justify-items:center;line-height:1.2}
 .btxt small{font-size:12.5px;font-weight:550;opacity:.92}
-#alarmBtn{width:100%;margin-top:18px}
-.rem{display:grid;gap:10px;margin-top:16px}
+#alarmBtn{width:100%;margin-top:14px}
+.rem{display:grid;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
 .remrow{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
 .remlbl{font-size:14.5px;font-weight:550;color:var(--ink-2)}
 .pills{display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;border-radius:12px;background:var(--soft-2)}
@@ -161,13 +174,13 @@ dialog[open]{animation:rise .22s ease-out}
 .steps li::before{content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--sun-soft);color:var(--sun-ink);font:700 13px var(--f-text)}
 html[lang="fa"] .steps li::before{content:counter(s, persian);font-size:14px}
 .steps b,.tip b{color:var(--ink);font-weight:650}
-.tip{margin:0;padding:12px 14px;border-radius:14px;background:var(--ok-soft);color:#5E4310;font-size:14px;line-height:1.5}
+.tip{margin:0;padding:12px 14px;border-radius:14px;background:var(--ok-soft);color:var(--tip-ink);font-size:14px;line-height:1.5}
 .actions{display:grid;gap:10px}
 
-.banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 6px;padding:10px 10px 10px 16px;border-radius:16px;background:var(--ink);color:#fff;font-size:14px;font-weight:550;line-height:1.4}
-.banner button{flex:none;min-height:36px;padding:0 14px;border:0;border-radius:11px;background:#fff;color:var(--ink);font-size:14px;font-weight:650}
+.banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 6px;padding:10px 10px 10px 16px;border-radius:16px;background:var(--solid);color:#fff;font-size:14px;font-weight:550;line-height:1.4}
+.banner button{flex:none;min-height:36px;padding:0 14px;border:0;border-radius:11px;background:#fff;color:#141A31;font-size:14px;font-weight:650}
 .btn[disabled]{opacity:.55;cursor:default}
-.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom, 0px));z-index:10;max-width:calc(100% - 32px);padding:11px 16px;border-radius:14px;background:var(--ink);color:#fff;font-size:14px;font-weight:600;text-align:center;opacity:0;pointer-events:none;transform:translate(-50%, 16px);transition:opacity .2s,transform .2s}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom, 0px));z-index:10;max-width:calc(100% - 32px);padding:11px 16px;border-radius:14px;background:var(--solid);color:#fff;font-size:14px;font-weight:600;text-align:center;opacity:0;pointer-events:none;transform:translate(-50%, 16px);transition:opacity .2s,transform .2s}
 .toast.show{opacity:1;transform:translate(-50%, 0)}
 
 /* Persian: Arabic script is never letter-spaced; a touch more leading reads better */
@@ -183,7 +196,7 @@ html[lang="fa"] .big .ap{font-size:.26em}
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="19.5" cy="7" r="3" fill="#E04E2A"/><path d="M20.4 15.6A8.4 8.4 0 0 1 10.4 5.6a8.4 8.4 0 1 0 10 10z" fill="#3D4FD8"/></svg>
+      <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="19.5" cy="7" r="3" fill="#E04E2A"/><path d="M20.4 15.6A8.4 8.4 0 0 1 10.4 5.6a8.4 8.4 0 1 0 10 10z" style="fill:var(--night)"/></svg>
       <span data-t="brand">Cycle Clock</span>
     </div>
     <div class="top-actions">
@@ -206,11 +219,11 @@ html[lang="fa"] .big .ap{font-size:.26em}
       <div class="in" data-mode="wake">
         <div class="lbl" data-t="lblWake">I want to wake up at</div>
         <div class="picker">
-          <button class="step" type="button" data-wstep="-15" data-ta="earlier">−15</button>
+          <button class="step" type="button" data-wstep="-15" data-ta="earlier" data-t="m15">−15</button>
           <label class="disp" for="wakeInput"><span id="wTime">6:30</span><small id="wAp">AM</small>
             <input type="time" id="wakeInput" value="06:30" data-ta="wakeAria">
           </label>
-          <button class="step" type="button" data-wstep="15" data-ta="later">+15</button>
+          <button class="step" type="button" data-wstep="15" data-ta="later" data-t="p15">+15</button>
         </div>
       </div>
 
@@ -227,9 +240,9 @@ html[lang="fa"] .big .ap{font-size:.26em}
       <div class="in" data-mode="for" hidden>
         <div class="lbl" data-t="lblFor">I want to sleep for</div>
         <div class="picker">
-          <button class="step" type="button" data-dstep="-15" data-ta="less">−15</button>
+          <button class="step" type="button" data-dstep="-15" data-ta="less" data-t="m15">−15</button>
           <div class="disp" id="dDisp"><span id="dTime">7h 30m</span></div>
-          <button class="step" type="button" data-dstep="15" data-ta="more">+15</button>
+          <button class="step" type="button" data-dstep="15" data-ta="more" data-t="p15">+15</button>
         </div>
         <div class="chips fit" id="durChips"></div>
       </div>
@@ -237,7 +250,7 @@ html[lang="fa"] .big .ap{font-size:.26em}
       <button class="assume" type="button" id="assumeBtn"><span id="assumeTxt"></span><span class="link" data-t="change">Change</span></button>
     </section>
 
-    <section class="result" aria-live="polite">
+    <section class="result">
       <div class="eyebrow" id="hEye"></div>
       <div class="big" id="hBig"><span id="hTime">--:--</span><span class="ap" id="hAp"></span></div>
       <div class="hsub" id="hSub"></div>
@@ -245,15 +258,15 @@ html[lang="fa"] .big .ap{font-size:.26em}
       <div class="axis"><span id="axStart"></span><span id="axEnd"></span></div>
       <p class="verdict" id="hVerdict" hidden></p>
       <div class="note" id="note" hidden></div>
-      <button class="btn primary" type="button" id="alarmBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.6 1.8H4.4z"/><path d="M10 21a2.2 2.2 0 0 0 4 0"/></svg>
-        <span class="btxt"><span id="alarmLbl"></span><small id="alarmSub" hidden></small></span>
-      </button>
       <div class="rem">
         <div class="remrow"><span class="remlbl" data-t="remTitle">Reminders</span><div class="pills" id="remCount"></div></div>
         <div class="remrow" id="remEveryRow" hidden><span class="remlbl" data-t="every">Every</span><div class="pills" id="remEvery"></div></div>
         <p class="remtimes" id="remTimes" hidden></p>
       </div>
+      <button class="btn primary" type="button" id="alarmBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.6 1.8H4.4z"/><path d="M10 21a2.2 2.2 0 0 0 4 0"/></svg>
+        <span class="btxt"><span id="alarmLbl"></span><small id="alarmSub" hidden></small></span>
+      </button>
       <div class="ring" id="ring" hidden></div>
     </section>
 
@@ -279,6 +292,11 @@ html[lang="fa"] .big .ap{font-size:.26em}
       <h3 data-t="secCycle">Sleep cycle length</h3>
       <div class="pills full" id="cycChips" style="--n:5"></div>
       <p class="hint" data-t="hintCycle"></p>
+    </section>
+    <section class="sec">
+      <h3 data-t="secLook">Appearance</h3>
+      <div class="pills full" id="themeChips" style="--n:3"></div>
+      <p class="hint" data-t="hintLook"></p>
     </section>
     <section class="sec">
       <h3 data-t="secAlarm">Alarms</h3>
@@ -366,7 +384,7 @@ const I18N = {
     earlier: '15 minutes earlier', later: '15 minutes later', less: '15 minutes less', more: '15 minutes more',
     wakeAria: 'Wake-up time', stripAria: 'Sleep cycles from bedtime to wake-up',
     assume: (lat, c) => (lat ? `Includes ${lat} min to fall asleep · ${c}-min cycles` : `No time added to fall asleep · ${c}-min cycles`),
-    change: 'Change',
+    change: 'Change', m15: '−15', p15: '+15',
     eyeBed: 'Go to bed at', eyeBedPast: 'This bedtime has passed', eyeWake: 'Wake up at',
     period: h => (h < 12 ? 'AM' : 'PM'),
     fd: (h, m) => (!h ? m + ' min' : !m ? h + 'h' : h + 'h ' + m + 'm'),
@@ -397,6 +415,9 @@ const I18N = {
     hintFall: 'Most people take 10 to 20 minutes. Choose None to plan with sleep cycles only.',
     secCycle: 'Sleep cycle length in minutes',
     hintCycle: 'Most cycles last about 90 minutes. Only change this if suggested times leave you groggy.',
+    secLook: 'Appearance', th_light: 'Light', th_auto: 'Auto', th_dark: 'Dark',
+    hintLook: "Auto follows your phone's light or dark setting. Dark is easier on the eyes at bedtime.",
+    stripLbl: (n, a, b) => `${n}, ${a} to ${b}`,
     secAlarm: 'Alarms', minutes: n => `${n} min`, scNameLbl: 'Shortcut name', showSetup: 'Setup steps',
     scReady: n => `Ready. Alarm buttons run your “${n}” shortcut.`,
     scNotReady: 'Not set up yet. It takes a minute, once.',
@@ -497,6 +518,9 @@ const I18N = {
     hintFall: `بیشتر آدم${Z}ها ۱۰ تا ۲۰ دقیقه طول می${Z}کشد تا خوابشان ببرد. «هیچ» یعنی فقط بر پایه${EZ} چرخه${Z}ها حساب شود.`,
     secCycle: `طول چرخه${EZ} خواب به دقیقه`,
     hintCycle: `بیشتر چرخه${Z}ها حدود ۹۰ دقیقه${Z}اند. فقط اگر در زمان${Z}های پیشنهادی گیج بیدار می${Z}شوی تغییرش بده.`,
+    secLook: 'ظاهر', th_light: 'روشن', th_auto: 'خودکار', th_dark: 'تیره',
+    hintLook: `«خودکار» از تنظیم روشن یا تیره${Z}ی گوشی پیروی می${Z}کند. حالت تیره موقع خواب برای چشم راحت${Z}تر است.`,
+    stripLbl: (n, a, b) => `${n}، از ${a} تا ${b}`,
     secAlarm: `زنگ${Z}ها`, minutes: n => `${n} دقیقه`, scNameLbl: `نام میان${Z}بر`, showSetup: `مراحل راه${Z}اندازی`,
     scReady: n => `آماده است. دکمه${Z}های زنگ میان${Z}بر «${n}» را اجرا می${Z}کنند.`,
     scNotReady: `هنوز راه${Z}اندازی نشده. فقط یک بار و حدود یک دقیقه وقت می${Z}گیرد.`,
@@ -610,7 +634,7 @@ function fixBtns(st, withClock) {
 const LATS = [0, 5, 10, 15, 20, 30], CYCS = [80, 85, 90, 95, 100], GAPS = [10, 15, 30, 60];
 const sysLang = () => (/^fa\b/i.test(navigator.language || '') ? 'fa' : 'en');
 const DEF = { mode: 'wake', wake: '06:30', delay: 0, dur: 450, base: 15, cycle: 90,
-  scName: 'Sleep Alarm', scReady: false, scV2: false, lang: '', rem: 0, remEvery: 15 };
+  scName: 'Sleep Alarm', scReady: false, scV2: false, lang: '', rem: 0, remEvery: 15, theme: 'light' };
 function load() {
   let s = {};
   try { s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { s = {}; }
@@ -624,6 +648,7 @@ function load() {
   o.rem = clamp(+o.rem || 0, 0, 4);
   o.remEvery = GAPS.includes(+o.remEvery) ? +o.remEvery : 15;
   if (!['en', 'fa'].includes(o.lang)) o.lang = sysLang();
+  if (!['light', 'auto', 'dark'].includes(o.theme)) o.theme = 'light';
   return o;
 }
 let S = load();
@@ -675,7 +700,8 @@ function calcWake(now) {
     all.push({ key: 'w' + n, n, asleep: n * C, lightsOut, sleepStart, wake, past: lightsOut < now, show: n >= 3 });
   }
   if (!all.some(o => o.show && !o.past)) all.forEach(o => { if (o.n < 3) o.show = true; });
-  const opts = all.filter(o => o.show);
+  const shown = all.filter(o => o.show);
+  const opts = shown.some(o => !o.past) ? shown.filter(o => !o.past) : shown;
   const best = [5, 6, 4, 3, 2, 1].map(n => opts.find(o => o.n === n && !o.past)).find(Boolean) || null;
   opts.forEach(o => { o.tag = o.past ? 'passed' : tagFor(o.n, o === best); });
   let note = null;
@@ -741,10 +767,22 @@ function renderStrip(o) {
     h += `<i class="blk" style="flex-grow:${grow};background:${stripColor(t)};color:${t > .85 ? '#5B2A18' : '#fff'}">${count <= 8 ? i + 1 : ''}</i>`;
   }
   if (extra === 'nap' || extra === 'part') h += `<i class="blk ${extra}" style="flex-grow:${rest}"></i>`;
-  $('#strip').innerHTML = h;
+  setHTML($('#strip'), h);
+  $('#strip').setAttribute('aria-label', T('stripLbl', T('cyc', count), ft(o.lightsOut), ft(o.wake)));
   $('#axStart').textContent = T('stripBed', ft(o.lightsOut));
   $('#axEnd').textContent = T('stripWake', ft(o.wake));
 }
+
+/* ---------- appearance ---------- */
+const darkMq = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+function applyTheme() {
+  const dark = S.theme === 'dark' || (S.theme === 'auto' && darkMq && darkMq.matches);
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  const bg = dark ? '#0E1324' : '#EEF1F8';
+  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = bg;
+  if (NATIVE && typeof NATIVE.setBars === 'function') { try { NATIVE.setBars(bg, dark); } catch (e) {} }
+}
+if (darkMq) { const f = () => { if (S.theme === 'auto') applyTheme(); }; darkMq.addEventListener ? darkMq.addEventListener('change', f) : darkMq.addListener(f); }
 
 /* ---------- language ---------- */
 function applyLang() {
@@ -756,6 +794,11 @@ function applyLang() {
 }
 
 /* ---------- render ---------- */
+function setHTML(el, html) {
+  const key = S.lang + '|' + html;
+  if (el._h !== key) { el._h = key; el.innerHTML = html; }
+}
+let animate = false;
 function render() {
   lastMinute = Math.floor(Date.now() / MIN);
   const now = nowMin();
@@ -782,8 +825,8 @@ function renderInputs() {
   $('#dTime').textContent = dt;
   $('#dDisp').classList.toggle('long', dt.length > 9);
   const C = S.cycle;
-  $('#durChips').innerHTML = [20, C, 4 * C, 5 * C, 6 * C]
-    .map(v => `<button type="button" data-dur="${v}" class="${v === S.dur ? 'on' : ''}">${fd(v)}</button>`).join('');
+  setHTML($('#durChips'), [20, C, 4 * C, 5 * C, 6 * C]
+    .map(v => `<button type="button" data-dur="${v}" class="${v === S.dur ? 'on' : ''}">${fd(v)}</button>`).join(''));
 }
 
 function renderResult(r, o, now) {
@@ -792,7 +835,7 @@ function renderResult(r, o, now) {
   eye.textContent = bed ? T(o.past ? 'eyeBedPast' : 'eyeBed') : T('eyeWake');
   eye.className = 'eyebrow' + (bed ? ' bed' : '');
   const p = tp(bed ? o.lightsOut : o.wake), bigEl = $('#hBig');
-  if (lastBig && lastBig !== p.t) { bigEl.classList.remove('flip'); void bigEl.offsetWidth; bigEl.classList.add('flip'); }
+  if (animate && lastBig && lastBig !== p.t) { bigEl.classList.remove('flip'); void bigEl.offsetWidth; bigEl.classList.add('flip'); }
   lastBig = p.t;
   $('#hTime').textContent = p.t; $('#hAp').textContent = p.ap;
   const sep = T('sep');
@@ -814,19 +857,20 @@ function renderResult(r, o, now) {
   }
   $('#alarmLbl').textContent = T('setAlarm', ft(alarmAt));
   const as = $('#alarmSub'); as.hidden = !remList.length; as.textContent = remList.length ? T('plusRem', remList.length) : '';
-  $('#remCount').innerHTML = [0, 1, 2, 3, 4].map(n =>
-    `<button type="button" data-rem="${n}" aria-pressed="${n === S.rem}">${n ? n : T('off')}</button>`).join('');
+  setHTML($('#remCount'), [0, 1, 2, 3, 4].map(n =>
+    `<button type="button" data-rem="${n}" aria-pressed="${n === S.rem}">${n ? n : T('off')}</button>`).join(''));
   $('#remEveryRow').hidden = !S.rem;
-  $('#remEvery').innerHTML = GAPS.map(g => `<button type="button" data-every="${g}" aria-pressed="${g === S.remEvery}">${fd(g)}</button>`).join('');
+  setHTML($('#remEvery'), GAPS.map(g => `<button type="button" data-every="${g}" aria-pressed="${g === S.remEvery}">${fd(g)}</button>`).join(''));
   const rt = $('#remTimes'); rt.hidden = !S.rem;
   rt.textContent = !remList.length ? T('remPast') : remList.map(x => ft(x.at)).join(T('listSep')) + sep + T(bed ? 'remBeforeBed' : 'remBeforeWake');
 }
 
 function renderOpts(r, o) {
   $('#optsTitle').textContent = T(r.kind === 'bed' ? 'otherBed' : S.mode === 'now' ? 'otherWake' : 'otherFor');
-  const grid = $('#opts');
+  const grid = $('#opts'), lone = r.opts.length < 2;
+  grid.hidden = $('#optsTitle').hidden = lone;
   grid.className = 'grid' + (r.opts.length === 3 ? ' g3' : '');
-  grid.innerHTML = r.opts.map(x => {
+  setHTML(grid, lone ? '' : r.opts.map(x => {
     const p = tp(r.kind === 'bed' ? x.lightsOut : x.wake);
     const meta = x.nap ? T('nap', fd(x.asleep))
       : (x.exact && !x.aligned) ? fd(x.asleep) + T('sep') + T('cycF', T('dec', x.asleep / S.cycle))
@@ -835,19 +879,20 @@ function renderOpts(r, o) {
     return `<button type="button" class="opt${on ? ' sel' : ''}${x.past ? ' past' : ''}" data-k="${x.key}" aria-pressed="${on}">` +
       `<span class="opt-time">${p.t}${p.ap ? `<small>${p.ap}</small>` : ''}</span><span class="opt-meta">${meta}</span>` +
       `<span class="tag ${TAGCLS[x.tag]}">${T('tg_' + x.tag)}</span></button>`;
-  }).join('');
+  }).join(''));
 }
 
 function renderNote(r) {
   const n = $('#note');
-  if (!r.note) { n.hidden = true; n.innerHTML = ''; return; }
+  if (!r.note) { n.hidden = true; setHTML(n, ''); return; }
   n.hidden = false;
-  n.innerHTML = `<div>${r.note.html}</div>` + (r.note.alarm
-    ? `<button class="btn ghost small" type="button" data-alarm="${r.note.alarm.getTime()}">${T('setAlarm', ft(r.note.alarm))}</button>` : '');
+  setHTML(n, `<div>${r.note.html}</div>` + (r.note.alarm
+    ? `<button class="btn ghost small" type="button" data-alarm="${r.note.alarm.getTime()}">${T('setAlarm', ft(r.note.alarm))}</button>` : ''));
 }
 
 function renderSheet() {
   $('#latChips').innerHTML = LATS.map(v => `<button type="button" data-lat="${v}" aria-pressed="${v === S.base}">${v || T('none')}</button>`).join('');
+  $('#themeChips').innerHTML = ['light', 'auto', 'dark'].map(v => `<button type="button" data-theme="${v}" aria-pressed="${v === S.theme}">${T('th_' + v)}</button>`).join('');
   $('#cycChips').innerHTML = CYCS.map(v => `<button type="button" data-cyc="${v}" aria-pressed="${v === S.cycle}">${v}</button>`).join('');
   $('#scStatus').textContent = S.scReady ? T('scReady', S.scName) : T('scNotReady');
   const sn = $('#scName'); if (document.activeElement !== sn) sn.value = S.scName;
@@ -998,7 +1043,7 @@ function fallbackCopy(txt, ok) {
 }
 
 /* ---------- events ---------- */
-const commit = () => { save(); render(); };
+const commit = () => { save(); animate = true; render(); animate = false; };
 document.addEventListener('click', e => {
   const t = e.target.closest('button, a');
   if (!t) return;
@@ -1009,10 +1054,11 @@ document.addEventListener('click', e => {
   if (ds.delay !== undefined) { S.delay = +ds.delay; sel.now = null; commit(); return; }
   if (ds.dstep) { S.dur = clamp(S.dur + +ds.dstep, 10, 720); sel.for = null; commit(); return; }
   if (ds.dur) { S.dur = +ds.dur; sel.for = null; commit(); return; }
-  if (ds.k) { sel[S.mode] = ds.k; render(); return; }
+  if (ds.k) { sel[S.mode] = ds.k; animate = true; render(); animate = false; return; }
   if (ds.rem !== undefined) { S.rem = +ds.rem; commit(); return; }
   if (ds.every) { S.remEvery = +ds.every; commit(); return; }
   if (ds.lat !== undefined) { S.base = +ds.lat; commit(); return; }
+  if (ds.theme) { S.theme = ds.theme; save(); applyTheme(); renderSheet(); return; }
   if (ds.cyc) { S.cycle = +ds.cyc; sel.wake = sel.now = sel.for = null; commit(); return; }
   if (ds.alarm) { runAlarms([{ at: new Date(+ds.alarm), label: T('alarmLabel') }]); return; }
   if (ds.act && NATIVE) {
@@ -1047,6 +1093,12 @@ document.addEventListener('click', e => {
   }
 });
 $$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d) closeSheet(d); }));
+$('.seg').addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  const modes = ['wake', 'now', 'for'], fwd = (e.key === 'ArrowRight') !== (S.lang === 'fa');
+  S.mode = modes[mod(modes.indexOf(S.mode) + (fwd ? 1 : -1), 3)]; commit();
+  $(`.seg [data-mode="${S.mode}"]`).focus(); e.preventDefault();
+});
 
 const wi = $('#wakeInput');
 const onWake = () => { if (wi.value && wi.value.slice(0, 5) !== S.wake) { S.wake = wi.value.slice(0, 5); sel.wake = null; commit(); } };
@@ -1066,6 +1118,7 @@ if (PWA && !NATIVE && 'serviceWorker' in navigator && (location.protocol === 'ht
   window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
 }
 applyPlat();
+applyTheme();
 applyLang();
 render();
 autoCheck();
